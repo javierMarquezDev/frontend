@@ -3,10 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import Button from '@mui/material/Button';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App>
+      <Button> Hello World</Button>
+    </App>
   </React.StrictMode>,
   document.getElementById('root')
 );
