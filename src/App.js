@@ -146,40 +146,6 @@ class TaskSet extends React.Component{
 
 function App() {
 
-  localStorage.setItem("token",null);
-  localStorage.setItem("usuario",null);
-
-  return(
-  <Router>
-     <div>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/login">Login</Link>
-          </li>
-          <li>
-            <Link to="/login" onClick={LogoutHandler}>Logout</Link>
-          </li>          
-        </ul>
-
-        <Routes>
-          <Route path="/login" element={<LoginForm />}/>
-          <Route path="/" element={<Main />}/>      
-        </Routes>
-      </div>
-    </Router>
-  );
-
-}
-
-
-
-
-
-function Main() {
-    //Fetch posts from group
   if(localStorage.getItem("token")!="null"){
     fetch("http://localhost:8080/api/noticias/79934734B/1",{mode:'cors',
     headers:{
@@ -219,6 +185,76 @@ function Main() {
       container.replaceChild(temp.querySelector("#profile"), document.getElementById("profile"));
     });
   }
+
+  return(
+     <div>
+        <ul>
+          <li>
+            <Link to="/login" onClick={LogoutHandler}>Logout</Link>
+          </li>          
+        </ul>
+
+        <Routes>
+          <Route path="/login" element={<LoginForm />}/>
+          <Route path="/" element={<Main />}/>      
+        </Routes>
+
+        <div className="App">
+          <Grid container spacing={2} sx={{ml:0.1}}>
+
+            <Grid item xs={12}>
+
+              <Box sx={{ flexGrow: 1 }}>
+                <AppBar position="fixed">
+                  <Toolbar variant="dense" id="toolbar" >
+                    
+                    
+                      <Typography display={{xs:'flex'}} sx={{mr:2,mt:0.5}} variant="h6" color="inherit" component="div">
+                        <Link to="/" style={{textDecoration:"none", color:"white"}}>
+                          Pyramid @ 
+                        </Link>
+                      </Typography>
+                    
+                  
+                    <Box sx={{ flexGrow: 1 }} />  
+
+                    <Box sx={{p:"0",m:"0"}} id="profile">
+                      <Typography spacing={0.2} alignItems="flex-end" sx={{fontSize:12}}>
+                        <Link to="/login">
+                          Login
+                        </Link>
+                      </Typography>
+                    </Box>
+                    
+                      
+                  </Toolbar>
+                </AppBar>
+              </Box>
+
+            </Grid>
+
+            <Grid item xs={8} id="posts" sx={{mt:"50px"}}>
+          
+            </Grid>
+  
+            <Grid item xs={4} id="taskContainer">
+            
+            </Grid>
+
+          </Grid>
+        </div>
+      </div>
+  );
+
+}
+
+
+
+
+
+function Main() {
+    //Fetch posts from group
+  
 
   return (
     <div className="App">
