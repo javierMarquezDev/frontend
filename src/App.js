@@ -23,6 +23,7 @@ import {
   useRouteMatch,
   useParams
 } from "react-router-dom";
+import { Logout } from '@mui/icons-material';
 
 class NoticiaSet extends React.Component{
   render(){
@@ -146,6 +147,7 @@ class TaskSet extends React.Component{
 function App() {
 
   localStorage.setItem("token",null);
+  localStorage.setItem("usuario",null);
 
   return(
   <Router>
@@ -157,48 +159,66 @@ function App() {
           <li>
             <Link to="/login">Login</Link>
           </li>
+          <li>
+            <Link to="/login" onClick={LogoutHandler}>Logout</Link>
+          </li>          
         </ul>
 
         <Routes>
           <Route path="/login" element={<LoginForm />}/>
-          <Route path="/" element={<Main />}/>
+          <Route path="/" element={<Main />}/>      
         </Routes>
       </div>
     </Router>
   );
 
-
-
-  
 }
+
+
+
+
 
 function Main() {
     //Fetch posts from group
-    fetch("http://localhost:8080/api/noticias/79934734B/1",{mode:'cors'})
-  .then((response) => response.json())
-  .then((data) => {
-    console.log(data);
-    {ReactDOM.render(<NoticiaSet list={data}/>, document.getElementById("posts"))}
-  });
+  if(localStorage.getItem("token")!="null"){
+    fetch("http://localhost:8080/api/noticias/79934734B/1",{mode:'cors',
+    headers:{
+      "access-token":localStorage.getItem("token")
+    }})
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      {ReactDOM.render(<NoticiaSet list={data}/>, document.getElementById("posts"))}
+    });
+
+    //Fetch tasks from user
+    fetch("http://localhost:8080/api/tareas/marquez@appogeodigital.com/1",{mode:'cors',
+    headers:{
+      "access-token":localStorage.getItem("token")
+    }})
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      {ReactDOM.render(<TaskSet list={data}/>, document.getElementById("taskContainer"))}
+    });
+  }
 
   //Fetch user info
-  fetch("http://localhost:8080/api/usuarios/marquez@appogeodigital.com",{mode:'cors'})
-  .then((response) => response.json())
-  .then((data) => {
-    console.log(data);
-    var temp = document.createElement("div");
-    ReactDOM.render(<ProfileInfo user={data}/>, temp);
-    var container = document.getElementById("toolbar");
-    container.replaceChild(temp.querySelector("#profile"), document.getElementById("profile"));
-  });
 
-  //Fetch tasks from user
-  fetch("http://localhost:8080/api/tareas/marquez@appogeodigital.com/1",{mode:'cors'})
-  .then((response) => response.json())
-  .then((data) => {
-    console.log(data);
-    {ReactDOM.render(<TaskSet list={data}/>, document.getElementById("taskContainer"))}
-  });
+  if(localStorage.getItem("usuario")!="null"){
+    fetch("http://localhost:8080/api/usuarios/"+localStorage.getItem("usuario"),{mode:'cors',
+    headers:{
+      "access-token":localStorage.getItem("token")
+    }})
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      var temp = document.createElement("div");
+      ReactDOM.render(<ProfileInfo user={data}/>, temp);
+      var container = document.getElementById("toolbar");
+      container.replaceChild(temp.querySelector("#profile"), document.getElementById("profile"));
+    });
+  }
 
   return (
     <div className="App">
@@ -238,6 +258,23 @@ function Main() {
 
 }
 
+function LogoutHandler(){
+  fetch("http://localhost:8080/logout",{
+    method:'POST',
+    //mode:'cors',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }}
+  ).then((response)=>{
+
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("token");
+    return {message:response.message,status:response.status};
+
+  });
+}
+
 class LoginForm extends React.Component{
   constructor(props) {
     super(props);
@@ -263,10 +300,12 @@ class LoginForm extends React.Component{
 
       const responseObject = await response.json();
       const status = response.status;
+      const message = responseObject.message;
 
 
       console.log(responseObject.token);
       console.log(responseObject.usuario)
+      console.log(message)
       console.log(status)
 
       localStorage.setItem("token",responseObject.token);
