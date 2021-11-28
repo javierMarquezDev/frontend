@@ -15,6 +15,7 @@ import { Component } from 'react';
 import { render } from 'react-dom';
 import ReactDOM from 'react-dom';
 import React from 'react';
+import {useNavigate} from 'react-router-dom';
 import {
   BrowserRouter as Router,
   Routes,
@@ -23,7 +24,6 @@ import {
   useRouteMatch,
   useParams
 } from "react-router-dom";
-import { Logout } from '@mui/icons-material';
 
 class NoticiaSet extends React.Component{
   render(){
@@ -146,7 +146,8 @@ class TaskSet extends React.Component{
 
 function App() {
 
-  if(localStorage.getItem("token")!="null"){
+  setInterval(()=>{
+    if(localStorage.getItem("token")!="null"){
     fetch("http://localhost:8080/api/noticias/79934734B/1",{mode:'cors',
     headers:{
       "access-token":localStorage.getItem("token")
@@ -185,6 +186,8 @@ function App() {
       container.replaceChild(temp.querySelector("#profile"), document.getElementById("profile"));
     });
   }
+  },100);
+  
 
   return(
      <div>
@@ -196,7 +199,6 @@ function App() {
 
         <Routes>
           <Route path="/login" element={<LoginForm />}/>
-          <Route path="/" element={<Main />}/>      
         </Routes>
 
         <div className="App">
@@ -304,8 +306,8 @@ function LogoutHandler(){
     }}
   ).then((response)=>{
 
-    localStorage.removeItem("usuario");
-    localStorage.removeItem("token");
+    localStorage.setItem("usuario",null);
+    localStorage.setItem("token",null);
     return {message:response.message,status:response.status};
 
   });
@@ -324,6 +326,7 @@ class LoginForm extends React.Component{
   }
 
   handleSubmit(event){
+
     fetch("http://localhost:8080/login",{
       method:'POST',
       //mode:'cors',
@@ -344,8 +347,11 @@ class LoginForm extends React.Component{
       console.log(message)
       console.log(status)
 
-      localStorage.setItem("token",responseObject.token);
-      localStorage.setItem("usuario",responseObject.usuario);
+      if(status==200){
+        localStorage.setItem("token",responseObject.token);
+        localStorage.setItem("usuario",responseObject.usuario);
+        //useNavigate(-1);
+      }
     
     }
     

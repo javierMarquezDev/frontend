@@ -2,11 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
+import GatherGroups from './Groups';
+import LoginForm from './App';
 import reportWebVitals from './reportWebVitals';
 import Button from '@mui/material/Button';
 import {
-  BrowserRouter}
-  from "react-router-dom";
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useRouteMatch,
+  useParams
+} from "react-router-dom";
 
 localStorage.setItem("token",null);
 localStorage.setItem("usuario",null);
@@ -16,6 +23,9 @@ ReactDOM.render(
     <App>
       
     </App>
+    <Routes>
+          <Route path="/" element={<App />}/>      
+      </Routes>
   </BrowserRouter>,
   document.getElementById('root')
 );
