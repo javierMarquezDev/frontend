@@ -1,4 +1,5 @@
-import logo from './logo.svg';
+import handleLogout from './controller/Logout.controller';
+import NoticiaSet from './components/NoticiaSet.component';
 import './App.css';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
@@ -24,125 +25,9 @@ import {
   useRouteMatch,
   useParams
 } from "react-router-dom";
-
-class NoticiaSet extends React.Component{
-  render(){
-    return(
-      <Stack spacing={0.2}  alignItems="flex-start" sx={{fontSize:12}} id = "stack">
-
-      {this.props.list.map((post)=>{
-            return (<Box sx={{
-              p: 1,
-              display: 'grid',
-              gridTemplateColumns: 'repeat(7, 1fr)',
-              gridTemplateRows: 'auto',
-              gridTemplateAreas: `"image name name name name name name"
-              "image title title title title title title"
-              "image content content content content content content"
-              ". . . . footer footer footer"`,
-              boxShadow: 3,
-              borderRadius:'1%',
-              width:'98%'
-            }}>
-              <Box sx={{ gridArea: 'image', p: 0.5, justifyContent:'center'}}>
-                <Paper sx={{borderRadius:'50%',
-              width:'70px',
-              height:'70px',
-              display:'block'}}>
-                    <img src="public/logo512.png"></img>
-                </Paper>
-        
-              </Box>
-              <Box sx={{ gridArea: 'name', fontWeight:'bold', textAlign:'left',p: 0.5}}>{post.autor}</Box>
-              <Box sx={{ gridArea: 'title', fontWeight:'light',textAlign:'left', p: 0.5}}>Friend from LucaTIC</Box>
-              <Box sx={{ gridArea: 'content', textAlign:'left',p: 0.5 }}>{post.texto}</Box>
-              <Box sx={{ gridArea: 'footer',  fontWeight:'light', fontSize:10, textAlign:'right',p: 0.5}}>{post.fechahora}</Box>
-            </Box>);
-          })}
-
-      </Stack>
-    );
-    
-        
-  }
-}
-
-class ProfileInfo extends React.Component{
-  render(){
-    return(
-      <Box sx={{p:"0",m:"0"}} id="profile">
-          <Stack spacing={0.2} alignItems="flex-end" sx={{fontSize:12}}>
-          <Box sx={{fontWeight:'bold'}}>{this.props.user.nombre} {this.props.user.apellido1} {this.props.user.apellido2}</Box>
-          
-          <Box >{this.props.user.email}</Box>
-          </Stack>
-
-      </Box>
-    );
-  };
-}
-
-class TaskSet extends React.Component{
-  render(){
-    return(
-      <Box id="tasks" sx={{
-            boxShadow:3,
-            height:"85vh",
-            p:1,
-            ml:0.5,
-            mt:"50px",
-            width:"29.5%",
-            overflowY:"scroll"
-          }}
-          position="fixed">
-          
-          <Stack sx={{m:0,p:0}}>
-            {this.props.list.map((task)=>{
-              
-                    return(<Box 
-                    sx={{
-                    bgcolor:"#ddd",
-                    borderRadius:"2%",
-                    width:"94%",
-                    height:"fit-content",
-                    p:1,
-                    ml:1,
-                    mt:1
-                    }}>
-                          <Box display="flex"
-                          alignItems="flex-start"
-                          sx={{width:"100", ml:1, mt:1}}>
-                            <span>{task.nombre}</span>
-                          </Box>
-
-                          <Box display="flex"
-                          alignItems="flex-start"
-                          sx={{width:"100", ml:1, mt:1, fontSize:11}}>
-                            <span>{task.descripcion}</span>
-                          </Box>
-
-                          <Box display="flex"
-                          alignItems="flex-start"
-                          sx={{width:"100", ml:1, mt:1, fontSize:9}}>
-                            <span>{task.fechahora}</span>
-                          </Box>
-
-                          <Box
-                          display="flex"
-                          alignItems="flex-start"
-                          sx={{width:"100"}}>
-                            <Button>Terminar</Button>
-                          </Box>
-
-                    </Box>)
-
-            })}
-            
-          </Stack>
-      </Box>
-    );
-  };
-}
+import LoginForm from './components/LoginForm.component';
+import ProfileInfo from './components/ProfileInfo.component';
+import TaskSet from './components/TaskSet.component';
 
 function App() {
 
@@ -193,7 +78,7 @@ function App() {
      <div>
         <ul>
           <li>
-            <Link to="/login" onClick={LogoutHandler}>Logout</Link>
+            <Link to="/login" onClick={handleLogout}>Logout</Link>
           </li>          
         </ul>
 
@@ -248,143 +133,6 @@ function App() {
       </div>
   );
 
-}
-
-
-
-
-
-function Main() {
-    //Fetch posts from group
-  
-
-  return (
-    <div className="App">
-      <Grid container spacing={2} sx={{ml:0.1}}>
-        <Grid item xs={12}>
-
-          <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="fixed">
-              <Toolbar variant="dense" id="toolbar" >
-                
-                <Typography display={{xs:'flex'}} sx={{mr:2,mt:0.5}} variant="h6" color="inherit" component="div">
-                  Pyramid @ 
-                </Typography>
-              
-                <Box sx={{ flexGrow: 1 }} />  
-
-                <Box id="profile"></Box>
-                
-                  
-              </Toolbar>
-            </AppBar>
-          </Box>
-
-        </Grid>
-
-        <Grid item xs={8} id="posts" sx={{mt:"50px"}}>
-          
-        </Grid>
-
-        <Grid item xs={4} id="taskContainer">
-          
-        </Grid>
-
-      </Grid>
-    </div>
-  );
-
-}
-
-function LogoutHandler(){
-  fetch("http://localhost:8080/logout",{
-    method:'POST',
-    //mode:'cors',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    }}
-  ).then((response)=>{
-
-    localStorage.setItem("usuario",null);
-    localStorage.setItem("token",null);
-    return {message:response.message,status:response.status};
-
-  });
-}
-
-class LoginForm extends React.Component{
-  constructor(props) {
-    super(props);
-    this.state = {email: '',contrasena:''};
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-  }
-
-  handleChange(event) {
-    (event.target.name=="email")?this.setState({email: event.target.value}):this.setState({contrasena: event.target.value});
-  }
-
-  handleSubmit(event){
-
-    fetch("http://localhost:8080/login",{
-      method:'POST',
-      //mode:'cors',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body:  JSON.stringify(this.state)})
-    .then(async (response) => {
-
-      const responseObject = await response.json();
-      const status = response.status;
-      const message = responseObject.message;
-
-
-      console.log(responseObject.token);
-      console.log(responseObject.usuario)
-      console.log(message)
-      console.log(status)
-
-      if(status==200){
-        localStorage.setItem("token",responseObject.token);
-        localStorage.setItem("usuario",responseObject.usuario);
-        //useNavigate(-1);
-      }
-    
-    }
-    
-    )
-    //.then((data) =>{
-//      console.log(data.status);
-  //  })
-    
-    event.preventDefault();
-  }
-
-  render(){
-    return(
-
-      <div>
-        <form onSubmit={this.handleSubmit}>
-
-          <label>
-            E-mail
-            <input type="text" name="email" value={this.state.email} onChange={this.handleChange}/>
-          </label>
-          <label>
-            Password
-            <input type="password" name="contrasena" value={this.state.contasena} onChange={this.handleChange}/>
-          </label>
-          <input type="submit" name="Iniciar sesi&ntildeo;n" />
-
-        </form>
-        
-      </div>
-
-  );
-  }
 }
 
 export default App;
