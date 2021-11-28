@@ -11,9 +11,7 @@ import {
   useRouteMatch,
   useParams
 } from "react-router-dom";
-
-localStorage.setItem("token",null);
-localStorage.setItem("usuario",null);
+import GroupTest from './controller/groupTest.controller';
 
 ReactDOM.render(
   <BrowserRouter>
@@ -21,7 +19,8 @@ ReactDOM.render(
       
     </App>
     <Routes>
-          <Route path="/" element={<App />}/>      
+          <Route path="/" element={<App />}/>
+          <Route path="/testGroup" element={<GroupTest />}/>
       </Routes>
   </BrowserRouter>,
   document.getElementById('root')

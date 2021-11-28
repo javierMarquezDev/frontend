@@ -1,7 +1,6 @@
 import handleLogout from './controller/Logout.controller';
 import NoticiaSet from './components/NoticiaSet.component';
 import './App.css';
-import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -9,70 +8,18 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import { Table } from '@mui/material';
-import { Component } from 'react';
-import { render } from 'react-dom';
 import ReactDOM from 'react-dom';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 import {
-  BrowserRouter as Router,
+  BrowserRouter,
   Routes,
   Route,
-  Link,
-  useRouteMatch,
-  useParams
+  Link
 } from "react-router-dom";
 import LoginForm from './components/LoginForm.component';
-import ProfileInfo from './components/ProfileInfo.component';
-import TaskSet from './components/TaskSet.component';
 
 function App() {
-
-  setInterval(()=>{
-    if(localStorage.getItem("token")!="null"){
-    fetch("http://localhost:8080/api/noticias/79934734B/1",{mode:'cors',
-    headers:{
-      "access-token":localStorage.getItem("token")
-    }})
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      {ReactDOM.render(<NoticiaSet list={data}/>, document.getElementById("posts"))}
-    });
-
-    //Fetch tasks from user
-    fetch("http://localhost:8080/api/tareas/marquez@appogeodigital.com/1",{mode:'cors',
-    headers:{
-      "access-token":localStorage.getItem("token")
-    }})
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      {ReactDOM.render(<TaskSet list={data}/>, document.getElementById("taskContainer"))}
-    });
-  }
-
-  //Fetch user info
-
-  if(localStorage.getItem("usuario")!="null"){
-    fetch("http://localhost:8080/api/usuarios/"+localStorage.getItem("usuario"),{mode:'cors',
-    headers:{
-      "access-token":localStorage.getItem("token")
-    }})
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      var temp = document.createElement("div");
-      ReactDOM.render(<ProfileInfo user={data}/>, temp);
-      var container = document.getElementById("toolbar");
-      container.replaceChild(temp.querySelector("#profile"), document.getElementById("profile"));
-    });
-  }
-  },100);
-  
 
   return(
      <div>

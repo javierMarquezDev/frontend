@@ -8,8 +8,8 @@ function handleLogout(){
       }}
     ).then((response)=>{
   
-      localStorage.setItem("usuario",null);
-      localStorage.setItem("token",null);
+      localStorage.removeItem("usuario");
+      localStorage.removeItem("token");
       return {message:response.message,status:response.status};
   
     });

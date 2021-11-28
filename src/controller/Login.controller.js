@@ -20,8 +20,8 @@ function handleLogin(request){
             console.log(status)
     
             if(status==200){
-            localStorage.setItem("token",responseObject.token);
-            localStorage.setItem("usuario",responseObject.usuario);
+                localStorage.setItem("token",responseObject.token);
+                localStorage.setItem("usuario",responseObject.usuario);
             //useNavigate(-1);
             }
         
