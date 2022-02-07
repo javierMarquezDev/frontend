@@ -8,30 +8,16 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import ReactDOM from 'react-dom';
 import React from 'react';
-import {useNavigate} from 'react-router-dom';
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Link
-} from "react-router-dom";
-import LoginForm from './components/LoginForm.component';
+import {Link} from "react-router-dom";
+import HandleLogout from './controller/Logout.controller';
+import {Button} from '@mui/material';
 
 function App() {
 
   return(
      <div>
-        <ul>
-          <li>
-            <Link to="/login" onClick={handleLogout}>Logout</Link>
-          </li>          
-        </ul>
-
-        <Routes>
-          <Route path="/login" element={<LoginForm />}/>
-        </Routes>
+       
 
         <div className="App">
           <Grid container spacing={2} sx={{ml:0.1}}>
@@ -45,7 +31,7 @@ function App() {
                     
                       <Typography display={{xs:'flex'}} sx={{mr:2,mt:0.5}} variant="h6" color="inherit" component="div">
                         <Link to="/" style={{textDecoration:"none", color:"white"}}>
-                          Pyramid @ 
+                          Pyramid
                         </Link>
                       </Typography>
                     
@@ -77,9 +63,27 @@ function App() {
 
           </Grid>
         </div>
+
       </div>
+      
   );
 
+}
+
+
+class LogoutButton extends React.Component{
+
+  constructor(props){
+    super(props)
+  }
+
+  render(){
+    return(
+      <Link to="/login" onClick={HandleLogout}>
+        Logout
+      </Link>
+    );
+  }
 }
 
 export default App;

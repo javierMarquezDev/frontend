@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM, { render } from 'react-dom';
+import ReactDOM from 'react-dom';
 import TaskSet from '../components/TaskSet.component';
 import NoticiaSet from '../components/NoticiaSet.component';
 import ProfileInfo from '../components/ProfileInfo.component';

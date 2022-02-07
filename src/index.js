@@ -5,24 +5,39 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {
   BrowserRouter,
-  Routes,
-  Route,
-  Link,
-  useRouteMatch,
-  useParams
+  Switch as Routes,
+  Route
 } from "react-router-dom";
 import GroupTest from './controller/groupTest.controller';
+import LoginForm from './components/LoginForm.component';
+import Home from './components/Home.component';
+import Index from './components/Index.component';
 
 ReactDOM.render(
-  <BrowserRouter>
-    <App>
+  
+  
       
-    </App>
-    <Routes>
-          <Route path="/" element={<App />}/>
-          <Route path="/testGroup" element={<GroupTest />}/>
+    
+    <BrowserRouter>
+      <App>
+      </App>
+      <Routes>
+          <Route exact path="/">
+            <Index />
+          </Route>
+          <Route exact path="/home">
+            <Home />
+          </Route>
+          <Route exact path="/login">
+            <LoginForm />
+          </Route>
+          <Route exact path="/grouptest">
+            <GroupTest />
+          </Route>
+          
       </Routes>
-  </BrowserRouter>,
+    </BrowserRouter>
+  ,
   document.getElementById('root')
 );
 

@@ -1,5 +1,8 @@
-function handleLogin(request){
-    fetch("http://localhost:8080/login",{
+import Redirect from "./Redirect.functions";
+
+function HandleLogin(request){
+  
+  fetch("http://localhost:8080/login",{
         method:'POST',
         //mode:'cors',
         headers: {
@@ -8,6 +11,7 @@ function handleLogin(request){
         },
         body:  JSON.stringify(request)})
         .then(async (response) => {
+          
   
             const responseObject = await response.json();
             const status = response.status;
@@ -20,9 +24,12 @@ function handleLogin(request){
             console.log(status)
     
             if(status==200){
+
                 localStorage.setItem("token",responseObject.token);
                 localStorage.setItem("usuario",responseObject.usuario);
-            //useNavigate(-1);
+                
+                return (Redirect('/'));
+                
             }
         
         }
@@ -30,4 +37,4 @@ function handleLogin(request){
       )
 }
 
-export default handleLogin;
+export default HandleLogin;
