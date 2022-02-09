@@ -1,6 +1,3 @@
-import Notificacion from "../model/Notificacion";
-import Usuario from "../model/Usuario";
-
 let srvDaoUsuario = class DaoUsuario{
 
     static create(usuarioJson = {}){
@@ -67,8 +64,6 @@ let srvDaoUsuario = class DaoUsuario{
             return data;
         })
 
-        
-
     };
 
     static delete (email = ""){
@@ -88,8 +83,6 @@ let srvDaoUsuario = class DaoUsuario{
             console.log(data);
             return data;
         })
-
-        
 
     };
 

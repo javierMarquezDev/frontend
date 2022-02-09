@@ -4,7 +4,6 @@ function HandleLogin(request){
   
   fetch("http://localhost:8080/login",{
         method:'POST',
-        //mode:'cors',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'

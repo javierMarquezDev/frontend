@@ -98,27 +98,26 @@ let Mapper = class mapper{
     static grupoProyectoToJson(grupo = new GrupoProyecto()){
 
         grupoJson = {};
-        proyectoJson = {};
 
         grupoJson.codigo = grupo.codigoGrupo;
         grupoJson.empresa = grupo.empresa;
-        grupoJson.nombre, proyectoJson.nombre = grupo.nombre;
-        grupoJson.descripcion, proyectoJson.descripcion = grupo.descripcion;
-        proyectoJson.fechahora = grupo.fechaHora;
-        proyectoJson.finalizado = grupo.finalizado;
-        proyectoJson.administrador = grupo.administrador.email;
+        grupoJson.nombre = grupo.nombre;
+        grupoJson.descripcion= grupo.descripcion;
+        grupoJson.fechahora = grupo.fechaHora;
+        grupoJson.finalizado = grupo.finalizado;
+        grupoJson.administrador = grupo.administrador.email;
 
-        return [grupoJson,proyectoJson];
+        return grupoJson;
 
     }
 
-    static jsonToGrupoProyecto(grupoJson, proyectoJson, admin, 
+    static jsonToGrupoProyecto(grupoJson, admin, 
         empresa, usuarios = [], tareas = []){
 
         return new GrupoProyecto(
-            grupoJson.codigo, proyectoJson.codigo,
+            grupoJson.codigo, grupoJson.codigo,
             empresa, grupoJson.nombre, grupoJson.descripcion,
-            admin, proyectoJson.fechahora, proyectoJson.finalizado,
+            admin, grupoJson.fechahora, grupoJson.finalizado,
             usuarios, tareas
         )
 
