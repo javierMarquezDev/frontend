@@ -67,8 +67,6 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
             return data;
         })
 
-        
-
         const administrador = srvDaoUsuario.getById(responseEmpresa.body.administrador);
 
         const usuarios = srvDaoUsuario.getByEmpresa(responseEmpresa.body.nif);

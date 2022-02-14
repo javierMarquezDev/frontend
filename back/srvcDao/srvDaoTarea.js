@@ -1,9 +1,9 @@
 let SrvDaoTarea = class DaoTarea{
 
-    static create(adminproyecto, codigoproyecto, tareaJson){
+    static create(grupoempresa, grupocodigo, tareaJson){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+adminproyecto+"/"+codigoproyecto,
+            "https://localhost:8080/api/tareas/"+grupoempresa+"/"+grupocodigo,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -23,10 +23,10 @@ let SrvDaoTarea = class DaoTarea{
 
     }
 
-    static delete(adminproyecto, codigoproyecto, id){
+    static delete(grupoempresa, grupocodigo, id){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+adminproyecto+"/"+codigoproyecto+"/"+id,
+            "https://localhost:8080/api/tareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -43,10 +43,10 @@ let SrvDaoTarea = class DaoTarea{
 
     }
 
-    static edit(adminproyecto, codigoproyecto, id, tareaJson){
+    static edit(grupoempresa, grupocodigo, id, tareaJson){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+adminproyecto+"/"+codigoproyecto+"/"+id,
+            "https://localhost:8080/api/tareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
             {
                 mode: 'cors',
                 method: 'PUT',
@@ -66,10 +66,10 @@ let SrvDaoTarea = class DaoTarea{
 
     }
 
-    static getAllFromGrupo(adminproyecto, codigoproyecto){
+    static getAllFromGrupo(grupoempresa, grupocodigo){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+adminproyecto+"/"+codigoproyecto,
+            "https://localhost:8080/api/tareas/"+grupoempresa+"/"+grupocodigo,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -92,10 +92,10 @@ let SrvDaoTarea = class DaoTarea{
 
     }
 
-    static getOneById(adminproyecto, codigoproyecto, id){
+    static getOneById(grupoempresa, grupocodigo, id){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+adminproyecto+"/"+codigoproyecto+"/"+id,
+            "https://localhost:8080/api/tareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -132,10 +132,10 @@ let SrvDaoTarea = class DaoTarea{
 
     }
 
-    static getUsuariotareaFromTarea(adminproyecto, codigoproyecto, id){
+    static getUsuariotareaFromTarea(grupoempresa, grupocodigo, id){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+adminproyecto+"/"+codigoproyecto+"/"+id,
+            "https://localhost:8080/api/usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -152,10 +152,10 @@ let SrvDaoTarea = class DaoTarea{
 
     }
 
-    static getOneUsuariotarea(adminproyecto, codigoproyecto, id, usuario){
+    static getOneUsuariotarea(grupoempresa, grupocodigo, id, usuario){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+adminproyecto+"/"+codigoproyecto+"/"+id+"/"+usuario,
+            "https://localhost:8080/api/usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -172,10 +172,10 @@ let SrvDaoTarea = class DaoTarea{
         
     }
 
-    static createUsuariotarea(adminproyecto, codigoproyecto, id, usuario){
+    static createUsuariotarea(grupoempresa, grupocodigo, id, usuario){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+adminproyecto+"/"+codigoproyecto+"/"+id,
+            "https://localhost:8080/api/usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -195,10 +195,10 @@ let SrvDaoTarea = class DaoTarea{
 
     }
 
-    static deleteUsuariotarea(adminproyecto, codigoproyecto, id, usuario){
+    static deleteUsuariotarea(grupoempresa, grupocodigo, id, usuario){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+adminproyecto+"/"+codigoproyecto+"/"+id+"/"+usuario,
+            "https://localhost:8080/api/usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -215,10 +215,10 @@ let SrvDaoTarea = class DaoTarea{
 
     }
 
-    static editUsuariotarea(adminproyecto, codigoproyecto, id, usuario, usuarioTarea){
+    static editUsuariotarea(grupoempresa, grupocodigo, id, usuario, usuarioTarea){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+adminproyecto+"/"+codigoproyecto+"/"+id+"/"+usuario,
+            "https://localhost:8080/api/usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
             {
                 mode: 'cors',
                 method: 'PUT',

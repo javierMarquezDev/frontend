@@ -1,24 +1,24 @@
 let Tarea = class Task{
 
-    constructor(codigo = null, proyecto = null, usuario = null, 
+    constructor(codigo = null, proyecto = null, 
                 fechaHora = null, nombre = null, descripcion = null, 
-                checked = false, archivo = null){
+                checked = false, archivo = null, atareado = null){
 
         if(this.validator(codigo,proyecto,usuario,nombre) === false)
             return false;
             
         this.codigo = codigo;
-        this.proyecto = proyecto
-        this.usuario = usuario
+        this.grupo = proyecto
         this.fechaHora = fechaHora
         this.nombre = nombre
         this.descripcion = descripcion
         this.checked = checked
         this.archivo = archivo
+        this.atareado = atareado
     }
 
-    validator(codigo, proyecto,usuario,nombre){
-        if(codigo === null || proyecto === null || usuario === null || nombre === null)
+    validator(codigo, proyecto,nombre){
+        if(codigo === null || proyecto === null || nombre === null)
             return false;
         return true;
     }

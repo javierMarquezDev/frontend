@@ -50,8 +50,8 @@ let Mapper = class mapper{
 
         archivoJson.codigo = archivo.codigo;
         archivoJson.tareacodigo =  archivo.tarea.codigo;
-        archivoJson.tareacodigoproyecto = archivo.tarea.proyecto.codigoProyecto;
-        archivoJson.tareaadministradorproyecto = archivo.tarea.proyecto.administrador;
+        archivoJson.tareagrupocodigo = archivo.tarea.grupo.codigo;
+        archivoJson.tareagrupoempresa = archivo.tarea.grupo.empresa;
         archivoJson.archivo = archivo.contenido;
         archivoJson.maxsizeKb = archivo.maxSizeKb;
         archivoJson.fileextletters = archivo.fileExtLetters;
@@ -60,7 +60,7 @@ let Mapper = class mapper{
     }
 
     //Necesita un método en utils para las entidades anidadas.
-    static JsonToArchivo(jsonArchivo, tarea = new Tarea()){
+    static jsonToArchivo(jsonArchivo, tarea = new Tarea()){
 
         return new Archivo(
             jsonArchivo.codigo, tarea, jsonArchivo.contenido,
@@ -188,18 +188,18 @@ let Mapper = class mapper{
         tareajson = {};
 
         tareaJson.codigo = tarea.codigo;
-        tareaJson.codigoproyecto = tarea.proyecto.codigoproyecto;
-        tareaJson.administradorproyecto = tarea.proyecto.administrador;
+        tareaJson.grupocodigo = tarea.grupo.codigo;
+        tareaJson.grupoempresa = tarea.grupo.empresa.nif;
         tareaJson.nombre = tarea.nombre;
         tareaJson.descripcion = tarea.descripcion;
         tareaJson.checked = tarea.checked;
         tareaJson.fechaHora = tarea.fechaHora;
     }
 
-    static jsonToTarea(str, grupoProyecto,usuario, archivo){
+    static jsonToTarea(str, grupoProyecto, archivo, atareado = null){
         new Tarea(str.codigo, grupoProyecto.codigoProyecto,
-            usuario, str.fechahora, str.nombre, str.descripcion,
-            str.checked, archivo)
+            str.fechahora, str.nombre, str.descripcion,
+            str.checked, archivo, atareado)
     }
 }
 
