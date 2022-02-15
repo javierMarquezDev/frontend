@@ -2,23 +2,97 @@ import GrupoProyecto from "../model/GrupoProyecto";
 import Mapper from "../utils/mapper";
 import ControlEmpresa from "./controlEmpresa";
 import ControlUsuario from "./controlUsuario";
+import SrvDaoGrupoProyecto from "../srvcDao/srvDaoGrupoProyecto";
 let ControlGrupo = class controlGrupo {
 
-    static editGrupo(grupoProyecto)
+    
+    static edit(grupoProyecto = new grupoProyecto()){
 
-    static delete(grupoProyecto)
+        const grupoProyectoJson = this.convert(grupoProyecto)
 
-    static create(grupoProyecto)
+        return SrvDaoGrupoProyecto.edit(grupoProyectoJson);
+
+    }
+
+    static detele(grupoProyecto = new grupoProyecto()){
+
+        const grupoProyectoJson = this.convert(grupoProyecto);
+
+        return SrvDaoGrupoProyecto.delete(grupoProyectoJson);
+
+    }
+
+    static create(grupoProyecto = new grupoProyecto()){
+
+        const grupoProyectoJson = this.convert(grupoProyecto);
+
+        return SrvDaoGrupoProyecto.create(grupoProyectoJson);
+
+    }
     
     //get
 
-    static getFromEmpresa(nif)
+    static getFromEmpresa(nif){
 
-    static getFromUsuario(email)
+        const gruposJson = SrvDaoGrupoProyecto.getAllFromEmpresa(nif);
 
-    static getById(empresa, codigo)
+        let result = [];
 
-    static getByFin(fin)
+        Array.from(gruposJson).forEach(element => {
+
+            const grupo = this.convert(element);
+
+            result.push(grupo);
+            
+        });
+
+        return result;
+
+    }
+
+    static getFromUsuario(email){
+
+        const gruposJson = SrvDaoGrupoProyecto.getAllFromUsuario(email);
+
+        let result = [];
+
+        Array.from(gruposJson).forEach(element => {
+
+            const grupo = this.convert(element);
+
+            result.push(grupo);
+            
+        });
+
+        return result;
+
+    }
+
+    static getById(empresa, codigo){
+
+        const grupoJson = SrvDaoGrupoProyecto.getOneById(empresa,codigo);
+
+        return this.convert(grupoJson);
+
+    }
+
+    static getByFin(fin = false){
+
+        const gruposJson = SrvDaoGrupoProyecto.getAllByFin(fin);
+
+        let result = [];
+
+        Array.from(gruposJson).forEach(element => {
+
+            const grupo = this.convert(element);
+
+            result.push(grupo);
+            
+        });
+
+        return result;
+
+    }
 
     //convert
 

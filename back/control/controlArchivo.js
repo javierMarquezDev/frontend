@@ -1,21 +1,40 @@
 import Archivo from "../model/Archivo";
-import SrvArchivo from "../srvcDao/srvDaoArchivo";
+import SrvDaoArchivo from "../srvcDao/srvDaoArchivo";
 import Mapper from "../utils/mapper";
 import ControlTarea from "./controlTarea";
 
 let ControlArchivo = class ctrlArchivo{
 
-    static create();
+    static create(archivo = new Archivo()){
 
-    static delete();
+        const archivoJson = this.convert(archivo);
 
-    static edit();
+        return SrvDaoArchivo.create(archivoJson);
+
+    };
+
+    static delete(archivo = new Archivo()){
+
+        return SrvDaoArchivo.delete(archivo.codigo, archivo.tarea.codigo, 
+                                archivo.tarea.grupo.codigo, archivo.tarea.grupo.empresa.nif);
+
+    };
+
+    static edit(archivo = new Archivo()){
+
+        const archivoJson = this.convert(archivo);
+
+        return SrvDaoArchivo.edit(archivoJson)
+
+    };
 
     //get
 
     static getByTarea(tarea){
 
-        
+        const archivoJson = SrvDaoArchivo.getByTarea(tarea.codigo, tarea.grupo.codigo, tarea.grupo.empresa.nif);
+
+        return this.convert(archivoJson);
 
     }
 

@@ -6,25 +6,75 @@ import Empresa from "../model/Empresa";
 
 let ControlEmpresa = class CtrlCompany{
 
-    static editEmpresa(empresa){
+    static edit(empresa){
 
-        const json = Mapper.empresaToJson(empresa);
+        const empresaJson = this.convert(empresa)
 
-        return SrvDaoEmpresa.edit(json);
+        return SrvDaoEmpresa.edit(empresaJson);
 
     }
 
-    static deteleEmpresa(empresa){}
+    static detele(empresa){
 
-    static newEmpresa(empresa){}
+        const empresaJson = this.convert(empresa);
+
+        return SrvDaoEmpresa.delete(empresaJson);
+
+    }
+
+    static create(empresa){
+
+        const empresaJson = this.convert(empresa);
+
+        return SrvDaoEmpresa.create(empresaJson);
+
+    }
 
     //get
 
-    static getByName(name){}
+    static getByName(name){
 
-    static getById(nif){}
+        const empresasArray = SrvDaoEmpresa.getByName(name);
 
-    static getByAdmin(admin){}
+        let resultado = [];
+
+        Array.from(empresasArray).forEach(element => {
+
+            const empresa = this.convert(element);
+
+            resultado.push(empresa);
+            
+        });
+
+        return resultado;
+
+    }
+
+    static getById(nif){
+
+        const empresaJson = SrvDaoEmpresa.getById(nif);
+
+        return this.convert(empresaJson);
+
+    }
+
+    static getByAdmin(admin){
+
+        const empresasArray = SrvDaoEmpresa.getByAdmin(admin);
+
+        let resultado = [];
+
+        Array.from(empresasArray).forEach(element => {
+
+            const empresa = this.convert(element);
+
+            resultado.push(empresa);
+            
+        });
+
+        return resultado;
+
+    }
     
     //convert
 

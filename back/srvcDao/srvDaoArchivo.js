@@ -45,9 +45,9 @@ let SrvDaoArchivo = class DaoArchivo{
 
     }
 
-    static edit(archivo, codigo, tareacodigo, tareagrupocodigo, tareagrupoempresa){
+    static edit(archivo){
         return fetch(
-            "https://localhost:8080/api/archivos/"+tareagrupoempresa+"/"+tareagrupocodigo+"/"+tareacodigo+"/"+codigo,
+            "https://localhost:8080/api/archivos/"+archivo.tareagrupoempresa+"/"+archivo.tareagrupocodigo+"/"+archivo.tareacodigo+"/"+archivo.codigo,
             {
                 mode: 'cors',
                 method: 'PUT',

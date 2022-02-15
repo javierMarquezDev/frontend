@@ -1,25 +1,82 @@
 import Noticia from "../model/Noticia";
 import ControlGrupo from "./controlGrupoProyecto";
 import ControlUsuario from "./controlUsuario";
+import SrvDaoNoticia from "../srvcDao/srvDaoNoticia";
 
 let ControlNoticia = class ctrlNews{
 
-    static editNoticia(noticia)
+    static edit(noticia = new Noticia()){
 
-    static delete(noticia)
+        const noticiaJson = this.convert(noticia)
 
-    static create(noticia)
+        return SrvDaoNoticia.edit(noticiaJson);
+
+    }
+
+    static detele(noticia = new Noticia()){
+
+        const noticiaJson = this.convert(noticia);
+
+        return SrvDaoNoticia.delete(noticiaJson);
+
+    }
+
+    static create(noticia = new Noticia()){
+
+        const noticiaJson = this.convert(noticia);
+
+        return SrvDaoNoticia.create(noticiaJson);
+
+    }
 
     //get
 
-    static getByGrupo(grupoId)
+    static getByGrupo(grupoId){
 
-    static getByUsuario(email)
+        const noticiasArray = SrvDaoNoticia.getByGrupo(grupoId);
 
-    static getById(empresa,grupoId,autor,id)
+        let resultado = [];
+
+        Array.from(noticiasArray).forEach(element => {
+
+            const noticia = this.convert(element);
+
+            resultado.push(noticia);
+            
+        });
+
+        return resultado;
+
+    }
+
+    static getByUsuario(cif, grupocodigo, email){
+
+        const noticiasArray = SrvDaoNoticia.getAllByUsuarioAndGrupo(cif,grupocodigo,email);
+
+        let resultado = [];
+
+        Array.from(noticiasArray).forEach(element => {
+
+            const noticia = this.convert(element);
+
+            resultado.push(noticia);
+            
+        });
+
+        return resultado;
+
+
+    }
+
+    static getById(empresa,grupoId,autor,id){
+
+        const noticiaJson = SrvDaoNoticia.getOneById(empresa,grupoId,autor,id);
+
+        return this.convert(noticiaJson);
+
+    }
 
     //convert
-
     
     static convert(data){
 

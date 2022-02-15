@@ -1,9 +1,9 @@
 let SrvDaoTarea = class DaoTarea{
 
-    static create(grupoempresa, grupocodigo, tareaJson){
+    static create(tareaJson){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+grupoempresa+"/"+grupocodigo,
+            "https://localhost:8080/api/tareas/"+tarea.grupoempresa+"/"+tarea.grupocodigo,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -23,10 +23,10 @@ let SrvDaoTarea = class DaoTarea{
 
     }
 
-    static delete(grupoempresa, grupocodigo, id){
+    static delete(tarea){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
+            "https://localhost:8080/api/tareas/"+tarea.grupoempresa+"/"+tarea.grupocodigo+"/"+tarea.codigo,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -43,10 +43,10 @@ let SrvDaoTarea = class DaoTarea{
 
     }
 
-    static edit(grupoempresa, grupocodigo, id, tareaJson){
+    static edit(tareaJson){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
+            "https://localhost:8080/api/tareas/"+tareaJson.grupoempresa+"/"+tareaJson.grupocodigo+"/"+tareaJson.codigo,
             {
                 mode: 'cors',
                 method: 'PUT',

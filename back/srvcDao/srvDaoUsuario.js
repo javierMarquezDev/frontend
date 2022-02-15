@@ -66,10 +66,10 @@ let srvDaoUsuario = class DaoUsuario{
 
     };
 
-    static delete (email = ""){
+    static delete (usuarioJson){
 
         return fetch(
-            "https://localhost:8080/api/usuarios/"+email,
+            "https://localhost:8080/api/usuarios/"+usuarioJson.email,
             {
                 mode: 'cors',
                 method: 'DELETE',

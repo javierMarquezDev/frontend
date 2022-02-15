@@ -1,5 +1,3 @@
-import { DataSaverOff } from "@mui/icons-material";
-
 let srvDaoGrupoProyecto = class groupProject{
 
     static getAllFromEmpresa(empresa = ""){
@@ -82,10 +80,10 @@ let srvDaoGrupoProyecto = class groupProject{
 
     };
 
-    static edit(codigo = "", empresa = "", grupoJson){
+    static edit(grupoJson){
 
         return fetch(
-            "https://localhost:8080/api/grupos/"+empresa+"/"+codigo,
+            "https://localhost:8080/api/grupos/"+grupoJson.empresa+"/"+grupoJson.codigo,
             {
                 mode: 'cors',
                 method: 'PUT',
@@ -105,10 +103,10 @@ let srvDaoGrupoProyecto = class groupProject{
 
     };
 
-    static delete(codigo="", empresa = ""){
+    static delete(grupoJson){
 
         return fetch(
-            "https://localhost:8080/api/grupos/usuarios/"+empresa+"/"+codigo,
+            "https://localhost:8080/api/grupos/usuarios/"+grupoJson.empresa+"/"+grupoJson.codigo,
             {
                 mode: 'cors',
                 method: 'DELETE',
