@@ -1,10 +1,12 @@
+import config from "../config/config.json";
+
 let SrvDaoSesion = class DaoSesion {
 
     static login(email, contrasena){
 
         const request = {"email": email, "contrasena": contrasena}
 
-        fetch("http://localhost:8080/login",{
+        fetch(config+"login",{
         method:'POST',
         headers: {
           'Accept': 'application/json',
@@ -41,7 +43,7 @@ let SrvDaoSesion = class DaoSesion {
 
     static logout(){
 
-        fetch("http://localhost:8080/logout",{
+        fetch(config+"logout",{
         method:'POST',
         mode:'cors',
         headers: {

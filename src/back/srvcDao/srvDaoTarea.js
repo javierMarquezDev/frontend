@@ -1,9 +1,13 @@
+import config from "../config/config.json";
+
+const connectionStr = config.route+"tareas/";
+
 let SrvDaoTarea = class DaoTarea{
 
     static create(tareaJson){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+tarea.grupoempresa+"/"+tarea.grupocodigo,
+            connectionStr+tarea.grupoempresa+"/"+tarea.grupocodigo,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -26,7 +30,7 @@ let SrvDaoTarea = class DaoTarea{
     static delete(tarea){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+tarea.grupoempresa+"/"+tarea.grupocodigo+"/"+tarea.codigo,
+            connectionStr+tarea.grupoempresa+"/"+tarea.grupocodigo+"/"+tarea.codigo,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -46,7 +50,7 @@ let SrvDaoTarea = class DaoTarea{
     static edit(tareaJson){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+tareaJson.grupoempresa+"/"+tareaJson.grupocodigo+"/"+tareaJson.codigo,
+            connectionStr+tareaJson.grupoempresa+"/"+tareaJson.grupocodigo+"/"+tareaJson.codigo,
             {
                 mode: 'cors',
                 method: 'PUT',
@@ -69,7 +73,7 @@ let SrvDaoTarea = class DaoTarea{
     static getAllFromGrupo(grupoempresa, grupocodigo){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+grupoempresa+"/"+grupocodigo,
+            connectionStr+grupoempresa+"/"+grupocodigo,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -95,7 +99,7 @@ let SrvDaoTarea = class DaoTarea{
     static getOneById(grupoempresa, grupocodigo, id){
 
         return fetch(
-            "https://localhost:8080/api/tareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
+            connectionStr+grupoempresa+"/"+grupocodigo+"/"+id,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -115,7 +119,7 @@ let SrvDaoTarea = class DaoTarea{
     static getUsuariotareaFromUsuario(usuario){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+usuario,
+            config+"usuariotareas/"+usuario,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -135,7 +139,7 @@ let SrvDaoTarea = class DaoTarea{
     static getUsuariotareaFromTarea(grupoempresa, grupocodigo, id){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
+            config+"usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -155,7 +159,7 @@ let SrvDaoTarea = class DaoTarea{
     static getOneUsuariotarea(grupoempresa, grupocodigo, id, usuario){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
+            config+"usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -175,7 +179,7 @@ let SrvDaoTarea = class DaoTarea{
     static createUsuariotarea(grupoempresa, grupocodigo, id, usuario){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
+            config+"usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -198,7 +202,7 @@ let SrvDaoTarea = class DaoTarea{
     static deleteUsuariotarea(grupoempresa, grupocodigo, id, usuario){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
+            config+"usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -218,7 +222,7 @@ let SrvDaoTarea = class DaoTarea{
     static editUsuariotarea(grupoempresa, grupocodigo, id, usuario, usuarioTarea){
 
         return fetch(
-            "https://localhost:8080/api/usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
+            config+"usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
             {
                 mode: 'cors',
                 method: 'PUT',

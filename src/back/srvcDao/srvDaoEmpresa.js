@@ -1,11 +1,15 @@
 import Mapper from "../utils/mapper";
 
+import config from "../config/config.json";
+
+const connectionStr = config.route+"empresas/";
+
 let SrvDaoEmpresa = class ServiceDaoEmpresa{
 
     static create(empresaJson){
 
         return fetch(
-            "https://localhost:8080/api/empresas",
+            connectionStr,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -30,7 +34,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
     static getByName(nombre = ""){
 
         return fetch(
-            "https://localhost:8080/api/empresas/name"+nombre,
+            connectionStr+"name"+nombre,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -52,7 +56,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
     static getById(nif = ""){
 
         return fetch(
-            "https://localhost:8080/api/empresas/"+nif,
+            connectionStr+nif,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -81,7 +85,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
 
     static getByAdmin(admin = ""){
         return fetch(
-            "https://localhost:8080/api/empresas/admin"+admin,
+            connectionStr+"admin"+admin,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -102,7 +106,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
     static edit(empresaJson){
 
         return fetch(
-            "https://localhost:8080/api/empresas/"+empresaJson.nif,
+            connectionStr+empresaJson.nif,
             {
                 mode: 'cors',
                 method: 'PUT',
@@ -126,7 +130,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
 
     static delete(nif){
         return fetch(
-            "https://localhost:8080/api/empresas/"+nif,
+            connectionStr+nif,
             {
                 mode: 'cors',
                 method: 'DELETE',

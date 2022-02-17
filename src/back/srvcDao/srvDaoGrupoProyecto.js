@@ -1,9 +1,13 @@
+import config from "../config/config.json";
+
+const connectionStr = config.route+"grupos/";
+
 let srvDaoGrupoProyecto = class groupProject{
 
     static getAllFromEmpresa(empresa = ""){
 
         return fetch(
-            "https://localhost:8080/api/grupos/"+empresa,
+            connectionStr+empresa,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -23,7 +27,7 @@ let srvDaoGrupoProyecto = class groupProject{
     static getAllFromUsuario(usuario = ""){
 
         return fetch(
-            "https://localhost:8080/api/grupos/usuarios/search/"+usuario,
+            connectionStr+"usuarios/search/"+usuario,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -43,7 +47,7 @@ let srvDaoGrupoProyecto = class groupProject{
     static getOneById(empresa = "", id = ""){
 
         return fetch(
-            "https://localhost:8080/api/grupos/usuarios/"+empresa+"/"+id,
+            connectionStr+"usuarios/"+empresa+"/"+id,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -63,7 +67,7 @@ let srvDaoGrupoProyecto = class groupProject{
     static getAllByFin(finalizado = false){
 
         return fetch(
-            "https://localhost:8080/api/grupos/fin/search/"+(finalizado)?"true":"false",
+            connectionStr+"fin/search/"+(finalizado)?"true":"false",
             {
                 mode: 'cors',
                 method: 'GET',
@@ -83,7 +87,7 @@ let srvDaoGrupoProyecto = class groupProject{
     static edit(grupoJson){
 
         return fetch(
-            "https://localhost:8080/api/grupos/"+grupoJson.empresa+"/"+grupoJson.codigo,
+            connectionStr+grupoJson.empresa+"/"+grupoJson.codigo,
             {
                 mode: 'cors',
                 method: 'PUT',
@@ -106,7 +110,7 @@ let srvDaoGrupoProyecto = class groupProject{
     static delete(grupoJson){
 
         return fetch(
-            "https://localhost:8080/api/grupos/usuarios/"+grupoJson.empresa+"/"+grupoJson.codigo,
+            connectionStr+"usuarios/"+grupoJson.empresa+"/"+grupoJson.codigo,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -126,7 +130,7 @@ let srvDaoGrupoProyecto = class groupProject{
     static create(grupoJson){
 
         return fetch(
-            "https://localhost:8080/api/grupos/",
+            connectionStr,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -155,7 +159,7 @@ let srvDaoGrupoProyecto = class groupProject{
         }
 
         return fetch(
-            "https://localhost:8080/api/usuariogrupos/",
+            connectionStr,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -177,7 +181,7 @@ let srvDaoGrupoProyecto = class groupProject{
 
     static removeUsuario(email, id, empresa){
         return fetch(
-            "https://localhost:8080/api/usuariogrupos/"+email+"/"+id+"/"+empresa,
+            connectionStr+email+"/"+id+"/"+empresa,
             {
                 mode: 'cors',
                 method: 'DELETE',

@@ -1,9 +1,13 @@
+import config from "../config/config.json";
+
+const connectionStr = config.route+"noticias/";
+
 let SrvDaoNoticia = class DaoNoticia{
 
     static create(noticiaJson = {}){
 
         return fetch(
-            "https://localhost:8080/api/noticias",
+            connectionStr,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -26,7 +30,7 @@ let SrvDaoNoticia = class DaoNoticia{
     static delete(empresa, grupocodigo, autor, codigo){
 
         return fetch(
-            "https://localhost:8080/api/noticias/"+empresa+"/"+grupocodigo+"/"+autor+"/"+codigo,
+            connectionStr+empresa+"/"+grupocodigo+"/"+autor+"/"+codigo,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -44,7 +48,7 @@ let SrvDaoNoticia = class DaoNoticia{
 
     static edit(empresa, grupocodigo, autor, codigo, noticiaJson = {}){
         return fetch(
-            "https://localhost:8080/api/noticias/"+empresa+"/"+grupocodigo+"/"+autor+"/"+codigo,
+            connectionStr+empresa+"/"+grupocodigo+"/"+autor+"/"+codigo,
             {
                 mode: 'cors',
                 method: 'PUT',
@@ -66,7 +70,7 @@ let SrvDaoNoticia = class DaoNoticia{
     static getAllByGrupo(empresa, grupocodigo){
 
         return fetch(
-            "https://localhost:8080/api/noticias/"+empresa+"/"+grupocodigo,
+            connectionStr+empresa+"/"+grupocodigo,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -88,7 +92,7 @@ let SrvDaoNoticia = class DaoNoticia{
     static getOneById(empresa, grupocodigo, autor, codigo){
 
         return fetch(
-            "https://localhost:8080/api/noticias/"+empresa+"/"+grupocodigo+"/"+autor+"/"+codigo,
+            connectionStr+empresa+"/"+grupocodigo+"/"+autor+"/"+codigo,
             {
                 mode: 'cors',
                 method: 'GET',

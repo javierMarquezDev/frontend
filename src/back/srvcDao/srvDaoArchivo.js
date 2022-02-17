@@ -1,11 +1,13 @@
-import SrvDaoTarea from "./srvDaoTarea"
+import config from "../config/config.json";
+
+const connectionStr = config.route+"archivos/";
 
 let SrvDaoArchivo = class DaoArchivo{
 
     static create(archivo){
 
         return fetch(
-            "https://localhost:8080/api/archivos/",
+            connectionStr,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -28,7 +30,7 @@ let SrvDaoArchivo = class DaoArchivo{
     static delete(codigo, tareacodigo, tareagrupocodigo, tareagrupoempresa){
 
         return fetch(
-            "https://localhost:8080/api/archivos/"+tareagrupoempresa+"/"+tareagrupocodigo+"/"+tareacodigo+"/"+codigo,
+            connectionStr+tareagrupoempresa+"/"+tareagrupocodigo+"/"+tareacodigo+"/"+codigo,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -47,7 +49,7 @@ let SrvDaoArchivo = class DaoArchivo{
 
     static edit(archivo){
         return fetch(
-            "https://localhost:8080/api/archivos/"+archivo.tareagrupoempresa+"/"+archivo.tareagrupocodigo+"/"+archivo.tareacodigo+"/"+archivo.codigo,
+            connectionStr+archivo.tareagrupoempresa+"/"+archivo.tareagrupocodigo+"/"+archivo.tareacodigo+"/"+archivo.codigo,
             {
                 mode: 'cors',
                 method: 'PUT',
@@ -69,7 +71,7 @@ let SrvDaoArchivo = class DaoArchivo{
     static getById(codigo, tareacodigo, tareagrupocodigo, tareagrupoempresa){
 
         return fetch(
-            "https://localhost:8080/api/archivos/"+tareagrupoempresa+"/"+tareagrupocodigo+"/"+tareacodigo+"/"+codigo,
+            connectionStr+tareagrupoempresa+"/"+tareagrupocodigo+"/"+tareacodigo+"/"+codigo,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -88,7 +90,7 @@ let SrvDaoArchivo = class DaoArchivo{
 
     static getByTarea(tareacodigo, tareagrupocodigo, tareagrupoempresa){
         return fetch(
-            "https://localhost:8080/api/archivos/"+tareagrupoempresa+"/"+tareagrupocodigo+"/"+tareacodigo,
+            connectionStr+tareagrupoempresa+"/"+tareagrupocodigo+"/"+tareacodigo,
             {
                 mode: 'cors',
                 method: 'GET',
