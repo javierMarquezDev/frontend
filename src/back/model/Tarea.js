@@ -2,10 +2,7 @@ let Tarea = class Task{
 
     constructor(codigo = null, proyecto = null, 
                 fechaHora = null, nombre = null, descripcion = null, 
-                checked = false, archivo = null, atareado = null){
-
-        if(this.validator(codigo,proyecto,atareado,nombre) === false)
-            return false;
+                checked = false, atareado = null){
             
         this.codigo = codigo;
         this.grupo = proyecto
@@ -13,7 +10,6 @@ let Tarea = class Task{
         this.nombre = nombre
         this.descripcion = descripcion
         this.checked = checked
-        this.archivo = archivo
         this.atareado = atareado
     }
 

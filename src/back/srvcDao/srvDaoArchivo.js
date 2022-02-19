@@ -4,9 +4,9 @@ const connectionStr = config.route+"archivos/";
 
 let SrvDaoArchivo = class DaoArchivo{
 
-    static create(archivo){
+    static async create(archivo){
 
-        return fetch(
+        return await fetch(
             connectionStr,
             {
                 mode: 'cors',
@@ -27,10 +27,10 @@ let SrvDaoArchivo = class DaoArchivo{
 
     }
 
-    static delete(codigo, tareacodigo, tareagrupocodigo, tareagrupoempresa){
+    static async delete(archivo){
 
-        return fetch(
-            connectionStr+tareagrupoempresa+"/"+tareagrupocodigo+"/"+tareacodigo+"/"+codigo,
+        return await fetch(
+            connectionStr+archivo.tareagrupoempresa+"/"+archivo.tareagrupocodigo+"/"+archivo.tareacodigo+"/"+archivo.codigo,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -47,8 +47,8 @@ let SrvDaoArchivo = class DaoArchivo{
 
     }
 
-    static edit(archivo){
-        return fetch(
+    static async edit(archivo){
+        return await fetch(
             connectionStr+archivo.tareagrupoempresa+"/"+archivo.tareagrupocodigo+"/"+archivo.tareacodigo+"/"+archivo.codigo,
             {
                 mode: 'cors',
@@ -68,10 +68,10 @@ let SrvDaoArchivo = class DaoArchivo{
         })
     }
 
-    static getById(codigo, tareacodigo, tareagrupocodigo, tareagrupoempresa){
+    static async getById(grupoempresa, grupocodigo, tareacodigo, codigo){
 
-        return fetch(
-            connectionStr+tareagrupoempresa+"/"+tareagrupocodigo+"/"+tareacodigo+"/"+codigo,
+        return await fetch(
+            connectionStr+grupoempresa+"/"+grupocodigo+"/"+tareacodigo+"/"+codigo,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -88,8 +88,8 @@ let SrvDaoArchivo = class DaoArchivo{
 
     }
 
-    static getByTarea(tareacodigo, tareagrupocodigo, tareagrupoempresa){
-        return fetch(
+    static async getByTarea(tareagrupoempresa,tareagrupocodigo,tareacodigo){
+        return await fetch(
             connectionStr+tareagrupoempresa+"/"+tareagrupocodigo+"/"+tareacodigo,
             {
                 mode: 'cors',

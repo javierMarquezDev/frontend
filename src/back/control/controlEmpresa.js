@@ -6,41 +6,53 @@ import Empresa from "../model/Empresa";
 
 let ControlEmpresa = class CtrlCompany{
 
-    static edit(empresa){
+    static async edit(empresa){
 
-        const empresaJson = this.convert(empresa)
+        if(empresa == null || empresa == "" || empresa.nif === null || empresa.nif === "")
+            return "Información no válida."
 
-        return SrvDaoEmpresa.edit(empresaJson);
+        const empresaJson = await this.convert(empresa)
 
-    }
-
-    static detele(empresa){
-
-        const empresaJson = this.convert(empresa);
-
-        return SrvDaoEmpresa.delete(empresaJson);
+        return await SrvDaoEmpresa.edit(empresaJson);
 
     }
 
-    static create(empresa){
+    static async delete(empresa){
 
-        const empresaJson = this.convert(empresa);
+        if(empresa == null || empresa == "")
+            return "Información no válida."
 
-        return SrvDaoEmpresa.create(empresaJson);
+        return await SrvDaoEmpresa.delete(empresa);
+
+    }
+
+    static async create(empresa){
+
+        if(empresa == null || empresa == "")
+            return "Información no válida."
+
+        const empresaJson = await this.convert(empresa);
+
+        console.log(empresaJson);
+
+        return await SrvDaoEmpresa.create(empresaJson);
 
     }
 
     //get
 
-    static getByName(name){
+    static async getByName(name){
 
-        const empresasArray = SrvDaoEmpresa.getByName(name);
+        if(name == null || name == "")
+            return "Información no válida."
+
+        const empresasArray = await SrvDaoEmpresa.getByName(name);
 
         let resultado = [];
 
-        Array.from(empresasArray).forEach(element => {
+        Array.from(empresasArray).forEach(async (element) => {
 
-            const empresa = this.convert(element);
+            const empresa = await this.convert(element);
 
             resultado.push(empresa);
             
@@ -50,23 +62,29 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
-    static getById(nif){
+    static async getById(nif){
 
-        const empresaJson = SrvDaoEmpresa.getById(nif);
+        if(nif == null || nif == "")
+            return "Información no válida."
 
-        return this.convert(empresaJson);
+        const empresaJson = await SrvDaoEmpresa.getById(nif);
+
+        return await this.convert(await empresaJson);
 
     }
 
-    static getByAdmin(admin){
+    static async getByAdmin(admin){
 
-        const empresasArray = SrvDaoEmpresa.getByAdmin(admin);
+        if(admin == null || admin == "")
+            return "Información no válida."
+
+        const empresasArray = await SrvDaoEmpresa.getByAdmin(admin);
 
         let resultado = [];
 
-        Array.from(empresasArray).forEach(element => {
+        empresasArray.forEach(async (element) => {
 
-            const empresa = this.convert(element);
+            const empresa = await this.convert(element);
 
             resultado.push(empresa);
             
@@ -78,7 +96,7 @@ let ControlEmpresa = class CtrlCompany{
     
     //convert
 
-    static convert(data){
+    static async convert(data){
 
         let empresa = null;
 
@@ -89,17 +107,11 @@ let ControlEmpresa = class CtrlCompany{
 
         }else if(typeof data == 'object'){
 
-            const admin = ControlUsuario.getById(data.email);
+            const admin = await ControlUsuario.getById(data.administrador);
 
-            const grupos = ControlGrupoProyecto.getFromEmpresa(data.nif);
-
-            empresa = Mapper.jsonToEmpresa(data,admin,grupos);
+            empresa = Mapper.jsonToEmpresa(data,await admin);
 
         }
-
-        /**
-         * @todo retrieve tareas + notificaciones?
-         */
 
          return empresa;
 

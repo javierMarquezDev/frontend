@@ -1,14 +1,12 @@
-import Mapper from "../utils/mapper";
-
 import config from "../config/config.json";
 
 const connectionStr = config.route+"empresas/";
 
 let SrvDaoEmpresa = class ServiceDaoEmpresa{
 
-    static create(empresaJson){
+    static async create(empresaJson){
 
-        return fetch(
+        return await fetch(
             connectionStr,
             {
                 mode: 'cors',
@@ -23,7 +21,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
@@ -34,7 +32,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
     static getByName(nombre = ""){
 
         return fetch(
-            connectionStr+"name"+nombre,
+            connectionStr+"name/"+nombre,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -45,17 +43,17 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
-        return responseEmpresa.json;
+        //return responseEmpresa.json;
 
     };
 
-    static getById(nif = ""){
+    static async getById(nif = ""){
 
-        return fetch(
+        return await fetch(
             connectionStr+nif,
             {
                 mode: 'cors',
@@ -67,25 +65,15 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
-
-        const administrador = srvDaoUsuario.getById(responseEmpresa.body.administrador);
-
-        const usuarios = srvDaoUsuario.getByEmpresa(responseEmpresa.body.nif);
-
-        const grupoProyectos = srvDaoGrupoProyecto.getByEmpresa(responseEmpresa.body.nif);
-
-        const empresa = Mapper.jsonToEmpresa(responseEmpresa.json, administrador,usuarios, grupoProyectos);
-
-        return empresa;
         
     };
 
-    static getByAdmin(admin = ""){
-        return fetch(
-            connectionStr+"admin"+admin,
+    static async getByAdmin(admin = ""){
+        return await fetch(
+            connectionStr+"admin/"+admin,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -95,18 +83,20 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
 
             }
         ).then((response) => response.json())
-        .then(data => {
-            console.log(data);
+        .then(data => {    
             return data;
         })
 
         
     };
 
-    static edit(empresaJson){
+    static async edit(empresaJson){
 
-        return fetch(
-            connectionStr+empresaJson.nif,
+        let cif = empresaJson.nif;
+        empresaJson.nif = undefined;
+
+        return await fetch(
+            connectionStr+cif,
             {
                 mode: 'cors',
                 method: 'PUT',
@@ -120,7 +110,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
@@ -128,8 +118,8 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
 
     };
 
-    static delete(nif){
-        return fetch(
+    static async delete(nif){
+        return await fetch(
             connectionStr+nif,
             {
                 mode: 'cors',
@@ -141,7 +131,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 

@@ -4,10 +4,10 @@ const connectionStr = config.route+"grupos/";
 
 let srvDaoGrupoProyecto = class groupProject{
 
-    static getAllFromEmpresa(empresa = ""){
+    static async getAllFromEmpresa(empresa = ""){
 
-        return fetch(
-            connectionStr+empresa,
+        return await fetch(
+            connectionStr+"empresa/search/"+empresa,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -18,16 +18,15 @@ let srvDaoGrupoProyecto = class groupProject{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
             return data;
         })        
 
     };
 
-    static getAllFromUsuario(usuario = ""){
+    static async getAllFromUsuario(usuario = ""){
 
-        return fetch(
-            connectionStr+"usuarios/search/"+usuario,
+        return await fetch(
+            connectionStr+"usuario/search/"+usuario,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -38,16 +37,16 @@ let srvDaoGrupoProyecto = class groupProject{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })        
 
     };
 
-    static getOneById(empresa = "", id = ""){
+    static async getOneById(empresa = "", id = ""){
 
-        return fetch(
-            connectionStr+"usuarios/"+empresa+"/"+id,
+        return await fetch(
+            connectionStr+empresa+"/"+id,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -58,15 +57,15 @@ let srvDaoGrupoProyecto = class groupProject{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })        
 
     };
 
-    static getAllByFin(finalizado = false){
+    /*static async getAllByFin(finalizado = false){
 
-        return fetch(
+        return await fetch(
             connectionStr+"fin/search/"+(finalizado)?"true":"false",
             {
                 mode: 'cors',
@@ -78,15 +77,15 @@ let srvDaoGrupoProyecto = class groupProject{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })        
 
-    };
+    };*/
 
-    static edit(grupoJson){
+    static async edit(grupoJson){
 
-        return fetch(
+        return await fetch(
             connectionStr+grupoJson.empresa+"/"+grupoJson.codigo,
             {
                 mode: 'cors',
@@ -101,16 +100,16 @@ let srvDaoGrupoProyecto = class groupProject{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     };
 
-    static delete(grupoJson){
+    static async delete(grupoJson){
 
-        return fetch(
-            connectionStr+"usuarios/"+grupoJson.empresa+"/"+grupoJson.codigo,
+        return await fetch(
+            connectionStr+grupoJson.empresa+"/"+grupoJson.codigo,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -121,16 +120,18 @@ let srvDaoGrupoProyecto = class groupProject{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })        
 
     };
 
-    static create(grupoJson){
+    static async create(grupoJson){
 
-        return fetch(
-            connectionStr,
+        console.log(grupoJson)
+
+        return await fetch(
+            connectionStr+grupoJson.empresa,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -144,21 +145,20 @@ let srvDaoGrupoProyecto = class groupProject{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
             return data;
         })
 
     };
 
-    static addUsuario(email, id, nif){
+    static async addUsuario(email, id, nif){
 
-        usuariogrupo = {
+        const usuariogrupo = {
             "usuario":email,
             "codigogrupo":id,
             "empresagrupo":nif
         }
 
-        return fetch(
+        return await fetch(
             connectionStr,
             {
                 mode: 'cors',
@@ -173,14 +173,14 @@ let srvDaoGrupoProyecto = class groupProject{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     };
 
-    static removeUsuario(email, id, empresa){
-        return fetch(
+    static async removeUsuario(email, id, empresa){
+        return await fetch(
             connectionStr+email+"/"+id+"/"+empresa,
             {
                 mode: 'cors',
@@ -194,7 +194,7 @@ let srvDaoGrupoProyecto = class groupProject{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
     };

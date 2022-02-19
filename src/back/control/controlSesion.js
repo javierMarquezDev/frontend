@@ -5,22 +5,25 @@ import Sesion from "../model/Sesion";
 let ControlSesion = class controlSesion{
 
     //Crear objeto Sesión en el localStorage
-    static createSesion(email, pass){
+    static async createSesion(email, pass){
 
-        const responseLogin = SrvDaoSesion.login(email,pass);
+        const responseLogin = await SrvDaoSesion.login(email,pass);
 
-        if(responseLogin.status != 200)
-            return responseLogin;
+        if(responseLogin.usuario != undefined && responseLogin.token != undefined){
 
-        //TODO
-        const usuario = ControlUsuario.getById(email);
+            let usuario = await ControlUsuario.getById(email);
 
-        const token = responseLogin.token;
+            console.log(usuario);
 
-        const currentSesion = new Sesion(usuario, token);
+            const token = responseLogin.token;
 
-        //set localstorage sesion object
-        localStorage.setItem("currentsesion",currentSesion);
+            //set localstorage sesion object
+            localStorage.setItem("usuario",JSON.stringify(usuario));
+            localStorage.setItem("token",token);
+
+        }
+
+        return responseLogin.message;
 
     };
 
@@ -42,9 +45,22 @@ let ControlSesion = class controlSesion{
     //Destruir objeto Sesión en el localStorage (reload necesario)
     static destroySesion(){
 
-        localStorage.removeItem("sesion");
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("token");
+
+        return "Sesión cerrada exitosamente."
 
     };
+
+    //Get usuario de la sesión
+    static getSessionUser(){
+        return JSON.parse(localStorage.getItem("usuario") && null);
+    }
+
+    //Get token de la sesión
+    static getSessionToken(){
+        return localStorage.getItem("token") && null;
+    }
 
 }
 

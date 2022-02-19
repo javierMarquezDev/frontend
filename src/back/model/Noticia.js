@@ -2,9 +2,6 @@ let Noticia = class News{
 
     constructor(codigo = null, usuario = null, grupoProyecto = null, texto = null, 
                 fechaHora = null, imagenes = [], archivos = []){
-
-        if(this.validator(codigo,usuario,grupoProyecto,texto,fechaHora) === false)
-            return false;
         
         this.codigo = codigo;
         this.usuario = usuario;

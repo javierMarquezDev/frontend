@@ -1,3 +1,4 @@
+import validator from "validator";
 import Noticia from "../model/Noticia";
 import Usuario from "../model/Usuario";
 import Mapper from "../utils/mapper"
@@ -8,7 +9,7 @@ let ControlUsuario = class controlUsuario {
     static async create(usuario){
 
         if(usuario === null)
-            return("Error al procesar petición.");
+            return("Información no válida.");
 
         const usuarioJson = this.convert(usuario);
 
@@ -21,7 +22,7 @@ let ControlUsuario = class controlUsuario {
     static delete(usuario){
 
         if(usuario === null)
-            return("Error al procesar petición.");
+            return("Información no válida.");
 
         const usuarioJson = this.convert(usuario);
 
@@ -32,7 +33,7 @@ let ControlUsuario = class controlUsuario {
     static edit(usuario){
 
         if(usuario === null)
-            return("Error al procesar petición.");
+            return("Información no válida.");
 
         const usuarioJson = this.convert(usuario);
 
@@ -42,29 +43,33 @@ let ControlUsuario = class controlUsuario {
 
     //get
 
-    static getById(email){
+    static async getById(email){
 
-        if(email === null)
-            return("Error al procesar petición.");
+        if(email === null || email === "" || !validator.isEmail(email))
+            return("Información no válida.");
 
-        const usuarioJson = SrvDaoUsuario.getById(email);
+        const usuarioJson = await SrvDaoUsuario.getById(email);
+
+        if(usuarioJson.email == null) return "El usuario no existe";
 
         return this.convert(usuarioJson);
 
     }
 
-    static getByProyecto(codigogrupo, empresagrupo){
+    static async getByProyecto(codigogrupo, empresagrupo){
 
-        if(codigogrupo === null || empresagrupo === null)
-            return("Error al procesar petición.");
+        if(codigogrupo === null || empresagrupo === null || codigogrupo === "" || empresagrupo === "")
+            return("Información no válida.");
 
-        const usuariosArray = SrvDaoUsuario.getByProyecto(codigogrupo, empresagrupo);
+        const usuariosArray = await SrvDaoUsuario.getByProyecto(codigogrupo, empresagrupo);
 
         let resultado = [];
 
-        Array.from(usuariosArray).forEach(element => {
+        usuariosArray.forEach(async element => {
 
-            const usuario = this.convert(element);
+            let object = await SrvDaoUsuario.getById(element);
+
+            const usuario = this.convert(object);
 
             resultado.push(usuario);
             
@@ -73,23 +78,41 @@ let ControlUsuario = class controlUsuario {
         return resultado;
     }
 
-    static createNtf(usuario, notificacion){
+    static async createNtf(usuario, notificacion){
 
         if(notificacion === null || usuario === null)
-            return("Error al procesar petición.");
+            return("Información no válida.");
 
         const notificacionJson = Mapper.notificacionToJson(notificacion);
 
-        return SrvDaoUsuario.createNotificacion(usuario, notificacionJson);
+        return await SrvDaoUsuario.createNotificacion(usuario, notificacionJson);
 
     }
 
-    static deleteNtf(id, usuario){
+    static async deleteNtf(id, usuario){
 
         if(id === null || usuario === null)
-            return("Error al procesar petición.");
+            return("Información no válida.");
 
-        return SrvDaoUsuario.deleteNotificacion(id, usuario);
+        return await SrvDaoUsuario.deleteNotificacion(id, usuario);
+
+    }
+
+    static async getNtf(usuario){
+
+        if(usuario === null || usuario === "")
+            return "Información no válida";
+
+        return await SrvDaoUsuario.getAllNtfsFromUsuario(usuario);
+
+    }
+
+    static async getOneNtf(usuario,codigo){
+
+        if(usuario === null || usuario === "" || codigo === null || isNaN(parseInt(codigo)) || codigo < 0)
+            return "Información no válida";
+
+        return await SrvDaoUsuario.getOneNtfFromUsuario(usuario,codigo);
 
     }
 

@@ -21,15 +21,15 @@ let srvDaoUsuario = class DaoUsuario{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            //
             return data;
         })
 
     };
 
-    static getById(email = ""){
+    static async getById(email = ""){
 
-        return fetch(
+        return await fetch(
             connectionStr+email,
             {
                 mode: 'cors',
@@ -41,7 +41,6 @@ let srvDaoUsuario = class DaoUsuario{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
             return data;
         })        
 
@@ -68,7 +67,7 @@ let srvDaoUsuario = class DaoUsuario{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            //
             return data;
         })
 
@@ -88,7 +87,7 @@ let srvDaoUsuario = class DaoUsuario{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            //
             return data;
         })
 
@@ -100,10 +99,10 @@ let srvDaoUsuario = class DaoUsuario{
      * @param String empresaGrupo 
      * @returns Array
      */
-    static getByProyecto(codigoGrupo, empresaGrupo){
+    static async getByProyecto(codigoGrupo, empresaGrupo){
 
-        const responseUsuario = fetch(
-            "http://localhost:8080/api/usuariogrupos/"+codigoGrupo+"/"+empresaGrupo,
+        const responseUsuario = await fetch(
+            config.route+"usuariogrupos/"+codigoGrupo+"/"+empresaGrupo,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -114,15 +113,12 @@ let srvDaoUsuario = class DaoUsuario{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
             return data;
         })
 
-        let arrayUsuarioGrupos = Array.from(responseUsuario.json());
-
         let arrayUsuarios = [];
 
-        arrayUsuarioGrupos.forEach(element => {
+        responseUsuario.forEach(element => {
 
             arrayUsuarios.push(element.usuario);
             
@@ -132,9 +128,9 @@ let srvDaoUsuario = class DaoUsuario{
 
     };
 
-    static createNotificacion(email = "", ntfJson = {}){
+    static async createNotificacion(email = "", ntfJson = {}){
 
-        return fetch(
+        return await fetch(
             connectionStr+email+"/notificaciones",
             {
                 mode: 'cors',
@@ -149,15 +145,15 @@ let srvDaoUsuario = class DaoUsuario{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     };
 
-    static deleteNotificacion(id = "", email = ""){
+    static async deleteNotificacion(id = "", email = ""){
 
-        return fetch(
+        return await fetch(
             connectionStr+email+"/notificaciones/"+id,
             {
                 mode: 'cors',
@@ -171,47 +167,51 @@ let srvDaoUsuario = class DaoUsuario{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     };
 
-    static getAllNtfsFromUsuario(email = ""){
+    static async getAllNtfsFromUsuario(email = ""){
 
-        return fetch(
+        return await fetch(
             connectionStr+email+"/notificaciones",
             {
                 mode: 'cors',
                 method: 'GET',
                 headers:{
-                    "access-token":localStorage.getItem('token')
+                    "access-token":localStorage.getItem('token'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
 
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     };
 
-    static getOneNtfFromUsuario(id = "", email = ""){
+    static async getOneNtfFromUsuario(email = "", id = ""){
 
-        return fetch(
-            config.route+"/usuarios/"+email+"/notificaciones/"+id,
+        return await fetch(
+            connectionStr+email+"/notificaciones/"+id,
             {
                 mode: 'cors',
                 method: 'GET',
                 headers:{
-                    "access-token":localStorage.getItem('token')
+                    "access-token":localStorage.getItem('token'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
 
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 

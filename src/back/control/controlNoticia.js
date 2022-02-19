@@ -2,44 +2,45 @@ import Noticia from "../model/Noticia";
 import ControlGrupo from "./controlGrupoProyecto";
 import ControlUsuario from "./controlUsuario";
 import SrvDaoNoticia from "../srvcDao/srvDaoNoticia";
+import Mapper from "../utils/mapper";
 
 let ControlNoticia = class ctrlNews{
 
-    static edit(noticia = new Noticia()){
+    static async edit(noticia){
 
-        const noticiaJson = this.convert(noticia)
+        const noticiaJson = await this.convert(noticia)
 
-        return SrvDaoNoticia.edit(noticiaJson);
-
-    }
-
-    static detele(noticia = new Noticia()){
-
-        const noticiaJson = this.convert(noticia);
-
-        return SrvDaoNoticia.delete(noticiaJson);
+        return await SrvDaoNoticia.edit(noticiaJson);
 
     }
 
-    static create(noticia = new Noticia()){
+    static async delete(noticia = new Noticia()){
 
-        const noticiaJson = this.convert(noticia);
+        const noticiaJson = await this.convert(noticia);
 
-        return SrvDaoNoticia.create(noticiaJson);
+        return await SrvDaoNoticia.delete(noticiaJson);
+
+    }
+
+    static async create(noticia = new Noticia()){
+
+        const noticiaJson = await await this.convert(noticia);
+
+        return await SrvDaoNoticia.create(noticiaJson);
 
     }
 
     //get
 
-    static getByGrupo(grupoId){
+    static async getByGrupo(grupoempresa, grupocodigo){
 
-        const noticiasArray = SrvDaoNoticia.getByGrupo(grupoId);
+        const noticiasArray = await SrvDaoNoticia.getAllByGrupo(grupoempresa, grupocodigo);
 
         let resultado = [];
 
-        Array.from(noticiasArray).forEach(element => {
+        Array.from(noticiasArray).forEach(async element => {
 
-            const noticia = this.convert(element);
+            const noticia = await this.convert(element);
 
             resultado.push(noticia);
             
@@ -49,15 +50,15 @@ let ControlNoticia = class ctrlNews{
 
     }
 
-    static getByUsuario(cif, grupocodigo, email){
+    static async getByUsuario(cif, grupocodigo, email){
 
-        const noticiasArray = SrvDaoNoticia.getAllByUsuarioAndGrupo(cif,grupocodigo,email);
+        const noticiasArray = await SrvDaoNoticia.getAllByUsuarioAndGrupo(cif,grupocodigo,email);
 
         let resultado = [];
 
-        Array.from(noticiasArray).forEach(element => {
+        Array.from(noticiasArray).forEach(async element => {
 
-            const noticia = this.convert(element);
+            const noticia = await this.convert(element);
 
             resultado.push(noticia);
             
@@ -68,17 +69,17 @@ let ControlNoticia = class ctrlNews{
 
     }
 
-    static getById(empresa,grupoId,autor,id){
+    static async getById(empresa, grupocodigo, autor, codigo){
 
-        const noticiaJson = SrvDaoNoticia.getOneById(empresa,grupoId,autor,id);
+        const noticiaJson = await SrvDaoNoticia.getOneById(empresa, grupocodigo, autor, codigo);
 
-        return this.convert(noticiaJson);
+        return await this.convert(noticiaJson);
 
     }
 
     //convert
     
-    static convert(data){
+    static async convert(data){
 
         let noticia = null;
 
@@ -88,17 +89,13 @@ let ControlNoticia = class ctrlNews{
 
         }else if(typeof data == 'object'){
 
-            const usuario = ControlUsuario.getById(data.autor);
+            const usuario = await ControlUsuario.getById(data.autor);
 
-            const grupoproyecto = ControlGrupo.getById(data.grupoempresa, data.grupocodigo);
+            const grupoproyecto = await ControlGrupo.getById(data.grupoempresa, data.grupocodigo);
 
             noticia = Mapper.jsonToNoticia(data,usuario,grupoproyecto);
 
         }
-
-        /**
-         * @todo retrieve tareas + notificacitareaones?
-         */
 
          return noticia;
 

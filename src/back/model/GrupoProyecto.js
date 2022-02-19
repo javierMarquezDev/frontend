@@ -1,16 +1,11 @@
 let GrupoProyecto = class groupProject{
 
 
-    constructor(codigoGrupo = null, codigoProyecto = null, empresa = null, 
+    constructor(codigoGrupo = null, empresa = null, 
                 nombre = null, descripcion = null, administrador = null, 
-                fechaHora = null, finalizado = false, usuarios = [], tareas = []){
+                fechaHora = null, finalizado = false, usuarios = []){
 
-        if(this.validator(codigoGrupo,codigoProyecto,empresa,nombre,administrador) === false){
-            return false;
-        }
-
-        this.codigoGrupo = codigoGrupo;
-        this.codigoProyecto = codigoProyecto;
+        this.codigo = codigoGrupo;
         this.empresa = empresa;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -18,7 +13,6 @@ let GrupoProyecto = class groupProject{
         this.fechaHora = fechaHora;
         this.finalizado = finalizado;
         this.usuarios = usuarios;
-        this.tareas = tareas;
 
     }
 

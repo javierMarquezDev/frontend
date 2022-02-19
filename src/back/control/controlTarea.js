@@ -3,49 +3,63 @@ import ControlGrupoProyecto from "./controlGrupoProyecto";
 import ControlUsuario from "./controlUsuario";
 import Mapper from "../utils/mapper";
 import Tarea from "../model/Tarea"
+import ControlArchivo from '../control/controlArchivo';
 
 let ControlTarea = class controlTarea{
 
-    static create(tarea, email){
+    static async create(tarea){
 
-        const tareaJson = this.convert(tarea);
+        if(tarea == null)
+            return "Información no válida";
 
-        const resultTarea = SrvDaoTarea.create(tareaJson);
+        const tareaJson = await this.convert(tarea);
 
-        const resultAsignar = this.assignTarea(resultTarea.grupocodigo, resultTarea.grupoempresa, resultTarea.id, email);
+        console.log(tareaJson);
 
-        return [resultTarea,resultAsignar];
+        const resultTarea = await SrvDaoTarea.create(tareaJson);
 
-    };
-
-    static delete(tarea){
-
-        const tareaJson = this.convert(tarea);
-
-        return SrvDaoTarea.delete(tareaJson);
+        return resultTarea;
 
     };
 
-    static edit(tarea){
+    static async delete(tarea){
 
-        const tareaJson = this.convert(tarea);
 
-        return SrvDaoTarea.edit(tareaJson);
+        if(tarea == null)
+            return "Información no válida";
+
+        const tareaJson = await this.convert(tarea);
+
+        return await SrvDaoTarea.delete(tareaJson);
+
+    };
+
+    static async edit(tarea){
+
+        if(tarea == null)
+            return "Información no válida";
+
+        const tareaJson = await this.convert(tarea);
+
+        return await SrvDaoTarea.edit(tareaJson);
 
     };
 
     //get
 
-    static getFromGrupo(grupoEmpresa, grupoCodigo){
+    static async getFromGrupo(grupoEmpresa, grupoCodigo){
+
+        if(grupoEmpresa === null || grupoEmpresa === "" || grupoCodigo === null || grupoCodigo === "")
+            return "Información no válida";
 
 
-        const tareasArray = SrvDaoTarea.getAllFromGrupo(grupoEmpresa,grupoCodigo);
+        const tareasArray = await SrvDaoTarea.getAllFromGrupo(grupoEmpresa,grupoCodigo);
 
         let resultado = [];
 
-        Array.from(tareasArray).forEach(element => {
+        Array.from(tareasArray).forEach( async (element) => {
 
-            const tarea = this.convert(element);
+            const tarea = await this.convert(element);
 
             resultado.push(tarea);
             
@@ -55,45 +69,36 @@ let ControlTarea = class controlTarea{
 
     }
 
-    static getById(grupoEmpresa, grupoCodigo, id)
+    static async getById(grupoEmpresa, grupoCodigo, id){
 
-    static getFromUsuario(email){
+        if(grupoEmpresa === null || grupoEmpresa === "" || grupoCodigo === null || grupoCodigo === "" ||
+        id === null || id === "")
+            return "Información no válida";
 
-        const tareasArray = SrvDaoTarea.getAllFromUsuario(email);
+        const tarea = await SrvDaoTarea.getOneById(grupoEmpresa,grupoCodigo,id);
+
+        return await this.convert(tarea);
+
+    }
+
+    static async getFromUsuario(email){
+
+        if(email === null || email === "")
+            return "Información no válida";
+
+        const tareasArray = await SrvDaoTarea.getAllFromUsuario(email);
 
         let resultado = [];
 
-        Array.from(tareasArray).forEach(element => {
+        Array.from(tareasArray).forEach(async element => {
 
-            const tarea = this.convert(element);
+            const tarea = await this.convert(element);
 
             resultado.push(tarea);
             
         });
 
         return resultado;
-
-    }
-
-    static getUsuarioFromTarea(grupoEmpresa, grupoCodigo, id){
-
-        const usuariotarea = SrvDaoTarea.getUsuariotareaFromTarea(grupoEmpresa,grupoCodigo,id);
-
-        const usuario = ControlUsuario.getById(usuariotarea.usuario);
-
-        return ControlUsuario.convert(usuario);
-
-    }
-
-    static assignTarea(grupoEmpresa, grupoCodigo, id, usuario){
-
-        return SrvDaoTarea.createUsuariotarea(grupoEmpresa,grupoCodigo,id,usuario);
-
-    }
-
-    static unassignTarea(grupoEmpresa, grupoCodigo, id, usuario){
-
-        return SrvDaoTarea.deleteUsuariotarea(grupoEmpresa,grupoCodigo,id,usuario);
 
     }
 
@@ -104,7 +109,7 @@ let ControlTarea = class controlTarea{
      * y sus respectivos objetos anidados.
      * @param {*} data 
      */
-     static convert(data){
+     static async  convert(data){
 
         let tarea = null;
 
@@ -114,21 +119,15 @@ let ControlTarea = class controlTarea{
 
         }else if(typeof data === 'object'){
 
-            const grupoProyecto = ControlGrupoProyecto.getById(data.grupoempresa,data.grupocodigo);
+            const grupoProyecto = await ControlGrupoProyecto.getById(data.grupoempresa,data.grupocodigo);
 
-            const usuario = this.getUsuarioFromTarea(data.grupoempresa, data.grupocodigo, data.codigo);
+            const usuario = await ControlUsuario.getById(data.usuario);
 
-            const archivo = ControlArchivo.getByTarea(data.codigo,data.grupocodigo,data.grupoempresa);
-
-            tarea = Mapper.jsonToTarea(data, grupoProyecto, archivo, usuario);
+            tarea = Mapper.jsonToTarea(data, grupoProyecto, usuario);
 
         }
 
-        /**
-         * @todo retrieve tareas + notificaciones?
-         */
-
-         return tarea;
+        return tarea;
 
     }
 

@@ -4,10 +4,10 @@ const connectionStr = config.route+"noticias/";
 
 let SrvDaoNoticia = class DaoNoticia{
 
-    static create(noticiaJson = {}){
+    static async create(noticiaJson = {}){
 
-        return fetch(
-            connectionStr,
+        return await fetch(
+            connectionStr+noticiaJson.grupoempresa+"/"+noticiaJson.grupocodigo+"/"+noticiaJson.autor,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -27,10 +27,10 @@ let SrvDaoNoticia = class DaoNoticia{
 
     };
 
-    static delete(empresa, grupocodigo, autor, codigo){
+    static async delete(noticia){
 
-        return fetch(
-            connectionStr+empresa+"/"+grupocodigo+"/"+autor+"/"+codigo,
+        return await fetch(
+            connectionStr+noticia.grupoempresa+"/"+noticia.grupocodigo+"/"+noticia.autor+"/"+noticia.codigo,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -46,9 +46,10 @@ let SrvDaoNoticia = class DaoNoticia{
         })
     };
 
-    static edit(empresa, grupocodigo, autor, codigo, noticiaJson = {}){
-        return fetch(
-            connectionStr+empresa+"/"+grupocodigo+"/"+autor+"/"+codigo,
+    static async edit(noticiaJson){
+
+        return await fetch(
+            connectionStr+noticiaJson.grupoempresa+"/"+noticiaJson.grupocodigo+"/"+noticiaJson.autor+"/"+noticiaJson.codigo,
             {
                 mode: 'cors',
                 method: 'PUT',
@@ -67,9 +68,9 @@ let SrvDaoNoticia = class DaoNoticia{
         })
     };
 
-    static getAllByGrupo(empresa, grupocodigo){
+    static async getAllByGrupo(empresa, grupocodigo){
 
-        return fetch(
+        return await fetch(
             connectionStr+empresa+"/"+grupocodigo,
             {
                 mode: 'cors',
@@ -87,12 +88,10 @@ let SrvDaoNoticia = class DaoNoticia{
 
     };
 
-    static getAllByUsuarioAndGrupo(empresa, grupocodigo, autor);
+    static async getAllByUsuarioAndGrupo(empresa, grupocodigo, autor){
 
-    static getOneById(empresa, grupocodigo, autor, codigo){
-
-        return fetch(
-            connectionStr+empresa+"/"+grupocodigo+"/"+autor+"/"+codigo,
+        return await fetch(
+            connectionStr+empresa+"/"+grupocodigo+"/"+autor,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -104,6 +103,26 @@ let SrvDaoNoticia = class DaoNoticia{
         ).then((response) => response.json())
         .then(data => {
             console.log(data);
+            return data;
+        })
+
+
+    };
+
+    static async getOneById(empresa, grupocodigo, autor, codigo){
+
+        return await fetch(
+            connectionStr+empresa+"/"+grupocodigo+"/"+autor+"/"+codigo,
+            {
+                mode: 'cors',
+                method: 'GET',
+                headers:{
+                    "access-token":localStorage.getItem('token')
+                }
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
             return data;
         })
 

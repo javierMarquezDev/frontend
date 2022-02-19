@@ -1,49 +1,58 @@
 import Archivo from "../model/Archivo";
 import SrvDaoArchivo from "../srvcDao/srvDaoArchivo";
+import SrvDaoSesion from "../srvcDao/srvDaoSesion";
+import SrvDaoTarea from "../srvcDao/srvDaoTarea";
 import Mapper from "../utils/mapper";
 import ControlTarea from "./controlTarea";
 
 let ControlArchivo = class ctrlArchivo{
 
-    static create(archivo = new Archivo()){
+    static async create(archivo = new Archivo()){
 
-        const archivoJson = this.convert(archivo);
+        const archivoJson = await this.convert(archivo);
 
-        return SrvDaoArchivo.create(archivoJson);
-
-    };
-
-    static delete(archivo = new Archivo()){
-
-        return SrvDaoArchivo.delete(archivo.codigo, archivo.tarea.codigo, 
-                                archivo.tarea.grupo.codigo, archivo.tarea.grupo.empresa.nif);
+        return await SrvDaoArchivo.create(archivoJson);
 
     };
 
-    static edit(archivo = new Archivo()){
+    static async delete(archivo){
 
-        const archivoJson = this.convert(archivo);
+        const archivoJson = await this.convert(archivo);
 
-        return SrvDaoArchivo.edit(archivoJson)
+        return await SrvDaoArchivo.delete(archivoJson);
+
+    };
+
+    static async edit(archivo){
+
+        const archivoJson = await this.convert(archivo);
+
+        return await SrvDaoArchivo.edit(archivoJson)
 
     };
 
     //get
 
-    static getByTarea(tarea){
+    static async getByTarea(tarea){
 
-        const archivoJson = SrvDaoArchivo.getByTarea(tarea.codigo, tarea.grupo.codigo, tarea.grupo.empresa.nif);
+        const archivoJson = await SrvDaoArchivo.getByTarea(tarea.grupo.empresa.nif, tarea.grupo.codigo,tarea.codigo);
 
         return this.convert(archivoJson);
 
     }
 
-    static getById()
+    static async getById(grupoempresa, grupocodigo, tareacodigo, codigo){
+
+        const tareaJson = await SrvDaoArchivo.getById(grupoempresa, grupocodigo, tareacodigo, codigo);
+
+        return await this.convert(tareaJson);
+
+    }
 
     //convert
 
 
-    static convert(data){
+    static async convert(data){
 
         let archivo = null;
 
@@ -51,9 +60,11 @@ let ControlArchivo = class ctrlArchivo{
             
             archivo = Mapper.archivoToJson(data);            
 
+            console.log(archivo)
+
         }else if(typeof data == 'object'){
 
-            const tarea = ControlTarea.getById(data.tareagrupoempresa, data.tareagrupocodigo,
+            const tarea = await ControlTarea.getById(data.tareagrupoempresa, data.tareagrupocodigo,
                 data.tareacodigo);
 
             archivo = Mapper.jsonToArchivo(data, tarea);

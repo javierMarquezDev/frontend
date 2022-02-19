@@ -5,10 +5,6 @@ let Empresa = class Company{
                 nombreVia = null, numVia = null, codigoPuerta = null,
                 grupoProyectos = []/*, usuarios = []*/){
 
-        if(this.validator(nif,razonSocial,nombre,administrador,tipoVia,nombreVia,numVia) === false){
-            return false;
-        }
-
         this.nif = nif
         this.razonSocial = razonSocial
         this.nombre = nombre
@@ -19,8 +15,6 @@ let Empresa = class Company{
         this.codigoPuerta = codigoPuerta
         this.grupoProyectos = grupoProyectos
         //this.usuarios = usuarios
-
-        this.prototype.toString = () => this.razonSocial;
 
     }
 

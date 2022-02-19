@@ -6,41 +6,50 @@ import SrvDaoGrupoProyecto from "../srvcDao/srvDaoGrupoProyecto";
 let ControlGrupo = class controlGrupo {
 
     
-    static edit(grupoProyecto = new grupoProyecto()){
+    static async edit(grupoProyecto){
 
-        const grupoProyectoJson = this.convert(grupoProyecto)
+        if(grupoProyecto === null || !GrupoProyecto.prototype.isPrototypeOf(grupoProyecto))
+            return "Información no válida."
 
-        return SrvDaoGrupoProyecto.edit(grupoProyectoJson);
+        const grupoProyectoJson = await this.convert(grupoProyecto)
 
-    }
-
-    static detele(grupoProyecto = new grupoProyecto()){
-
-        const grupoProyectoJson = this.convert(grupoProyecto);
-
-        return SrvDaoGrupoProyecto.delete(grupoProyectoJson);
+        return await SrvDaoGrupoProyecto.edit(grupoProyectoJson);
 
     }
 
-    static create(grupoProyecto = new grupoProyecto()){
+    static async delete(grupoProyecto){
 
-        const grupoProyectoJson = this.convert(grupoProyecto);
+        if(grupoProyecto === null || !GrupoProyecto.prototype.isPrototypeOf(grupoProyecto))
+            return "Información no válida."
 
-        return SrvDaoGrupoProyecto.create(grupoProyectoJson);
+        const grupoProyectoJson = await this.convert(grupoProyecto);
+
+        return await SrvDaoGrupoProyecto.delete(grupoProyectoJson);
+
+    }
+
+    static async create(grupoProyecto){
+
+        if(grupoProyecto === null || !GrupoProyecto.prototype.isPrototypeOf(grupoProyecto))
+            return "Información no válida."
+
+        const grupoProyectoJson = await this.convert(grupoProyecto);
+
+        return await SrvDaoGrupoProyecto.create(grupoProyectoJson);
 
     }
     
     //get
 
-    static getFromEmpresa(nif){
+    static async getFromEmpresa(nif){
 
-        const gruposJson = SrvDaoGrupoProyecto.getAllFromEmpresa(nif);
+        const gruposJson = await SrvDaoGrupoProyecto.getAllFromEmpresa(nif);
 
         let result = [];
 
-        Array.from(gruposJson).forEach(element => {
+        Array.from(gruposJson).forEach(async (element) => {
 
-            const grupo = this.convert(element);
+            const grupo = await this.convert(element);
 
             result.push(grupo);
             
@@ -50,15 +59,18 @@ let ControlGrupo = class controlGrupo {
 
     }
 
-    static getFromUsuario(email){
+    static async getFromUsuario(email){
 
-        const gruposJson = SrvDaoGrupoProyecto.getAllFromUsuario(email);
+        if(email === "" || email === null)
+            return "Información no válida."
+
+        const gruposJson = await SrvDaoGrupoProyecto.getAllFromUsuario(email);
 
         let result = [];
 
-        Array.from(gruposJson).forEach(element => {
+        Array.from(gruposJson).forEach(async (element) => {
 
-            const grupo = this.convert(element);
+            const grupo = await this.convert(element);
 
             result.push(grupo);
             
@@ -68,23 +80,26 @@ let ControlGrupo = class controlGrupo {
 
     }
 
-    static getById(empresa, codigo){
+    static async getById(empresa, codigo){
 
-        const grupoJson = SrvDaoGrupoProyecto.getOneById(empresa,codigo);
+        if(empresa === "" || empresa === null || codigo === "" || codigo === null)
+            return "Información no válida."
 
-        return this.convert(grupoJson);
+        const grupoJson = await SrvDaoGrupoProyecto.getOneById(empresa,codigo);
+
+        return await this.convert(grupoJson);
 
     }
 
-    static getByFin(fin = false){
+    static async getByFin(fin = false){
 
-        const gruposJson = SrvDaoGrupoProyecto.getAllByFin(fin);
+        const gruposJson = await SrvDaoGrupoProyecto.getAllByFin(fin);
 
         let result = [];
 
-        Array.from(gruposJson).forEach(element => {
+        Array.from(gruposJson).forEach(async (element) => {
 
-            const grupo = this.convert(element);
+            const grupo = await this.convert(element);
 
             result.push(grupo);
             
@@ -97,7 +112,7 @@ let ControlGrupo = class controlGrupo {
     //convert
 
     
-    static convert(data){
+    static async convert(data){
 
         let grupo = null;
 
@@ -107,23 +122,17 @@ let ControlGrupo = class controlGrupo {
 
         }else if(typeof data == 'object'){
 
-            const admin = ControlUsuario.getById(data.administrador);
-            const empresa = ControlEmpresa.getById(data.empresa);
+            const admin = await ControlUsuario.getById(data.administrador);
+            const empresa = await ControlEmpresa.getById(data.empresa);
             const usuarios = [];
 
-            const usuariosJson = ControlUsuario.getByProyecto(data.codigo,data.empresa);
+            //const usuariosJson = await ControlUsuario.getByProyecto(data.codigo,data.empresa);
 
-            Array.from(usuariosJson).forEach(element => { usuarios.push(element) });
+            //Array.from(usuariosJson).forEach(element => { usuarios.push(element) });
 
-            const tareas;
-
-            grupo = Mapper.jsonToGrupoProyecto(data,admin,empresa,usuarios);
+            grupo = Mapper.jsonToGrupoProyecto(data,admin,empresa,[]);
 
         }
-
-        /**
-         * @todo retrieve tareas + notificacitareaones?
-         */
 
          return grupo;
 

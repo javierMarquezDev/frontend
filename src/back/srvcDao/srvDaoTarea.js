@@ -4,9 +4,9 @@ const connectionStr = config.route+"tareas/";
 
 let SrvDaoTarea = class DaoTarea{
 
-    static create(tareaJson){
+    static async create(tarea){
 
-        return fetch(
+        return await fetch(
             connectionStr+tarea.grupoempresa+"/"+tarea.grupocodigo,
             {
                 mode: 'cors',
@@ -16,20 +16,20 @@ let SrvDaoTarea = class DaoTarea{
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(tareaJson)
+                body: JSON.stringify(tarea)
 
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     }
 
-    static delete(tarea){
+    static async delete(tarea){
 
-        return fetch(
+        return await fetch(
             connectionStr+tarea.grupoempresa+"/"+tarea.grupocodigo+"/"+tarea.codigo,
             {
                 mode: 'cors',
@@ -41,15 +41,15 @@ let SrvDaoTarea = class DaoTarea{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     }
 
-    static edit(tareaJson){
+    static async edit(tareaJson){
 
-        return fetch(
+        return await fetch(
             connectionStr+tareaJson.grupoempresa+"/"+tareaJson.grupocodigo+"/"+tareaJson.codigo,
             {
                 mode: 'cors',
@@ -64,15 +64,15 @@ let SrvDaoTarea = class DaoTarea{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     }
 
-    static getAllFromGrupo(grupoempresa, grupocodigo){
+    static async getAllFromGrupo(grupoempresa, grupocodigo){
 
-        return fetch(
+        return await fetch(
             connectionStr+grupoempresa+"/"+grupocodigo,
             {
                 mode: 'cors',
@@ -84,22 +84,16 @@ let SrvDaoTarea = class DaoTarea{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     }
 
-    static getAllFromUsuario(usuario){
+    static async getAllFromUsuario(usuario){
 
-        
-
-    }
-
-    static getOneById(grupoempresa, grupocodigo, id){
-
-        return fetch(
-            connectionStr+grupoempresa+"/"+grupocodigo+"/"+id,
+        return await fetch(
+            connectionStr+usuario,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -110,15 +104,35 @@ let SrvDaoTarea = class DaoTarea{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
+            return data;
+        })    
+
+    }
+
+    static async getOneById(grupoempresa, grupocodigo, tareacodigo){
+
+        return await fetch(
+            connectionStr+grupoempresa+"/"+grupocodigo+"/"+tareacodigo,
+            {
+                mode: 'cors',
+                method: 'GET',
+                headers:{
+                    "access-token":localStorage.getItem('token')
+                }
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            
             return data;
         })
 
     }
 
-    static getUsuariotareaFromUsuario(usuario){
+    static async getUsuariotareaFromUsuario(usuario){
 
-        return fetch(
+        return await fetch(
             config+"usuariotareas/"+usuario,
             {
                 mode: 'cors',
@@ -130,15 +144,15 @@ let SrvDaoTarea = class DaoTarea{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     }
 
-    static getUsuariotareaFromTarea(grupoempresa, grupocodigo, id){
+    static async getUsuariotareaFromTarea(grupoempresa, grupocodigo, id){
 
-        return fetch(
+        return await fetch(
             config+"usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
             {
                 mode: 'cors',
@@ -150,15 +164,15 @@ let SrvDaoTarea = class DaoTarea{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     }
 
-    static getOneUsuariotarea(grupoempresa, grupocodigo, id, usuario){
+    static async getOneUsuariotarea(grupoempresa, grupocodigo, id, usuario){
 
-        return fetch(
+        return await fetch(
             config+"usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
             {
                 mode: 'cors',
@@ -170,15 +184,15 @@ let SrvDaoTarea = class DaoTarea{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
         
     }
 
-    static createUsuariotarea(grupoempresa, grupocodigo, id, usuario){
+    static async createUsuariotarea(grupoempresa, grupocodigo, id, usuario){
 
-        return fetch(
+        return await fetch(
             config+"usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id,
             {
                 mode: 'cors',
@@ -193,15 +207,15 @@ let SrvDaoTarea = class DaoTarea{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     }
 
-    static deleteUsuariotarea(grupoempresa, grupocodigo, id, usuario){
+    static async deleteUsuariotarea(grupoempresa, grupocodigo, id, usuario){
 
-        return fetch(
+        return await fetch(
             config+"usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
             {
                 mode: 'cors',
@@ -213,15 +227,15 @@ let SrvDaoTarea = class DaoTarea{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 
     }
 
-    static editUsuariotarea(grupoempresa, grupocodigo, id, usuario, usuarioTarea){
+    static async editUsuariotarea(grupoempresa, grupocodigo, id, usuario, usuarioTarea){
 
-        return fetch(
+        return await fetch(
             config+"usuariotareas/"+grupoempresa+"/"+grupocodigo+"/"+id+"/"+usuario,
             {
                 mode: 'cors',
@@ -236,7 +250,7 @@ let SrvDaoTarea = class DaoTarea{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data);
+            
             return data;
         })
 

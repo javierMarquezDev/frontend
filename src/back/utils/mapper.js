@@ -51,9 +51,9 @@ let Mapper = class mapper{
         archivoJson.codigo = archivo.codigo;
         archivoJson.tareacodigo =  archivo.tarea.codigo;
         archivoJson.tareagrupocodigo = archivo.tarea.grupo.codigo;
-        archivoJson.tareagrupoempresa = archivo.tarea.grupo.empresa;
+        archivoJson.tareagrupoempresa = archivo.tarea.grupo.empresa.nif;
         archivoJson.archivo = archivo.contenido;
-        archivoJson.maxsizeKb = archivo.maxSizeKb;
+        archivoJson.maxsizekb = archivo.maxSizeKb;
         archivoJson.fileextletters = archivo.fileExtLetters;
 
         return archivoJson;
@@ -80,7 +80,7 @@ let Mapper = class mapper{
         empresaJson.tipovia = empresa.tipoVia;
         empresaJson.nombrevia = empresa.nombreVia;
         empresaJson.numvia = empresa.numVia;
-        empresaJson.codigopuerta = empresa.codigoPuerta && null;
+        empresaJson.codigopuerta = empresa.codigoPuerta;
 
         return empresaJson;
     }
@@ -99,8 +99,8 @@ let Mapper = class mapper{
 
         let grupoJson = {};
 
-        grupoJson.codigo = grupo.codigoGrupo;
-        grupoJson.empresa = grupo.empresa;
+        grupoJson.codigo = grupo.codigo;
+        grupoJson.empresa = grupo.empresa.nif;
         grupoJson.nombre = grupo.nombre;
         grupoJson.descripcion= grupo.descripcion;
         grupoJson.fechahora = grupo.fechaHora;
@@ -112,24 +112,23 @@ let Mapper = class mapper{
     }
 
     static jsonToGrupoProyecto(grupoJson, admin, 
-        empresa, usuarios = [], tareas = []){
+        empresa, usuarios){
 
         return new GrupoProyecto(
-            grupoJson.codigo, grupoJson.codigo,
+            grupoJson.codigo, 
             empresa, grupoJson.nombre, grupoJson.descripcion,
-            admin, grupoJson.fechahora, grupoJson.finalizado,
-            usuarios, tareas
+            admin, grupoJson.fechahora, grupoJson.finalizado, usuarios = []
         )
 
     }
 
-    static noticiaToJson(noticia = new Noticia()){
+    static noticiaToJson(noticia){
 
         let noticiaJson = {};
 
         noticiaJson.codigo = noticia.codigo;
         noticiaJson.autor = noticia.usuario.email;
-        noticiaJson.grupocodigo = noticia.grupoProyecto.grupocodigo;
+        noticiaJson.grupocodigo = noticia.grupoProyecto.codigo;
         noticiaJson.grupoempresa = noticia.grupoProyecto.empresa.nif;
         noticiaJson.texto = noticia.texto;
         noticiaJson.fechahora = noticia.fechaHora;
@@ -137,6 +136,8 @@ let Mapper = class mapper{
         noticiaJson.imagen2 = noticia.imagenes[1] && null;
         noticiaJson.imagen3 = noticia.imagenes[2] && null;
         noticiaJson.imagen4 = noticia.imagenes[3] && null;
+
+        console.log(noticiaJson)
 
         return noticiaJson;
 
@@ -194,12 +195,15 @@ let Mapper = class mapper{
         tareaJson.descripcion = tarea.descripcion;
         tareaJson.checked = tarea.checked;
         tareaJson.fechaHora = tarea.fechaHora;
+        tareaJson.usuario = tarea.atareado.email;
+
+        return tareaJson;
     }
 
-    static jsonToTarea(str, grupoProyecto, archivo, atareado = null){
-        new Tarea(str.codigo, grupoProyecto.codigoProyecto,
+    static jsonToTarea(str, grupoProyecto, archivo, atareado){
+        return new Tarea(str.codigo, grupoProyecto.codigoProyecto,
             str.fechahora, str.nombre, str.descripcion,
-            str.checked, archivo, atareado)
+            str.checked, atareado)
     }
 }
 
