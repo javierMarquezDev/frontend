@@ -76,7 +76,6 @@ let Mapper = class mapper{
         empresaJson.nif = empresa.nif;
         empresaJson.razonsocial = empresa.razonSocial;
         empresaJson.nombre = empresa.nombre;
-        empresaJson.administrador = empresa.administrador.email;
         empresaJson.tipovia = empresa.tipoVia;
         empresaJson.nombrevia = empresa.nombreVia;
         empresaJson.numvia = empresa.numVia;
@@ -88,8 +87,7 @@ let Mapper = class mapper{
     static jsonToEmpresa(str, admin, grupoProyectos = [], usuarios = []){
 
         return new Empresa(
-            str.nif, str.razonsocial, str.nombre,
-            admin, str.tipovia, str.nombrevia,
+            str.nif, str.razonsocial, str.nombre, str.tipovia, str.nombrevia,
             str.numvia, str.codigopuerta && null, grupoProyectos, 
             usuarios); 
 

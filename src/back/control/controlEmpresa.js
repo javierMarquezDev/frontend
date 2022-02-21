@@ -73,24 +73,91 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
-    static async getByAdmin(admin){
+    static async getAdminByEmpresa(empresa){
 
-        if(admin == null || admin == "")
+        if(empresa == null || empresa.nif == null || empresa.nif === "")
             return "Información no válida."
 
-        const empresasArray = await SrvDaoEmpresa.getByAdmin(admin);
+        const empresasArray = await SrvDaoEmpresa.getAdminsByEmpresa(empresa.nif);
 
         let resultado = [];
 
         empresasArray.forEach(async (element) => {
 
-            const empresa = await this.convert(element);
+            const empresa = await ControlUsuario.getById(element.usuario);
 
             resultado.push(empresa);
             
         });
 
         return resultado;
+
+    }
+
+    static async getEmpresaByAdmin(admin){
+
+        if(admin == null || admin == "")
+            return "Información no válida."
+
+        const empresasArray = await SrvDaoEmpresa.getEmpresasByAdmin(admin.email);
+
+        let resultado = [];
+
+        empresasArray.forEach(async (element) => {
+
+            const empresa = await ControlEmpresa.getById(element.empresa);
+
+            resultado.push(empresa);
+            
+        });
+
+        return resultado;
+
+    }
+
+    static async addUsuario(empresa, usuario, admin){
+
+        return await SrvDaoEmpresa.addUser(empresa.nif, usuario.email, admin);
+
+    }
+
+    static async deleteUsuario(empresa, usuario){
+
+        return await SrvDaoEmpresa.deleteUser(empresa.nif, usuario.email);
+
+    }
+
+    static async getEmpresasByUsuario(usuario){
+
+        const empresasJson = await SrvDaoEmpresa.getEmpresasByUser(usuario.email);
+
+        let result = [];
+
+        empresasJson.forEach(async element =>{
+
+            result.push(await this.getById(element.empresa))
+
+        })
+
+        return await result;
+
+    }
+
+    static async getUsuariosByEmpresa(empresa){
+
+        const usuariosJson = await SrvDaoEmpresa.getUsersByEmpresa(empresa.nif);
+
+        let result = [];
+
+        usuariosJson.forEach(async element =>{
+
+            const usuario = await ControlUsuario.getById(element.usuario)
+
+            result.push(usuario)
+
+        })
+
+        return result;
 
     }
     
@@ -107,9 +174,7 @@ let ControlEmpresa = class CtrlCompany{
 
         }else if(typeof data == 'object'){
 
-            const admin = await ControlUsuario.getById(data.administrador);
-
-            empresa = Mapper.jsonToEmpresa(data,await admin);
+            empresa = Mapper.jsonToEmpresa(data);
 
         }
 
