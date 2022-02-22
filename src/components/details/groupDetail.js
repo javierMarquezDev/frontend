@@ -2,7 +2,7 @@ import { Link, useRouteMatch } from "react-router-dom";
 import { useParams, Switch, Route } from "react-router-dom";
 import GroupForm from "../forms/groupForm";
 import TaskList from "../lists/taskList";
-import UserList from "../lists/userList";
+import GroupUserList from "../lists/groupUserList";
 
 const GroupDetail = () => {
     const {id} = useParams();
@@ -29,7 +29,7 @@ const GroupDetail = () => {
                     <TaskList/>
                 </Route>
                 <Route path={`${match.path}/usuarios`}>
-                    <UserList/>
+                    <GroupUserList/>
                 </Route>
             </Switch>
         </div>

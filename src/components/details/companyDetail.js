@@ -1,7 +1,7 @@
 import { Link, useRouteMatch } from "react-router-dom";
 import CompanyForm from "../forms/companyForm";
 import { useParams, Switch, Route } from "react-router-dom";
-import UserList from '../lists/userList';
+import CompanyUserList from '../lists/companyUserList';
 
 const CompanyDetail = () => {
 
@@ -22,7 +22,7 @@ const CompanyDetail = () => {
                 <CompanyForm />
             </Route>
             <Route path={`${match.path}/usuarios`}>
-                <UserList/>
+                <CompanyUserList/>
             </Route>
         </Switch>
     </div> );
