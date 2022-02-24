@@ -10,13 +10,13 @@ const GroupList = () => {
     const match = useRouteMatch();
 
     const rows = [
-        {codigo:1,empresa:"E765849",nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
-        {codigo:1,empresa:"E765849",nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
-        {codigo:1,empresa:"E765849",nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: true},
-        {codigo:1,empresa:"E765849",nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
-        {codigo:1,empresa:"E765849",nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
-        {codigo:1,empresa:"E765849",nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: true},
-        {codigo:1,empresa:"E765849",nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false}
+        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
+        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
+        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: true},
+        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
+        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
+        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: true},
+        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false}
     ];
 
     return ( 

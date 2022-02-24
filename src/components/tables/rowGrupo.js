@@ -27,14 +27,14 @@ const RowGrupo = (props) => {
             </TableCell>
             <TableCell align="right">{row.nombre}</TableCell>
             <TableCell align="right">{row.descripcion}</TableCell>
-            <TableCell align="right">{row.empresa}</TableCell>
+            <TableCell align="right">{row.empresa.nif}</TableCell>
             <TableCell align="right">{row.administrador}</TableCell>
             <TableCell align="right">{row.fechaHora}</TableCell>
             <TableCell align="right">{row.finalizado}</TableCell>
             <TableCell align="right">{(row.admin)?"Admin":"No admin"}</TableCell>
             <TableCell align="right">
                 <Button variant="outlined">
-                    <Link style={{textDecoration:"none"}} to={"/grupos/"+row.empresa+"/"+row.codigo+"/noticias"}>VER</Link>
+                    <Link style={{textDecoration:"none"}} to={"/grupos/"+row.empresa.nif+"/"+row.codigo+"/noticias"}>VER</Link>
                 </Button>
             </TableCell>
 

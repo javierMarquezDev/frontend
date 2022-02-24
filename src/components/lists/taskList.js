@@ -4,6 +4,7 @@ import { useRouteMatch } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import GroupDetail from "../details/groupDetail";
 import NewsDetail from '../details/newsDetail';
+import TaskDetail from "../details/taskDetail";
 import DataTable from "../tables/dataTable";
 
 const handleCheck = (tarea) =>{
@@ -47,10 +48,11 @@ const NewsList = () => {
                         return(
                             <Card sx={{padding:1, backgroundColor:(tarea.checked)?'text.disabled':''}}>
                                 <CardContent sx={{flexDirection:"row"}}>
-                                    <Typography align="left" sx={{flexGrow:1}}>{tarea.nombre}</Typography>
+                                    <Typography align="left" sx={{flexGrow:1, fontWeight:"bold"}}>{tarea.nombre}</Typography>
                                     <Typography align="left" sx={{flexGrow:1}}>{tarea.descripcion}</Typography>
                                     <Typography align="left" sx={{flexGrow:1}}>{tarea.fechaHora}</Typography>
-                                    <Typography align="left" sx={{flexGrow:1, fontSize:12}}>{tarea.grupo.nombre}</Typography>
+                                    <Typography align="left" sx={{flexGroboldw:1, fontSize:12}}>{tarea.grupo.nombre}</Typography>
+                                    <Link to={`${match.url}/${tarea.grupo.empresa}/${tarea.grupo.codigo}/${tarea.codigo}`}><Typography align="left" sx={{flexGrow:1, fontSize:12}}>Ver detalle</Typography></Link>
                                 </CardContent>
                                 <CardActions sx={{flexDirection:"row-reverse"}}>
                                     {(grupo.admin)?<Button>EDITAR</Button>:""}
@@ -63,8 +65,8 @@ const NewsList = () => {
                 </Stack>
 
             </Route> 
-            <Route path={`${match.url}/:idnoticia`}>
-                <NewsDetail/>
+            <Route path={`${match.url}/:grupoempresa/:grupocodigo/:codigo`}>
+                <TaskDetail/>
             </Route>
         </Switch>
         </div>

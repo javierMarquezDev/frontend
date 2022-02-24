@@ -1,8 +1,12 @@
 import { AppBar, Badge, Button, IconButton, MenuItem, Toolbar, Typography } from "@mui/material";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Link } from "react-router-dom";
+import PersonIcon from '@mui/icons-material/Person';
 
 const MenuBar = () => {
+
+  let loggedIn = true;
+
   return ( 
     <AppBar position="fixed">
       <Toolbar>
@@ -42,15 +46,29 @@ const MenuBar = () => {
         </MenuItem>
 
         {/*NOTIFICACIONES*/}
-        <MenuItem>
+        {(loggedIn)?<MenuLogged/>:null}
+        
+      </Toolbar>
+    </AppBar>
+   );
+
+}
+
+const MenuLogged = ()=>{
+
+  const ntfs = 13;
+
+  return(
+
+    <MenuItem>
+      <MenuItem>
           <Link to="/ntfs" style={{color:"white"}}>
 
             <IconButton
               size="large"
-              aria-label="show 17 new notifications"
               color="inherit"
             >
-              <Badge badgeContent={17} color="error">
+              <Badge badgeContent={ntfs} color="error">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -58,10 +76,23 @@ const MenuBar = () => {
           </Link>
           
         </MenuItem>
-      </Toolbar>
-    </AppBar>
-   );
 
+        <MenuItem>
+          <Link to="/perfil" style={{color:"white"}}>
+
+            <IconButton
+              size="large"
+              color="inherit"
+            >
+              <PersonIcon/>
+            </IconButton>
+            
+          </Link>
+          
+        </MenuItem>
+    </MenuItem>
+
+  )
 }
  
 export default MenuBar;
