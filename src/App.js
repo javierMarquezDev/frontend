@@ -8,6 +8,7 @@ import LoginForm from './components/forms/loginForm';
 import UserDetail from './components/details/userDetail';
 import PrimarySearchAppBar from './components/home/navbar';
 import MenuBar from './components/home/navbar';
+import UserForm from './components/forms/userForm';
 
 function App() {
   return (
@@ -50,7 +51,7 @@ function App() {
                 Logout
             </Route>
             <Route path="/signup">
-                Sign up
+                <UserForm/>
             </Route>
             <Route path="/ntfs">
                 <NotificationList />

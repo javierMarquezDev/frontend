@@ -4,6 +4,7 @@ import { useRouteMatch } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import GroupDetail from "../details/groupDetail";
 import NewsDetail from '../details/newsDetail';
+import NewsForm from "../forms/newsForm";
 import DataTable from "../tables/dataTable";
 
 const NewsList = () => {
@@ -54,6 +55,7 @@ const NewsList = () => {
                 </Typography>
 
                 <Stack spacing={3} marginTop={3}>
+                    <NewsForm/>
                     {noticias.map((noticia)=>{
                         return(
                             <Card sx={{padding:1}}>

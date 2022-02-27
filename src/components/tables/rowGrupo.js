@@ -52,7 +52,7 @@ const CellEdit = (props) => {
     return ( 
         <TableCell align="right">
             <Button variant="outlined">
-                <Link style={{textDecoration:"none"}} to={"/grupos/"+row.empresa+"/"+row.codigo+"/editar"}>EDITAR</Link>
+                <Link style={{textDecoration:"none"}} to={"/grupos/"+row.empresa.nif+"/"+row.codigo+"/editar"}>EDITAR</Link>
             </Button>
         </TableCell>
      );

@@ -1,4 +1,3 @@
-import { Label, SearchOutlined } from "@mui/icons-material";
 import { Autocomplete, FormLabel, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete"
@@ -15,17 +14,38 @@ import {useState} from 'react';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import Input from '@mui/material/Input';
+import Empresa from "../../back/model/Empresa";
+import Grid from "@mui/material/Grid"
+import InputUsuario from "../form/InputUsuario";
+import InputTexto from "../form/InputTexto";
+
+const deleteUsuario = (usuario, empresa)=>{
+
+}
+
+
 
 const CompanyForm = () => {
 
-    let errores = {
+  let errores = {}
+  let empresa = {}
+  let optionsUsuarios = [];
+  const tiposVia = [
+    {label:"C./", id:"C./"},
+    {label:"Avda./", id:"Avda./"},
+    {label:"Ctra./", id:"Ctra./"},
+    {label:"Pza./", id:"Pza./"}
+];
+
+    
+    errores = /*{
         nombre:{
             format:"No mola",
             xtsn:"Es una mierda"
         }
-    }
+    }*/{}
 
-    const empresa = {
+    empresa = /*{
         nif:"E98765432",
         nombre:"Aceites Benatae S.A.",
         razonSocial:"Benatae SA",
@@ -45,50 +65,30 @@ const CompanyForm = () => {
             {email:"higo@gmail.com", nombre:"Rodrigo"},
             {email:"higo@gmail.com", nombre:"Rodrigo"},
         ]
-    }
-
-    const optionsUsuarios = [
-        {label:"rodrhigo@gmail.com", id:"rodrhigo@gmail.com"},
-        {label:"higo@gmail.com", id:"higo@gmail.com"},
-        {label:"higo@gmail.com", id:"higo@gmail.com"},
-        {label:"higo@gmail.com", id:"higo@gmail.com"},
-        {label:"higo@gmail.com", id:"higo@gmail.com"},
-        {label:"higo@gmail.com", id:"higo@gmail.com"}
-    ]
+    }*/new Empresa()
 
     const [nif, setNif] = useState(empresa.nif || '');
     const [nombre, setNombre] = useState(empresa.nombre || '');
     const [razonSocial, setRazonSocial] = useState(empresa.razonSocial || '');
-    const [administradorId, setAdministradorId] = useState(empresa.administrador.email || null);
+    const [administrador, setAdministrador] = useState((empresa.administrador != null)?empresa.administrador.email:null);
     const [tipoVia, setTipoVia] = useState(empresa.tipoVia || '');
     const [nombreVia, setNombreVia] = useState(empresa.nombreVia || '');
     const [numVia, setNumVia] = useState(empresa.numVia || '');
     const [codigoPuerta, setCodigoPuerta] = useState(empresa.codigoPuerta || '');
-    const [usuarios, setUsuarios] = useState(empresa.usuarios || []);
-
-    let edit = false;
-
-    
-
-    const razonsocialsiglas = [
-        "S.A", "S.L.", "S.C.A."
-    ]
-
-    if(empresa) edit = true;
 
     return ( <div>
-        <Typography variant="h4" marginTop={4} marginBottom={2} align="left">{(edit)?`Editar empresa ${empresa.nombre}`:`Nueva empresa`}</Typography>
+        <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Editar empresa {empresa.nombre || "nueva"}</Typography>
 
+      
         <Box
-      component="form"
-      sx={{
-        '& .MuiTextField-root': { m: 1, width: '25ch' },
-        width:'70%'
-      }}
-      noValidate
-      autoComplete="off"
-    >
-      <div >
+          component="form"
+          sx={{
+            '& .MuiTextField-root': { m: 1, width: '25ch' },
+            width:'70%'
+          }}
+          noValidate
+          autoComplete="off"
+        >
           
           <InputTexto formalName="Nombre" 
           required = {true}
@@ -104,19 +104,20 @@ const CompanyForm = () => {
           setProperty={setNif} 
           errores={errores.nif || null} />
 
-        <InputTexto formalName="Razón social" 
-        required = {true}
-          id = "razonsocial"
-          property={razonSocial} 
-          setProperty={setRazonSocial} 
-          errores={errores.razonsocial || null} />
-
-        <InputTexto formalName="Tipo de vía" 
-        required = {true}
-          id = "tipovia"
-          property={tipoVia} 
-          setProperty={setTipoVia} 
-          errores={errores.tipovia || null} />
+          <Box>
+                <Box display="flex">
+                    {(tiposVia.length)?<Autocomplete
+                    options={tiposVia}
+                    defaultValue={""}
+                    value={tipoVia}
+                    onChange={(e,value)=>setTipoVia(value)}
+                    id="tipoVia"
+                    renderInput={(params) => (
+                        <TextField {...params} label="Tipos de vía" variant="standard" />
+                        )}
+                    />:null}
+                </Box>
+            </Box>
 
         <InputTexto formalName="Nombre de vía" 
         required = {true}
@@ -138,104 +139,40 @@ const CompanyForm = () => {
           setProperty={setCodigoPuerta} 
           errores={errores.codigoPuerta || null} />
 
-        {/**OBTENER USUARIOS DEL STATE */}
-        <FormLabel for="administrador">Administrador</FormLabel>
-        <Autocomplete
-        options={optionsUsuarios}
-        defaultValue={administradorId}
-        value={administradorId}
-        onChange={()=>setAdministradorId()}
-        id="administrador"
-        renderInput={(params) => (
-            <TextField {...params} label="Miembros" variant="standard" />
-          )}
-        />
+        <InputTexto formalName="Razón social" 
+        required = {true}
+          id = "razonsocial"
+          property={razonSocial} 
+          setProperty={setRazonSocial} 
+          errores={errores.razonsocial || null} />
 
-        
-        
-      </div>
-    </Box>
+        <Box margin={2}>
+          <Typography for="administrador" color="text.secondary" align="left" >Administrador</Typography>
 
-        <Box>
-        <FormLabel for="usuarios">Añadir/quitar usuarios</FormLabel>
-        <TextField
-          id=""
-          label="Búsqueda de usuarios por email"
-          defaultValue="Usuario"
-        />
-        <List>
-            {usuarios.map((usuario)=>{
-                return(
-                    <ListItem 
-                    value={usuario}
-                    secondaryAction={
-                        <IconButton edge="end" aria-label="delete">
-                          <DeleteIcon />
-                        </IconButton>
-                      }
-                    >
-                        <ListItemAvatar>
-                        <Avatar>
-                        <PersonIcon />
-                        </Avatar>
-                        </ListItemAvatar>    
-                    {usuario.email} </ListItem>
-                )
-            })}
-            
-        </List>
+          <Box display="flex">
+              {(empresa.usuarios != null)?<Autocomplete
+              options={empresa.usuarios}
+              defaultValue={""}
+              value={administrador}
+              onChange={(e,value)=>setAdministrador(value)}
+              getOptionLabel={option => option.email}
+              id="administrador"
+              renderInput={(params) => (
+                  <TextField {...params} label="Miembros" variant="standard" />
+                )}
+              />:null}
+          </Box>
+
         </Box>
 
-        <input type="submit" value="Editar/crear"/>
+        
+        
+      
+    </Box>
+
+    <InputUsuario tabla={empresa} errores={errores.usuarios || null} usuarios={empresa.usuarios || null}/>
+      
     </div> );
-}
-
-const ErroresCampo = (props)=>{
-
-    const errores = props.errores;
-    
-    let array = [];
-
-    for(let key in errores){
-        array.push(errores[key])
-    }
-
-    return(
-        array.map(error=>{
-            return(
-                <FormHelperText>{error}</FormHelperText>
-            )
-        })
-    )
-    
-}
-
-const InputTexto = (props)=>{
-
-    const id = props.id;
-    const property = props.property;
-    const setProperty = props.setProperty;
-    const errores = props.errores;
-    const formalName = props.formalName;
-    const required = props.required;
-
-    return(
-        <FormControl variant="standard" sx={{margin:1}}>
-            <InputLabel htmlFor={`${id}`}>{formalName}</InputLabel>
-            <Input
-            required={(required)?"true":"false"}
-            error={(errores === null)?false:true}
-            id={`${id}`}
-            value={property}
-            defaultValue={property}
-            onChange={()=>setProperty()}
-            />
-
-                {(errores)?<ErroresCampo errores={errores}/>:null}
-
-          </FormControl>
-    )
-
 }
  
 export default CompanyForm;

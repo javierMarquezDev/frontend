@@ -3,7 +3,7 @@ let GrupoProyecto = class groupProject{
 
     constructor(codigoGrupo = null, empresa = null, 
                 nombre = null, descripcion = null, administrador = null, 
-                fechaHora = null, finalizado = false, usuarios = []){
+                fechaHora = null, finalizado = false){
 
         this.codigo = codigoGrupo;
         this.empresa = empresa;
@@ -12,7 +12,6 @@ let GrupoProyecto = class groupProject{
         this.administrador = administrador;
         this.fechaHora = fechaHora;
         this.finalizado = finalizado;
-        this.usuarios = usuarios;
 
     }
 
