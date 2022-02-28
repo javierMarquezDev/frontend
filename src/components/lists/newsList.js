@@ -1,71 +1,100 @@
 import { Button, Card, CardActionArea, CardActions, CardContent, Stack, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import { useRouteMatch } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import ControlGrupo from "../../back/control/controlGrupoProyecto";
 import GroupDetail from "../details/groupDetail";
 import NewsDetail from '../details/newsDetail';
 import NewsForm from "../forms/newsForm";
 import DataTable from "../tables/dataTable";
+import ControlNoticia from "../../back/control/controlNoticia"
 
-const NewsList = () => {
-    const {id} = useParams();
+const NewsList = (props) => {
+    const {grupocodigo} = useParams();
+    const {grupoempresa} = useParams();
     const match = useRouteMatch();
+    const grupo = props.grupo;
 
-    const grupo = {
-        codigo:1,
-        empresa:{
-            nif:"E98765432"
-        },
-        nombre:"RRHH",
-        descripcion:"Proyecto Recursos Humanos",
-        administrador:"higo@gmail.com",
-        fechaHora:new Date(2022,2,2),
-        finalizado:false,
-        admin:false
-    };
+    const [noticias,setNoticias] = useState(null);
+    const [isPending, setIsPending] = useState(true);
 
-    const noticias = [
-        {admin:true, grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet.", fechaHora:new Date(2022,2,2)},
-        {grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet.", fechaHora:new Date(2022,2,2)},
-        {grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet.", fechaHora:new Date(2022,2,2)},
-        {admin:true, grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet", fechaHora:new Date(2022,2,2)},
-        {admin:true, grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet.", fechaHora:new Date(2022,2,2)},
-        {grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet", fechaHora:new Date(2022,2,2)},
-        {grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet", fechaHora:new Date(2022,2,2)},
-        {admin:true, grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet.", fechaHora:new Date(2022,2,2)},
-        {grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet", fechaHora:new Date(2022,2,2)},
-        {grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet.", fechaHora:new Date(2022,2,2)},
-        {grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet.", fechaHora:new Date(2022,2,2)},
-        {admin:true, grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet.", fechaHora:new Date(2022,2,2)},
-        {admin:true, grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet", fechaHora:new Date(2022,2,2)},
-        {admin:true, grupo: grupo, codigo:1, usuario:"higo@gmail.com", texto:"Lorem ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet ipsum dolor sit amet.", fechaHora:new Date(2022,2,2)},
-    ]
+
+    useEffect(()=>{
+
+        const abortCont = new AbortController();
+
+        setTimeout(()=>{
+            ControlNoticia.getByGrupo(grupoempresa, grupocodigo)
+            .then(data=>{
+                
+                setNoticias(data);
+                setIsPending(false);
+                
+            })
+            
+        }, 1000)
+
+        
+
+        return abortCont.abort();
+
+    },[])    
     
     return ( 
         <div>
             <Switch>
             <Route exact path={match.path}>
-                <Typography variant="h3" align="left">{`Feed "${grupo.nombre}"`}</Typography>
+                <Typography variant="h3" align="left">{`Feed del grupo`}</Typography>
                 <Typography align="left" marginTop={1} marginBottom={2}>
 
-                    <Link to={`/grupos/${grupo.empresa.nif}/${grupo.codigo}/detalle`} color="text.secondary" style={{textDecoration:"none"}}>
+                    <Link to={`/grupos/${grupoempresa}/${grupocodigo}/detalle`} color="text.secondary" style={{textDecoration:"none"}}>
                         Información del grupo
                     </Link>
                     
                 </Typography>
 
-                <Stack spacing={3} marginTop={3}>
+                { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                {noticias && <InfoNoticias noticias={noticias} match={match} grupocodigo={grupocodigo} grupoempresa={grupoempresa}/> }
+
+                
+
+            </Route> 
+            <Route path={`${match.path}/:autor/:codigo`}>
+                <NewsDetail/>
+            </Route>
+        </Switch>
+        </div>
+     );
+}
+
+const InfoNoticias = (props) =>{
+
+    const noticias = props.noticias;
+    console.log(noticias);
+    const usuario = {email:"higo@gmail.com"}
+    const match = props.match;
+    const grupocodigo = props.codigo;
+    const grupoempresa = props.empresa;
+
+    console.log(noticias)
+
+    return(
+        <Stack spacing={3} marginTop={3}>
                     <NewsForm/>
                     {noticias.map((noticia)=>{
+
+                        {(noticia.usuario.email == usuario.email)?noticia.admin = true : noticia.admin = false}
+
                         return(
                             <Card sx={{padding:1}}>
                                 <CardContent sx={{flexDirection:"row"}}>
                                     <Typography align="left" sx={{flexGrow:1}}>{noticia.texto}</Typography>
-                                    <Typography align="left" sx={{flexGrow:1, fontSize:12, marginTop:3}}>{noticia.usuario}</Typography>
+                                    <Typography align="left" sx={{flexGrow:1, fontSize:12, marginTop:3}}>{noticia.usuario.email}</Typography>
                                     <Typography align="left" sx={{flexGrow:1, fontSize:12}}>{noticia.fechaHora.getFullYear()+"-"+noticia.fechaHora.getMonth()+
                                     "-"+noticia.fechaHora.getDate()+` `+noticia.fechaHora.getHours().toString().padStart(2,'0')+":"
                                     +noticia.fechaHora.getMinutes().toString().padStart(2,'0')+"h"}</Typography>
-                                    <Link to={`${match.url}/${noticia.grupo.empresa.nif}/${noticia.grupo.codigo}/${noticia.codigo}`}><Typography align="left" sx={{flexGrow:1, fontSize:10, marginTop:3}}>Ver detalle</Typography></Link>
+                                    <Link to={`${match.url}/${noticia.usuario.email}/${noticia.codigo}`}><Typography align="left" sx={{flexGrow:1, fontSize:10, marginTop:3}}>Ver detalle</Typography></Link>
                                 </CardContent>
                                 <CardActions sx={{flexDirection:"row-reverse"}}>
                                     {(noticia.admin)?<Button>EDITAR</Button>:""}
@@ -75,14 +104,7 @@ const NewsList = () => {
                         );
                     })}
                 </Stack>
-
-            </Route> 
-            <Route path={`${match.path}/:grupoempresa/:grupocodigo/:codigo`}>
-                <NewsDetail/>
-            </Route>
-        </Switch>
-        </div>
-     );
+    )
 }
  
 export default NewsList;

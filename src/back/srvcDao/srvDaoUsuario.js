@@ -102,7 +102,7 @@ let srvDaoUsuario = class DaoUsuario{
     static async getByProyecto(codigoGrupo, empresaGrupo){
 
         const responseUsuario = await fetch(
-            config.route+"usuariogrupos/"+codigoGrupo+"/"+empresaGrupo,
+            connectionStr+"grupo/"+empresaGrupo+"/"+codigoGrupo,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -173,10 +173,10 @@ let srvDaoUsuario = class DaoUsuario{
 
     };
 
-    static async getAllNtfsFromUsuario(email = ""){
+    static async getAllNtfsFromUsuario(usuario){
 
         return await fetch(
-            connectionStr+email+"/notificaciones",
+            connectionStr+usuario.email+"/notificaciones",
             {
                 mode: 'cors',
                 method: 'GET',

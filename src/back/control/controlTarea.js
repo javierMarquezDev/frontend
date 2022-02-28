@@ -119,11 +119,7 @@ let ControlTarea = class controlTarea{
 
         }else if(typeof data === 'object'){
 
-            const grupoProyecto = await ControlGrupoProyecto.getById(data.grupoempresa,data.grupocodigo);
-
-            const usuario = await ControlUsuario.getById(data.usuario);
-
-            tarea = Mapper.jsonToTarea(data, grupoProyecto, usuario);
+            tarea = Mapper.jsonToTarea(data);
 
         }
 

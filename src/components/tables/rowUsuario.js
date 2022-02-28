@@ -21,7 +21,6 @@ const RowUsuario = (props) => {
             component="th"
             id={labelId}
             scope="row"
-            
             >
             {row.email}
             </TableCell>
@@ -32,7 +31,7 @@ const RowUsuario = (props) => {
             <TableCell align="right">{row.fechaHora}</TableCell>
             <TableCell align="right">{row.finalizado}</TableCell>
             <TableCell align="right">{(row.admin)?"Admin":"No admin"}</TableCell>
-            <TableCell align="right">
+            <TableCell align="right" >
                 <Button variant="outlined">
                     <Link style={{textDecoration:"none"}} to={"/empresas/"+row.email}>VER</Link>
                 </Button>

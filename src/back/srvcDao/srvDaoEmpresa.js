@@ -165,7 +165,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
     static async getUsersByEmpresa(empresa){
 
         return await fetch(
-            config.route+"empresausuarios/empresa/"+empresa,
+            connectionStr+"/usuarios/"+empresa,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -186,7 +186,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
     static async getEmpresasByUser(user){
 
         return await fetch(
-            config.route+"empresausuarios/usuario/"+user,
+            connectionStr+"/usuario/"+user,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -207,7 +207,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
     static async getEmpresasByAdmin(usuario){
 
         return await fetch(
-            config.route+"empresausuarios/empresadmin/"+usuario,
+            connectionStr+"empresasadmin/"+usuario,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -225,10 +225,55 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
 
     }
 
+    static async isAdmin(empresa, usuario){
+        const cif = empresa.nif;
+        const email = usuario.email;
+
+        return await fetch(
+            connectionStr+"checkadmin/"+cif+"/"+email,
+            {
+                mode: 'cors',
+                method: 'GET',
+                headers:{
+                    "access-token":localStorage.getItem('token'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            console.log(cif,email,data)
+            return data[0];
+        })
+    }
+
+    static async isMember(empresa, usuario){
+        const cif = empresa.nif;
+        const email = usuario.email;
+
+        return await fetch(
+            connectionStr+"checkmember/"+cif+"/"+email,
+            {
+                mode: 'cors',
+                method: 'GET',
+                headers:{
+                    "access-token":localStorage.getItem('token'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            return data;
+        })
+    }
+
     static async getAdminsByEmpresa(empresa){
 
         return await fetch(
-            config.route+"empresausuarios/adminsempresa/"+empresa,
+            connectionStr+"adminsempresa/"+empresa,
             {
                 mode: 'cors',
                 method: 'GET',

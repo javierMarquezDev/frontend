@@ -80,6 +80,22 @@ let ControlGrupo = class controlGrupo {
 
     }
 
+    static async getUsuariosFromGrupo(grupo){
+
+        const response = await SrvDaoGrupoProyecto.getUsuariosFromGrupo(grupo);
+
+        let result = [];
+
+        response.forEach(element =>{
+            const usuario = ControlUsuario.convert(element);
+
+            result.push(usuario);
+        })
+
+        return result;
+
+    }
+
     static async getById(empresa, codigo){
 
         if(empresa === "" || empresa === null || codigo === "" || codigo === null)
@@ -88,6 +104,17 @@ let ControlGrupo = class controlGrupo {
         const grupoJson = await SrvDaoGrupoProyecto.getOneById(empresa,codigo);
 
         return await this.convert(grupoJson);
+
+    }
+
+    static async isMember(usuario,grupo){
+
+        const response = await SrvDaoGrupoProyecto.isMember(usuario,grupo);
+
+        if(response != null)
+            return true;
+
+        return false;
 
     }
 
@@ -121,16 +148,13 @@ let ControlGrupo = class controlGrupo {
             grupo = Mapper.grupoProyectoToJson(data);
 
         }else if(typeof data == 'object'){
-
-            const admin = await ControlUsuario.getById(data.administrador);
-            const empresa = await ControlEmpresa.getById(data.empresa);
-            const usuarios = [];
+;
 
             //const usuariosJson = await ControlUsuario.getByProyecto(data.codigo,data.empresa);
 
             //Array.from(usuariosJson).forEach(element => { usuarios.push(element) });
 
-            grupo = Mapper.jsonToGrupoProyecto(data,admin,empresa,[]);
+            grupo = Mapper.jsonToGrupoProyecto(data);
 
         }
 

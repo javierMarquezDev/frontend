@@ -1,5 +1,8 @@
+import { Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
+import ControlGrupo from '../../back/control/controlGrupoProyecto';
 import GroupDetail from '../details/groupDetail';
 import GroupForm from '../forms/groupForm';
 import DataTable from '../tables/dataTable';
@@ -8,16 +11,27 @@ import NewsList from './newsList';
 const GroupList = () => {
 
     const match = useRouteMatch();
+    const [grupos, setGrupos] = useState(null);
+    const [isPending,setIsPending] = useState(true)
+    const usuario = {email:"higo@gmail.com"}
 
-    const rows = [
-        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
-        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
-        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: true},
-        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
-        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false},
-        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: true},
-        {codigo:1,empresa:{nif:"E765849"},nombre:"RRHH",descripcion:"Proyecto recursos humanos", administrador:"higo@gmail.com", fechaHora:"2022-03-02", finalizado:false, admin: false}
-    ];
+    useEffect(()=>{
+
+        const abortCont = new AbortController();
+
+        setTimeout(()=>{
+            ControlGrupo.getFromUsuario(usuario.email)
+            .then(data=>{
+                
+                setGrupos(data);
+                setIsPending(false);
+                
+            })
+        }, 1000)
+
+        return abortCont.abort();
+
+    },[usuario])
 
     return ( 
         <div>
@@ -25,14 +39,15 @@ const GroupList = () => {
                 <Route exact path={match.path}>
                     <h1>Grupos</h1>
                     
-                    <DataTable rows={rows} entidad="grupo" handleDelete={()=>{}} />
+                    { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                    {grupos && <DataTable rows={grupos} entidad="grupo" handleDelete={()=>{}} match={match} />}
                     
                 </Route>
-                <Route path={`${match.path}/:empresa/:codigo/noticias`}> 
+                <Route path={`${match.path}/:grupoempresa/:grupocodigo/noticias`}> 
                     <NewsList />
                 </Route>
-                <Route path={`${match.path}/:empresa/:codigo/detalle`}>
-                    <GroupDetail />
+                <Route path={`${match.path}/:grupoempresa/:grupocodigo/detalle`}>
+                    <GroupDetail/>
                 </Route>
                 <Route excact path={`${match.path}/crear`}>
                     <GroupForm />

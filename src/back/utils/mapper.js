@@ -33,13 +33,13 @@ let Mapper = class mapper{
 
     //Parametro de entrada tiene que ser un objeto JSON
 
-    static jsonToUsuario(str,tareas = [], grupoProyectos = []){
+    static jsonToUsuario(str){
 
         return new Usuario(
             str.email, str.contrasena, str.dni,
             str.nombre, str.apellido1, str.apellido2,
             str.tipovia, str.nombrevia, str.numvia, str.codigopuerta && null,
-            str.notificaciones && [], tareas && [], grupoProyectos && []
+            str.notificaciones && []
         );
 
     }
@@ -101,7 +101,7 @@ let Mapper = class mapper{
         grupoJson.empresa = grupo.empresa.nif;
         grupoJson.nombre = grupo.nombre;
         grupoJson.descripcion= grupo.descripcion;
-        grupoJson.fechahora = grupo.fechaHora;
+        grupoJson.fechahora = Date.prototype.toISOString(grupo.fechaHora);
         grupoJson.finalizado = grupo.finalizado;
         grupoJson.administrador = grupo.administrador.email;
 
@@ -109,13 +109,12 @@ let Mapper = class mapper{
 
     }
 
-    static jsonToGrupoProyecto(grupoJson, admin, 
-        empresa, usuarios){
+    static jsonToGrupoProyecto(grupoJson){
 
         return new GrupoProyecto(
             grupoJson.codigo, 
-            empresa, grupoJson.nombre, grupoJson.descripcion,
-            admin, grupoJson.fechahora, grupoJson.finalizado, usuarios = []
+            {nif:grupoJson.empresa}, grupoJson.nombre, grupoJson.descripcion,
+            {email:grupoJson.administrador}, this.parseISOString(grupoJson.fechahora), grupoJson.finalizado
         )
 
     }
@@ -129,7 +128,7 @@ let Mapper = class mapper{
         noticiaJson.grupocodigo = noticia.grupoProyecto.codigo;
         noticiaJson.grupoempresa = noticia.grupoProyecto.empresa.nif;
         noticiaJson.texto = noticia.texto;
-        noticiaJson.fechahora = noticia.fechaHora;
+        noticiaJson.fechahora = Date.prototype.toISOString(noticia.fechaHora);
         noticiaJson.imagen1 = noticia.imagenes[0] && null;
         noticiaJson.imagen2 = noticia.imagenes[1] && null;
         noticiaJson.imagen3 = noticia.imagenes[2] && null;
@@ -141,10 +140,10 @@ let Mapper = class mapper{
 
     }
 
-    static jsonToNoticia(str, usuario, grupoProyecto){
+    static jsonToNoticia(str){
         return new Noticia(
-            str.codigo, usuario, grupoProyecto,
-            str.texto, str.fechahora, 
+            str.codigo, {email:str.autor}, {codigo: str.grupocodigo, empresa:{nif:str.grupoempresa}},
+            str.texto, this.parseISOString(str.fechahora) , 
             [str.imagen1 && null, str.imagen2  && null, 
             str.imagen3  && null, str.imagen4 && null]
         )
@@ -198,11 +197,16 @@ let Mapper = class mapper{
         return tareaJson;
     }
 
-    static jsonToTarea(str, grupoProyecto, archivo, atareado){
-        return new Tarea(str.codigo, grupoProyecto.codigoProyecto,
+    static jsonToTarea(str){
+        return new Tarea(str.codigo, {codigo:str.grupocodigo,empresa:str.grupoempresa},
             str.fechahora, str.nombre, str.descripcion,
-            str.checked, atareado)
+            str.checked, {email:str.usuario})
     }
+
+    static parseISOString(s) {
+        var b = s.split(/\D+/);
+        return new Date(Date.UTC(b[0], --b[1], b[2], b[3], b[4], b[5], b[6]));
+      }
 }
 
 export default Mapper;

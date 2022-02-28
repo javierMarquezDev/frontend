@@ -1,55 +1,84 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import { useRouteMatch } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import ControlEmpresa from "../../back/control/controlEmpresa";
 import UserDetail from "../details/userDetail";
 import NewUserCompanyForm from "../forms/newUserCompanyForm";
 import DataTable from "../tables/dataTable";
 
 const handleDelete = (usuario)=>{}
 
-const CompanyUserList = () => {
-    const {nif} = useParams();
+const CompanyUserList = (props) => {
+    const empresa = props.empresa;
     const match = useRouteMatch();
+    const [usuarios,setUsuarios] = useState(null);
+    const [isPending, setIsPending] = useState(true);
+    
 
-    const empresa = {
-        nif:"E9876543",
-        nombre:"Aceites Benatae S.A.",
-        razonsocial:"Benatae SA",
-        tipovia:"C./",
-        nombrevia:"Hernani",
-        numvia:"51",
-        codigopuerta:"2A",
-        admin: true
-    }
-
-    const usuarios = [
-        {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"},
-        {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"},
-        {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"},
-        {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"},
-        {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"},
-        {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"},
-        {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"},
-        {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"},
-        {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"},
-        {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"}
-    ]
 
     const deleteUsuario = (usuario)=>{
 
     }
+
+    useEffect(()=>{
+
+        const abortCont = new AbortController();
+
+        setTimeout(()=>{
+            ControlEmpresa.getUsuariosByEmpresa(empresa)
+            .then(data=>{
+                
+                setUsuarios(data);
+                setIsPending(false);
+                
+            })
+        }, 1000)
+
+        return abortCont.abort();
+
+    })
     
     return ( 
         <div>
             <Switch>
             <Route exact path={match.path}>
 
-                <h1>Usuarios empresa "{empresa.nombre}"</h1>
+            <Typography variant="h5" align="left" marginTop={3} marginBottom={3}>Usuarios empresa "{empresa.nombre}"</Typography>
 
+            <Box display="flex">
                 <Button variant="contained"><Link to={`${match.url}/nuevousuario`} style={{textDecoration:"none", color:"white"}}>Añadir usuario</Link></Button>
+            </Box>
 
-                <Stack spacing={3} marginTop={3}>
+                <Box>
+                    { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                    {usuarios && <Usuarios usuarios={usuarios} match={match} empresa={empresa}/>}
+                </Box>
+                
+            </Route> 
+            <Route exact path={`${match.url}/nuevousuario`}>
+                <NewUserCompanyForm/>
+            </Route>
+            <Route path={`${match.url}/:idusuario`}>
+                <UserDetail/>
+            </Route>
+            
+        </Switch>
+        </div>
+     );
+}
+
+const Usuarios = (props) =>{
+
+    const usuarios = props.usuarios;
+    const match = props.match;
+    const empresa = props.empresa;
+
+    console.log(usuarios);
+
+    return(
+        <Stack spacing={3} marginTop={3}>
                     {usuarios.map((usuario)=>{
                         return(
                             <Box sx={{padding:2, boxShadow:2}} display="flex">
@@ -68,16 +97,8 @@ const CompanyUserList = () => {
                         );
                     })}
                 </Stack>
-            </Route> 
-            <Route path={`${match.url}/:idusuario`}>
-                <UserDetail/>
-            </Route>
-            <Route path={`${match.url}/nuevousuario`}>
-                <NewUserCompanyForm/>
-            </Route>
-        </Switch>
-        </div>
-     );
+    )
+
 }
  
 export default CompanyUserList;

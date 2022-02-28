@@ -43,10 +43,56 @@ let srvDaoGrupoProyecto = class groupProject{
 
     };
 
+    static async getUsuariosFromGrupo(grupo){
+        const codigo = grupo.codigo;
+        const empresa = grupo.empresa.nif;
+
+        return await fetch(
+            connectionStr+"usuarios/search/"+empresa+"/"+codigo,
+            {
+                mode: 'cors',
+                method: 'GET',
+                headers:{
+                    "access-token":localStorage.getItem('token')
+                }
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            
+            return data;
+        })        
+
+    }
+
+    static async isMember(usuario, grupo){
+
+        const email = usuario.email;
+        const grupocodigo = grupo.codigo;
+        const grupoempresa = grupo.empresa.nif;
+
+        return await fetch(
+            config.str+"usuariogrupos/"+email+"/"+grupocodigo+"/"+grupoempresa,
+            {
+                mode: 'cors',
+                method: 'GET',
+                headers:{
+                    "access-token":localStorage.getItem('token')
+                }
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            
+            return data;
+        })        
+
+    }
+
     static async getOneById(empresa = "", id = ""){
 
         return await fetch(
-            connectionStr+empresa+"/"+id,
+            connectionStr+empresa.nif+"/"+id,
             {
                 mode: 'cors',
                 method: 'GET',

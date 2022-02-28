@@ -1,11 +1,19 @@
-import { Button, TableCell, TableRow } from "@mui/material";
+import { Button, TableCell, TableRow, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
 const RowGrupo = (props) => {
 
     const row = props.row;
-    const labelId = props.labelId;
     const handleDelete = props.handleDelete;
+    const usuario = {email:"higo@gmail.com"}
+
+    if(usuario.email == row.administrador.email){
+        row.admin = true
+    }else{
+        row.admin = false;
+    }
+
+    
 
     return ( 
         <TableRow
@@ -19,17 +27,18 @@ const RowGrupo = (props) => {
             
             <TableCell
             component="th"
-            id={labelId}
+            id={row.codigo}
             scope="row"
-            
+            sx={{fontWeight:'bold'}}
             >
-            {row.cif}
+            {row.nombre}
             </TableCell>
-            <TableCell align="right">{row.nombre}</TableCell>
             <TableCell align="right">{row.descripcion}</TableCell>
             <TableCell align="right">{row.empresa.nif}</TableCell>
-            <TableCell align="right">{row.administrador}</TableCell>
-            <TableCell align="right">{row.fechaHora}</TableCell>
+            <TableCell align="right">{row.administrador.email}</TableCell>
+            <TableCell align="right">{<Typography align="left" sx={{flexGrow:1, fontSize:12}}>{row.fechaHora.getFullYear()+"-"+row.fechaHora.getMonth()+
+                                    "-"+row.fechaHora.getDate()+` `+row.fechaHora.getHours().toString().padStart(2,'0')+":"
+                                    +row.fechaHora.getMinutes().toString().padStart(2,'0')+"h"}</Typography>}</TableCell>
             <TableCell align="right">{row.finalizado}</TableCell>
             <TableCell align="right">{(row.admin)?"Admin":"No admin"}</TableCell>
             <TableCell align="right">

@@ -44,14 +44,13 @@ function stableSort(array, comparator) {
 }
 
 export default function DataTable(props) {
+  
     const rows = props.rows;
     const handleDelete = props.handleDelete;
     const entidad = props.entidad;
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
-  const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const handleChangePage = (event, newPage) => {
@@ -63,25 +62,22 @@ export default function DataTable(props) {
     setPage(0);
   };
 
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
-  };
-
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  const {match} = useRouteMatch();
+  const {match} = props.match;
 
   return (
     <Box sx={{ width: '100%' }}>
+
       <Paper sx={{ width: '100%', mb: 2 }}>
         
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
-            size={dense ? 'small' : 'medium'}
+
           >
 
             <TableBody>
@@ -90,32 +86,21 @@ export default function DataTable(props) {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const labelId = `enhanced-table-checkbox-${index}`;
 
                   switch(entidad){
                     case "empresa":
                         return (
-                            <RowEmpresa row={row} labelId={labelId} handleDelete={handleDelete}/>
-                        );
-                        break;
-                    case "usuario":
-                        return (
-                            <RowEmpresa row={row} labelId={labelId} handleDelete={handleDelete}/>
+                            <RowEmpresa row={row} key={row.nif} handleDelete={handleDelete}/>
                         );
                         break;
                     case "grupo":
                         return (
-                            <RowGrupo row={row} labelId={labelId} handleDelete={handleDelete}/>
+                            <RowGrupo row={row} key={row.codigo} handleDelete={handleDelete}/>
                         );
                         break;
-                    case "tarea":
+                    case "usuario":
                         return (
-                            <RowEmpresa row={row} labelId={labelId} handleDelete={handleDelete}/>
-                        );
-                        break;
-                    case "noticia":
-                        return (
-                            <RowEmpresa row={row} labelId={labelId} handleDelete={handleDelete}/>
+                            <RowEmpresa row={row} key={row.email} handleDelete={handleDelete}/>
                         );
                         break;
                     
@@ -125,9 +110,6 @@ export default function DataTable(props) {
                 })}
               {emptyRows > 0 && (
                 <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
                 >
                   <TableCell colSpan={6} />
                 </TableRow>
@@ -145,10 +127,6 @@ export default function DataTable(props) {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
     </Box>
   );
 }

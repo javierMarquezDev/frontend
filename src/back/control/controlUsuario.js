@@ -67,9 +67,7 @@ let ControlUsuario = class controlUsuario {
 
         usuariosArray.forEach(async element => {
 
-            let object = await SrvDaoUsuario.getById(element);
-
-            const usuario = this.convert(object);
+            let usuario = this.convert(element);
 
             resultado.push(usuario);
             

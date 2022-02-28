@@ -89,11 +89,9 @@ let ControlNoticia = class ctrlNews{
 
         }else if(typeof data == 'object'){
 
-            const usuario = await ControlUsuario.getById(data.autor);
+            console.log(data.grupoempresa, data.grupocodigo, data.autor);
 
-            const grupoproyecto = await ControlGrupo.getById(data.grupoempresa, data.grupocodigo);
-
-            noticia = Mapper.jsonToNoticia(data,usuario,grupoproyecto);
+            noticia = Mapper.jsonToNoticia(data);
 
         }
 

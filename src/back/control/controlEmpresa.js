@@ -73,6 +73,25 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
+    static async isAdmin(empresa, usuario){
+
+        const response = await SrvDaoEmpresa.isAdmin(empresa,usuario);
+        
+        return response.admin;
+
+    }
+
+    static async isMember(empresa, usuario){
+
+        const response = await SrvDaoEmpresa.isAdmin(empresa,usuario);
+
+        if(response != null)
+            return true;
+        
+        return false;
+
+    }
+
     static async getAdminByEmpresa(empresa){
 
         if(empresa == null || empresa.nif == null || empresa.nif === "")
@@ -82,11 +101,11 @@ let ControlEmpresa = class CtrlCompany{
 
         let resultado = [];
 
-        empresasArray.forEach(async (element) => {
+        empresasArray.forEach(element => {
 
-            const empresa = await ControlUsuario.getById(element.usuario);
+            const usuario = ControlUsuario.convert(element);
 
-            resultado.push(empresa);
+            resultado.push(usuario);
             
         });
 
@@ -103,9 +122,9 @@ let ControlEmpresa = class CtrlCompany{
 
         let resultado = [];
 
-        empresasArray.forEach(async (element) => {
+        empresasArray.forEach(element => {
 
-            const empresa = await ControlEmpresa.getById(element.empresa);
+            const empresa = this.convert(element);
 
             resultado.push(empresa);
             
@@ -131,15 +150,11 @@ let ControlEmpresa = class CtrlCompany{
 
         const empresasJson = await SrvDaoEmpresa.getEmpresasByUser(usuario.email);
 
-        let result = [];
+        let empresas = [];
 
-        empresasJson.forEach(async element =>{
+        empresasJson.forEach(element => empresas.push(this.convert(element)));
 
-            result.push(await this.getById(element.empresa))
-
-        })
-
-        return await result;
+        return empresas;
 
     }
 
@@ -147,23 +162,16 @@ let ControlEmpresa = class CtrlCompany{
 
         const usuariosJson = await SrvDaoEmpresa.getUsersByEmpresa(empresa.nif);
 
-        let result = [];
+        let usuarios = [];
 
-        usuariosJson.forEach(async element =>{
+        usuariosJson.forEach(element => usuarios.push(ControlUsuario.convert(element)));
 
-            const usuario = await ControlUsuario.getById(element.usuario)
-
-            result.push(usuario)
-
-        })
-
-        return result;
-
+        return usuarios;
     }
     
     //convert
 
-    static async convert(data){
+    static convert(data){
 
         let empresa = null;
 

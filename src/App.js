@@ -9,6 +9,8 @@ import UserDetail from './components/details/userDetail';
 import PrimarySearchAppBar from './components/home/navbar';
 import MenuBar from './components/home/navbar';
 import UserForm from './components/forms/userForm';
+import { Button } from '@mui/material';
+import ControlEmpresa from './back/control/controlEmpresa';
 
 function App() {
   return (
@@ -37,6 +39,16 @@ function App() {
                     <Link to='/perfil'>Perfil</Link>
                   </li>
                 </ul>
+
+                <Button variant="outlined" onClick={
+        async ()=>{
+
+          const empresa = {nif:"E90671611"}
+
+          console.log(await ControlEmpresa.getEmpresasByUsuario({email:"higo@gmail.com"}));
+
+        }
+      }> getById (Benatae) </Button>
             </Route>
             <Route path="/grupos">
                 <GroupList />

@@ -6,21 +6,36 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { Box } from "@mui/system";
+import { useEffect, useState } from "react";
+import ControlUsuario from "../../back/control/controlUsuario";
 
 const handleClick = (ntf)=>{
 
 }
 
 const NotificationList = () => {
-    const notificaciones = [
-        {codigo:1, nombre:"Nueva tarea", descripcion:"Nueva tarea en RRHH", link:"/grupos/"},
-        {codigo:2, nombre:"Nueva tarea", descripcion:"Nueva tarea en RRHH", link:"/grupos/"},
-        {codigo:3, nombre:"Nueva tarea", descripcion:"Nueva tarea en RRHH", link:"/grupos/"},
-        {codigo:4, nombre:"Nueva tarea", descripcion:"Nueva tarea en RRHH", link:"/grupos/"},
-        {codigo:5, nombre:"Nueva tarea", descripcion:"Nueva tarea en RRHH", link:"/grupos/"},
-        {codigo:6, nombre:"Nueva tarea", descripcion:"Nueva tarea en RRHH", link:"/grupos/"}
-    ]
+    
     const usuario = {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"}
+    const [notificaciones,setNotificaciones] = useState(null);
+    const [isPending, setIsPending] = useState(true);
+
+    useEffect(() => {
+        
+        const abortCont = new AbortController();
+
+        setTimeout(()=>{
+            ControlUsuario.getNtf(usuario)
+            .then(data=>{
+                
+                setNotificaciones(data);
+                setIsPending(false);
+                
+            })
+        }, 1000)
+
+        return abortCont.abort();
+
+    }, [usuario]);
 
     return ( <Container sx={{height:300, width:700, margin:"auto"}}>
 
@@ -28,8 +43,18 @@ const NotificationList = () => {
             <Typography variant="h4" align="left">Tus notificaciones</Typography>
         </Box>
 
+        { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+        {notificaciones && <InfoNtfs ntfs={notificaciones}/> }
+    </Container> );
+}
+
+const InfoNtfs = props =>{
+
+    const ntfs = props.ntfs;
+
+    return (
         <Stack spacing={2} marginTop={3}>
-        {notificaciones.map((ntf)=>{
+        {ntfs.map((ntf)=>{
             return(
                 <Card>
                     <CardContent>
@@ -47,7 +72,8 @@ const NotificationList = () => {
             );
         })}
         </Stack>
-    </Container> );
+    )
+
 }
- 
+
 export default NotificationList;
