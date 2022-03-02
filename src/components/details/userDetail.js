@@ -9,57 +9,95 @@ import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
 import Grid from "@mui/material/Grid"
 import { List, ListItem } from "@mui/material";
+import ControlUsuario from "../../back/control/controlUsuario";
+import { useEffect, useState } from "react";
+import ControlGrupo from "../../back/control/controlGrupoProyecto";
+import ControlEmpresa from "../../back/control/controlEmpresa";
+import ControlTarea from "../../back/control/controlTarea";
 
 const handleDelete = (usuario)=>{}
 
 const UserDetail = () => {
 
+    const usuarioSesion = {email:"higo@gmail.com"}
+//
     const match = useRouteMatch();
-    const {id} = useParams();
+    const {idusuario} = useParams();
+    const [usuario,setUsuario] = useState(null)
+    const [isPending,setIsPending] = useState(true);
 
-    const usuario = {
-        nombre: "Rodrigo",
-        apellido1: "Díaz",
-        apellido2: "de Vivar",
-        email: "higo@gmail.com",
-        grupos: [
-            {codigo:1, empresa:"E98765432", nombre:"RRHH", descripcion:"Proyecto RRHH"},
-            {codigo:1, empresa:"E98765432", nombre:"RRHH", descripcion:"Proyecto RRHH"}
-        ],
-        empresas: [
-            {nif:"E98765432", nombre:"Aceites Benatae SA", razonsocial:"Benatae SA"},
-            {nif:"E98765432", nombre:"Aceites Benatae SA", razonsocial:"Benatae SA"},
-            {nif:"E98765432", nombre:"Aceites Benatae SA", razonsocial:"Benatae SA"}
-        ],
-        tipovia:"C./",
-        nombrevia:"Hernani",
-        numvia:51,
-        codigopuerta:"2A",
-        editable:true,
-        adminGrupo:true,
-        adminEmpresa:true,
-        tareas:[
-            {codigo:1,nombre:"Comprar patatas", descripcion:"Comprar patatas para la cena de empresa",
-            grupo:{codigo:1, empresa:{nif:"E98765432"}}},
-            {codigo:1,nombre:"Comprar patatas", descripcion:"Comprar patatas para la cena de empresa",
-            grupo:{codigo:1, empresa:{nif:"E98765432"}}},
-            {codigo:1,nombre:"Comprar patatas", descripcion:"Comprar patatas para la cena de empresa",
-            grupo:{codigo:1, empresa:{nif:"E98765432"}}},
-            {codigo:1,nombre:"Comprar patatas", descripcion:"Comprar patatas para la cena de empresa",
-            grupo:{codigo:1, empresa:{nif:"E98765432"}}},
-            {codigo:1,nombre:"Comprar patatas", descripcion:"Comprar patatas para la cena de empresa",
-            grupo:{codigo:1, empresa:{nif:"E98765432"}}}
-        ]
-    }
+    useEffect(()=>{
+
+        const abortCont = new AbortController();
+
+        setTimeout(()=>{
+          ControlUsuario.getById(idusuario)
+          .then(res =>{
+              console.log(res)
+              if(res.email == usuarioSesion.email)
+                res.editable = true;
+            setUsuario(res)
+
+            ControlGrupo.getFromUsuario(idusuario)
+            .then(data =>{
+                console.log(data)
+                res.grupos = data;
+                setUsuario(res);
+            })
+
+            ControlEmpresa.getEmpresasByUsuario({email:idusuario})
+            .then(data =>{
+                console.log(data)
+                res.empresas = data;
+                setUsuario(res);
+            })
+
+            ControlTarea.getFromUsuario(idusuario)
+            .then(data =>{
+              res.tareas = data;
+              setUsuario(res)  
+              setIsPending(false)
+            })
+
+          })
+        }, 1000)
+
+        return abortCont.abort();
+
+    },[])
+
+    
 
     return ( <div>
         <Switch>
             <Route exact path={`${match.path}`}>
-                <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Información de {usuario.nombre}&nbsp;{usuario.apellido1}&nbsp;{usuario.apellido2}</Typography>
+                { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                {usuario && <Info usuario={usuario} match={match} isPending={isPending}/>}
+            </Route>
+            <Route path={`${match.path}/editar`}>
+                <UserForm />
+            </Route>
+        </Switch>
+    </div> );
+}
 
-                    {(usuario.editable?<BotonesEditable match={match} handleDelete={handleDelete} usuario={usuario}/>:null)}
-                
-                    <Grid container spacing={2} marginTop={2}>
+const Info = (props)=>{
+
+    const match = props.match;
+    const usuario = props.usuario;
+    const isPending = props.isPending;
+
+    return(
+        <Box>
+            <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Información de {usuario.nombre}&nbsp;{usuario.apellido1}&nbsp;{usuario.apellido2}</Typography>
+
+            <Box display="flex">
+                {(usuario.editable?<BotonesEditable match={match} handleDelete={handleDelete} usuario={usuario}/>:null)}
+            </Box>
+
+            <Grid container spacing={2} marginTop={2}>
+
+                        
 
                         <Grid item xs={6} sx={{padding:1}}>
                             <Box id="nombre" margin={1} padding={1}>
@@ -95,19 +133,20 @@ const UserDetail = () => {
 
                         <Grid item xs={4}>
 
-                            {(usuario.editable)?<ListaEmpresas empresas={usuario.empresas} />:""}
+                            { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                            {(usuario.editable)?usuario.empresas && <ListaEmpresas empresas={usuario.empresas} />:""}
 
                         </Grid>
                             
                         <Grid item xs={4}>
-
-                            {(usuario.editable)?<ListaGrupos grupos={usuario.grupos} />:""}
+                            { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                            {(usuario.editable)?usuario.grupos && <ListaGrupos grupos={usuario.grupos} />:""}
                             
                         </Grid>
 
                         <Grid item xs={4}>
-
-                            {(usuario.editable)?<ListaTareas tareas={usuario.tareas}/>:""}
+                            { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                            {(usuario.editable)?usuario.tareas && <ListaTareas tareas={usuario.tareas}/>:""}
                             
                         </Grid>
 
@@ -115,12 +154,9 @@ const UserDetail = () => {
 
                     </Grid>
 
-            </Route>
-            <Route path={`${match.path}/editar`}>
-                <UserForm />
-            </Route>
-        </Switch>
-    </div> );
+        </Box>
+                    
+    )
 }
 
 const BotonesEditable = (props)=>{
@@ -140,6 +176,7 @@ const BotonesEditable = (props)=>{
 
 const ListaGrupos = (props)=>{
     const grupos = props.grupos;
+    console.log(grupos)
 
     return(
 
@@ -166,6 +203,7 @@ const ListaGrupos = (props)=>{
 const ListaEmpresas = (props)=>{
 
     const empresas = props.empresas;
+    console.log(empresas)
 
     return (
 
@@ -192,6 +230,7 @@ const ListaEmpresas = (props)=>{
 const ListaTareas = (props)=>{
 
     const tareas = props.tareas;
+    console.log(tareas)
 
     return(
 

@@ -10,7 +10,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Avatar from '@mui/material/Avatar';
 import PersonIcon from '@mui/icons-material/Person'
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import Input from '@mui/material/Input';
@@ -18,65 +18,80 @@ import Empresa from "../../back/model/Empresa";
 import Grid from "@mui/material/Grid"
 import InputUsuario from "../form/InputUsuario";
 import InputTexto from "../form/InputTexto";
+import TiposVia from "../../back/model/TiposVia";
+import { useParams, Switch, Route } from "react-router-dom";
+import ControlEmpresa from "../../back/control/controlEmpresa";
 
 const deleteUsuario = (usuario, empresa)=>{
 
 }
 
+const handleSubmit = (empresa)=>{
 
+}
 
 const CompanyForm = () => {
 
-  let errores = {}
-  let empresa = {}
-  let optionsUsuarios = [];
-  const tiposVia = [
-    {label:"C./", id:"C./"},
-    {label:"Avda./", id:"Avda./"},
-    {label:"Ctra./", id:"Ctra./"},
-    {label:"Pza./", id:"Pza./"}
-];
+  const {idempresa} = useParams() || '';
 
-    
-    errores = /*{
-        nombre:{
-            format:"No mola",
-            xtsn:"Es una mierda"
-        }
-    }*/{}
+  const [errores,setErrores] = useState({});
+  const [empresa,setEmpresa] = useState(new Empresa());
+  const [isPending, setIsPending] = useState(true);
 
-    empresa = /*{
-        nif:"E98765432",
-        nombre:"Aceites Benatae S.A.",
-        razonSocial:"Benatae SA",
-        administrador:{
-            nombre:"Rodrigo",
-            email:"higo@gmail.com"
-        },
-        tipoVia:"C./",
-        nombreVia:"Hernani",
-        numVia:"51",
-        codigoPuerta:"2A",
-        usuarios:[
-            {email:"higo@gmail.com", nombre:"Rodrigo"},
-            {email:"higo@gmail.com", nombre:"Rodrigo"},
-            {email:"higo@gmail.com", nombre:"Rodrigo"},
-            {email:"higo@gmail.com", nombre:"Rodrigo"},
-            {email:"higo@gmail.com", nombre:"Rodrigo"},
-            {email:"higo@gmail.com", nombre:"Rodrigo"},
-        ]
-    }*/new Empresa()
+  const [nif, setNif] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [razonSocial, setRazonSocial] = useState();
+  const [administrador, setAdministrador] = useState(null);
+  const [tipoVia, setTipoVia] = useState('');
+  const [nombreVia, setNombreVia] = useState('');
+  const [numVia, setNumVia] = useState('');
+  const [codigoPuerta, setCodigoPuerta] = useState('');
 
-    const [nif, setNif] = useState(empresa.nif || '');
-    const [nombre, setNombre] = useState(empresa.nombre || '');
-    const [razonSocial, setRazonSocial] = useState(empresa.razonSocial || '');
-    const [administrador, setAdministrador] = useState((empresa.administrador != null)?empresa.administrador.email:null);
-    const [tipoVia, setTipoVia] = useState(empresa.tipoVia || '');
-    const [nombreVia, setNombreVia] = useState(empresa.nombreVia || '');
-    const [numVia, setNumVia] = useState(empresa.numVia || '');
-    const [codigoPuerta, setCodigoPuerta] = useState(empresa.codigoPuerta || '');
+  useEffect(()=>{
 
-    return ( <div>
+    const abortCont = new AbortController();
+
+        if(idempresa){setTimeout(()=>{
+            ControlEmpresa.getById(idempresa)
+            .then(data=>{
+                setEmpresa(data);
+                setNif(data.nif);
+                setNombre(data.nombre);
+                setRazonSocial(data.razonSocial);
+                setAdministrador(data.administrador);
+                setTipoVia(data.tipoVia);
+                setNombreVia(data.nombreVia);
+                setNumVia(data.numVia);
+                setCodigoPuerta(data.codigoPuerta || '')
+                setIsPending(false)
+
+                ControlEmpresa.getUsuariosByEmpresa(data)
+                .then(res => {
+                    data.usuarios = res;
+                    setEmpresa(data)
+                })
+
+                ControlEmpresa.getAdminByEmpresa(data)
+                .then(res => {
+                    setAdministrador(res[0])
+                    console.log(res)
+                })
+            })
+        }, 1000)}
+
+        setIsPending(false)
+
+        return abortCont.abort();
+
+  },[idempresa])
+
+  const tiposVia = TiposVia;
+  
+
+    return (
+        <Box>
+          { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+          <div>
         <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Editar empresa {empresa.nombre || "nueva"}</Typography>
 
       
@@ -149,10 +164,10 @@ const CompanyForm = () => {
         <Box margin={2}>
           <Typography for="administrador" color="text.secondary" align="left" >Administrador</Typography>
 
-          <Box display="flex">
+          {administrador && <Box display="flex">
               {(empresa.usuarios != null)?<Autocomplete
               options={empresa.usuarios}
-              defaultValue={""}
+              defaultValue={administrador}
               value={administrador}
               onChange={(e,value)=>setAdministrador(value)}
               getOptionLabel={option => option.email}
@@ -161,18 +176,22 @@ const CompanyForm = () => {
                   <TextField {...params} label="Miembros" variant="standard" />
                 )}
               />:null}
-          </Box>
+          </Box>}
 
         </Box>
 
-        
-        
       
     </Box>
 
     <InputUsuario tabla={empresa} errores={errores.usuarios || null} usuarios={empresa.usuarios || null}/>
       
-    </div> );
+    </div> 
+          
+        </Box>
+
+     );
 }
+
+
  
 export default CompanyForm;

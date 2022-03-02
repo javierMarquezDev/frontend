@@ -1,19 +1,55 @@
 import { Box, Button, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import ControlNoticia from "../../back/control/controlNoticia";
+import Noticia from "../../back/model/Noticia";
 import InputTexto from "../form/InputTexto";
+
+
 
 const NewsForm = () => {
 
-    const grupo = {};
-    let errores = [];
-    let noticia = {}
-
     const submit = ()=>{}
 
-    const [texto,setTexto] = useState((noticia.texto === null)?'':noticia.texto)
+    const {grupoempresa,grupocodigo,autor,codigo} = useParams();
+    const [errores,setErrores] = useState({})
+    const [noticia,setNoticia] = useState(new Noticia())
+    const [texto,setTexto] = useState('')
+    const [noticiaCodigo,setCodigo] = useState('')
+    const [usuario,setUsuario] = useState(null)
+    const [grupo,setGrupo] = useState(null)
+    const [fechaHora,setFechaHora] = useState(null)
+    const [isPending, setIsPending] = useState(true);
 
-    return ( <Box sx={{width:'100%'}} display="flex">
-        <InputTexto formalName="Escribir noticia" 
+    useEffect(()=>{
+
+        const abortCont = new AbortController();
+
+        if(grupoempresa && grupocodigo && autor && codigo){setTimeout(()=>{
+          ControlNoticia.getById(grupoempresa,grupocodigo,autor,codigo)
+          .then(res =>{
+              console.log(res)
+
+
+            setNoticia(res)
+
+            setCodigo(res.codigo)
+            setTexto(res.texto)
+            setUsuario(res.usuario)
+            setGrupo(res.grupo)
+            setFechaHora(res.fechaHora)
+
+            setIsPending(false)
+          })
+        }, 1000)}
+
+        return abortCont.abort();
+
+    },[grupoempresa,grupocodigo])
+
+    return ( <div>
+        {noticia && <Box sx={{width:'100%'}} display="flex">
+        <InputTexto formalName={(noticia.codigo)?"Editar noticia":"Escribir noticia" }
                     required = {true}
                     id = "texto"
                     property={texto} 
@@ -22,7 +58,8 @@ const NewsForm = () => {
                     multiline={true}
                     sx={{width:'100%',margin:2}} />
         <Button variant="contained" onClick={()=>submit()}>Publicar</Button>
-    </Box> );
+    </Box>}
+    </div> );
 }
  
 export default NewsForm;

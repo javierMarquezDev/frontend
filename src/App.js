@@ -13,6 +13,8 @@ import { Button } from '@mui/material';
 import ControlEmpresa from './back/control/controlEmpresa';
 
 function App() {
+
+  const usuario = {email:"higo@gmail.com"}
   return (
     <Router>
 
@@ -36,19 +38,9 @@ function App() {
                     <Link to='/ntfs'>Notificaciones</Link>
                   </li>
                   <li>
-                    <Link to='/perfil'>Perfil</Link>
+                    <Link to={`${usuario.email}/perfil`}>Perfil</Link>
                   </li>
                 </ul>
-
-                <Button variant="outlined" onClick={
-        async ()=>{
-
-          const empresa = {nif:"E90671611"}
-
-          console.log(await ControlEmpresa.getEmpresasByUsuario({email:"higo@gmail.com"}));
-
-        }
-      }> getById (Benatae) </Button>
             </Route>
             <Route path="/grupos">
                 <GroupList />
@@ -68,7 +60,7 @@ function App() {
             <Route path="/ntfs">
                 <NotificationList />
             </Route>
-            <Route path="/perfil">
+            <Route path="/:idusuario/perfil">
                 <UserDetail />
             </Route>
           </Switch>

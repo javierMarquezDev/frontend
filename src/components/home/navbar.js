@@ -7,6 +7,8 @@ const MenuBar = () => {
 
   let loggedIn = true;
 
+  const usuario = {email:"higo@gmail.com"}
+
   return ( 
     <AppBar position="fixed">
       <Toolbar>
@@ -46,7 +48,7 @@ const MenuBar = () => {
         </MenuItem>
 
         {/*NOTIFICACIONES*/}
-        {(loggedIn)?<MenuLogged/>:null}
+        {(loggedIn)?<MenuLogged usuario={usuario}/>:null}
         
       </Toolbar>
     </AppBar>
@@ -54,9 +56,10 @@ const MenuBar = () => {
 
 }
 
-const MenuLogged = ()=>{
+const MenuLogged = (props)=>{
 
   const ntfs = 13;
+  const usuario = props.usuario;
 
   return(
 
@@ -78,7 +81,7 @@ const MenuLogged = ()=>{
         </MenuItem>
 
         <MenuItem>
-          <Link to="/perfil" style={{color:"white"}}>
+          <Link to={`/${usuario.email}/perfil`} style={{color:"white"}}>
 
             <IconButton
               size="large"

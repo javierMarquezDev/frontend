@@ -13,6 +13,9 @@ import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
 import Grid from "@mui/material/Grid"
+import { useEffect, useState } from "react";
+import ControlGrupo from "../../back/control/controlGrupoProyecto";
+import ControlTarea from "../../back/control/controlTarea";
 
 const handleDelete = (tarea)=>{}
 
@@ -23,41 +26,64 @@ const handleCheck = (tarea)=>{
 const TaskDetail = () => {
 
     const match = useRouteMatch();
-    const {id} = useParams();
+    const {grupocodigo,grupoempresa,codigo} = useParams();
+    const [tarea, setTarea] = useState(null)
+    const [isPending,setIsPending] = useState(true);
 
-    const tarea = {
-        codigo:17,
-        grupo:{
-            nombre:"RRHH",
-            codigo:2,
-            empresa:{
-                nif:"E98765432",
-                nombre:"Aceites Benatae S.A."
-            },
-            descripcion:"Proyecto RRHH"
-        },
-        fechaHora:new Date(2022,2,2),
-        nombre:"Cocer patatas",
-        descripcion:"Cocer patatas cena de empresa",
-        checked:false,
-        atareado:{
-            nombre:"Rodrigo",
-            email:"higo@gmail.com"
-        },
-        adminGrupo:true,
-        asignado:true
-    }
+    const usuario = {email:"higo@gmail.com"}
+
+    useEffect(()=>{
+        const abortCont = new AbortController();
+
+        setTimeout(()=>{
+            ControlTarea.getById(grupoempresa,grupocodigo,codigo)
+            .then(data=>{
+                if(data.atareado.email == usuario.email)
+                    {data.asignado = true;}
+                else{
+                    data.asignado = false;
+                }
+
+                setTarea(data);
+                setIsPending(false)
+            })
+        }, 1000)
+
+        return abortCont.abort();
+
+    },[grupoempresa,grupocodigo,codigo])
+    
 
     return ( <div>
         <Switch>
             <Route exact path={`${match.path}`}>
-                <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Información de la tarea "{tarea.nombre}"</Typography>
-
-                {(tarea.adminGrupo?<BotonesEditable match={match} handleDelete={handleDelete} tarea={tarea}/>:null)}
-                {(tarea.asignado)?(tarea.checked?<Button onClick={()=>{handleCheck(tarea)}}>Marcar como hecha</Button>:<Button onClick={()=>{handleCheck(tarea)}}>Marcar como no hecha</Button>):null}
+                <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Información de la tarea</Typography>
 
                 
-                <Grid container spacing={2} marginTop={2}>
+                { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                {tarea && <InfoTarea tarea={tarea} match={match} grupocodigo={grupocodigo} grupoempresa={grupoempresa}/>}
+                
+            </Route>
+            <Route path={`${match.path}/editar`}>4
+                <TaskForm />
+            </Route>
+        </Switch>
+    </div> );
+}
+
+const InfoTarea = (props)=>{
+
+    const tarea = props.tarea;
+    const match = props.match;
+    const grupocodigo = props.grupocodigo;
+    const grupoempresa = props.grupoempresa;
+
+    return(
+        <Grid container spacing={2} marginTop={2}>
+
+                        <Grid item xs={12}>
+                            {(tarea.asignado)?(tarea.checked?<Button onClick={()=>{handleCheck(tarea)}}>Marcar como no hecha</Button>:<Button onClick={()=>{handleCheck(tarea)}}>Marcar como hecha</Button>):null}
+                        </Grid>
 
                         <Grid item xs={4}>
                             <Box id="nombre" margin={1} padding={1}>
@@ -81,7 +107,9 @@ const TaskDetail = () => {
                             <Box id="fechahora" margin={1} padding={1}>
                                 <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Fecha límite</Typography>
                                 <Box display="flex">
-                                    <Typography align="left">{tarea.fechaHora.getFullYear()+"-"+tarea.fechaHora.getMonth()+"-"+tarea.fechaHora.getDate()}</Typography>
+                                    <Typography align="left">{tarea.fechaHora.getFullYear()+"-"+tarea.fechaHora.getMonth()+
+                                    "-"+tarea.fechaHora.getDate()+` `+tarea.fechaHora.getHours().toString().padStart(2,'0')+":"
+                                    +tarea.fechaHora.getMinutes().toString().padStart(2,'0')+"h"}</Typography>
                                 </Box>
                             </Box>
                         </Grid>
@@ -95,34 +123,19 @@ const TaskDetail = () => {
                         </Grid>
 
                         <Grid item xs={4}>
-                            <Box id="atareado" margin={1} padding={1}>
-                                <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Usuario asignado</Typography>
-                                <Box display="flex">
-                                    <Card id="atareado">
-                                        {(tarea.atareado)?<InfoAutor atareado={tarea.atareado}/>:<Typography sx={{fontSize:12}} align="left">Sin información</Typography>}
-                                    </Card>
-                                </Box>
-                            </Box>
-                        </Grid>
-
-                        <Grid item xs={4}>
                             <Box id="grupo" margin={1} padding={1}>
-                                <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Proyecto</Typography>
+                                <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Grupo</Typography>
                                 <Box display="flex">
                                     <Card id="grupo">
-                                        {(tarea.grupo)?<InfoGrupo grupo={tarea.grupo}/>:<Typography sx={{fontSize:12}} align="left">Sin información</Typography>}
+                                        <InfoGrupo grupoempresa={grupoempresa} grupocodigo={grupocodigo}/>
                                     </Card>
                                 </Box>
                             </Box>
                         </Grid>
                 </Grid>
 
-            </Route>
-            <Route path={`${match.path}/editar`}>4
-                <TaskForm />
-            </Route>
-        </Switch>
-    </div> );
+    )
+
 }
 
 const BotonesEditable = (props)=>{
@@ -140,18 +153,7 @@ const BotonesEditable = (props)=>{
     )
 }
 
-const InfoGrupo = (props)=>{
-    const grupo = props.grupo;
 
-    return(
-        <CardContent>
-            <Typography align="left" sx={{fontWeight:"bold"}}>{grupo.nombre}</Typography>
-            <Typography align="left">{grupo.descripcion}</Typography>
-            <Typography align="left">{grupo.empresa.nombre}</Typography>
-            <Link to={`/grupos/${grupo.empresa.nif}/${grupo.codigo}`}><Typography align="left" sx={{fontSize:10}}>Ver</Typography></Link>
-        </CardContent>
-    )
-}
 
 const InfoAutor = (props)=>{
     const atareado = props.atareado;
@@ -161,6 +163,47 @@ const InfoAutor = (props)=>{
             <Typography align="left" sx={{fontWeight:"bold"}}>{atareado.nombre}</Typography>
             <Typography align="left">{atareado.email}</Typography>
         </CardContent>
+    )
+}
+
+const InfoGrupo = (props)=>{
+    const grupoempresa = props.grupoempresa;
+    const grupocodigo = props.grupocodigo;
+    const [grupo,setGrupo] = useState(null)
+    const [isPending,setIsPending] = useState(true);
+
+    useEffect(()=>{
+                const abortCont = new AbortController();
+
+                setTimeout(()=>{
+                    ControlGrupo.getById({nif:grupoempresa},grupocodigo)
+                    .then(res=>{
+                        setGrupo(res);
+                        setIsPending(false);
+                    })
+                }, 1000)
+        
+                return abortCont.abort();
+    },[])
+
+    const Info = (props)=>{
+
+        const grupo = props.grupo;
+
+        return (
+            <CardContent>
+                <Typography align="left" sx={{fontWeight:"bold"}}>{grupo.nombre}</Typography>
+                <Typography align="left">{grupo.descripcion}</Typography>
+                <Typography align="left">{grupo.empresa.nif}</Typography>
+        </CardContent>
+        )
+    }
+
+    return(
+        <Box>
+            { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+            {grupo && <Info grupo={grupo}/>}
+        </Box>
     )
 }
  

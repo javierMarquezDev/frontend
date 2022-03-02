@@ -60,8 +60,11 @@ const NewsList = (props) => {
                 
 
             </Route> 
-            <Route path={`${match.path}/:autor/:codigo`}>
+            <Route exact path={`${match.path}/:autor/:codigo`}>
                 <NewsDetail/>
+            </Route>
+            <Route exact path={`${match.path}/:autor/:codigo/editar`}>
+                <NewsForm/>
             </Route>
         </Switch>
         </div>
@@ -97,7 +100,7 @@ const InfoNoticias = (props) =>{
                                     <Link to={`${match.url}/${noticia.usuario.email}/${noticia.codigo}`}><Typography align="left" sx={{flexGrow:1, fontSize:10, marginTop:3}}>Ver detalle</Typography></Link>
                                 </CardContent>
                                 <CardActions sx={{flexDirection:"row-reverse"}}>
-                                    {(noticia.admin)?<Button>EDITAR</Button>:""}
+                                    {(noticia.admin)?<Button><Link to={`${match.url}/${noticia.usuario.email}/${noticia.codigo}/editar`}>EDITAR</Link></Button>:""}
                                     {(noticia.admin)?<Button>ELIMINAR</Button>:""}
                                 </CardActions>
                             </Card>

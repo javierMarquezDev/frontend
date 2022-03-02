@@ -90,9 +90,9 @@ let ControlTarea = class controlTarea{
 
         let resultado = [];
 
-        Array.from(tareasArray).forEach(async element => {
+        Array.from(tareasArray).forEach(element => {
 
-            const tarea = await this.convert(element);
+            const tarea = this.convert(element);
 
             resultado.push(tarea);
             
@@ -109,7 +109,7 @@ let ControlTarea = class controlTarea{
      * y sus respectivos objetos anidados.
      * @param {*} data 
      */
-     static async  convert(data){
+     static convert(data){
 
         let tarea = null;
 

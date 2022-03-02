@@ -38,10 +38,10 @@ const CompanyUserList = (props) => {
 
         return abortCont.abort();
 
-    })
+    },[])
     
-    return ( 
-        <div>
+    return ( <div>
+        {empresa && 
             <Switch>
             <Route exact path={match.path}>
 
@@ -57,15 +57,15 @@ const CompanyUserList = (props) => {
                 </Box>
                 
             </Route> 
-            <Route exact path={`${match.url}/nuevousuario`}>
+            <Route exact path={`${match.path}/nuevousuario`}>
                 <NewUserCompanyForm/>
             </Route>
-            <Route path={`${match.url}/:idusuario`}>
+            <Route path={`${match.path}/:idusuario`}>
                 <UserDetail/>
             </Route>
             
         </Switch>
-        </div>
+        }</div>
      );
 }
 
@@ -90,7 +90,7 @@ const Usuarios = (props) =>{
 
                                 </Box>
                                     
-                                    <Button variant="outlined" sx={{marginRight:1, marginLeft:1}}><Link to={`${match.path}/${usuario.email}`} style={{textDecoration:"none"}}>VER</Link></Button>
+                                    <Button variant="outlined" sx={{marginRight:1, marginLeft:1}}><Link to={`${match.url}/${usuario.email}`} style={{textDecoration:"none"}}>VER</Link></Button>
                                     {(empresa.admin)?<Button onClick={()=>{handleDelete(usuario)}} variant="contained">ELIMINAR</Button>:""}
                                 
                             </Box>

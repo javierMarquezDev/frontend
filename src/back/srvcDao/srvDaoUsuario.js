@@ -21,7 +21,7 @@ let srvDaoUsuario = class DaoUsuario{
             }
         ).then((response) => response.json())
         .then(data => {
-            //
+            
             return data;
         })
 
@@ -67,7 +67,7 @@ let srvDaoUsuario = class DaoUsuario{
             }
         ).then((response) => response.json())
         .then(data => {
-            //
+            console.log(data)
             return data;
         })
 

@@ -1,4 +1,5 @@
-import { FormControl, FormHelperText, Input, InputLabel } from "@mui/material";
+import { FormControl, Input, InputLabel } from "@mui/material";
+import ErroresCampo from './ErroresCampo';
 
 const InputTexto = (props)=>{
 
@@ -10,6 +11,7 @@ const InputTexto = (props)=>{
     const required = props.required;
     const multiline = props.multiline;
     const password = props.password;
+    const disabled = props.disabled;
     const sx = props.sx;
 
     return(
@@ -17,7 +19,8 @@ const InputTexto = (props)=>{
             <InputLabel htmlFor={`${id}`}>{formalName}</InputLabel>
             {(multiline)?
             <Input
-            required={(required)?"true":"false"}
+            required={(required)?true:false}
+            disabled={(disabled)?true:false}
             error={(errores === null)?false:true}
             id={`${id}`}
             value={property}
@@ -26,8 +29,9 @@ const InputTexto = (props)=>{
             onChange={(e)=>setProperty(e.target.value)}
             />:
             <Input
-            required={(required)?"true":"false"}
+            required={(required)?true:false}
             error={(errores === null)?false:true}
+            disabled={(disabled)?true:false}
             id={`${id}`}
             value={property}
             defaultValue={property}
@@ -40,27 +44,6 @@ const InputTexto = (props)=>{
           </FormControl>
     )
 
-}
-
-
-const ErroresCampo = (props)=>{
-
-    const errores = props.errores;
-    
-    let array = [];
-
-    for(let key in errores){
-        array.push(errores[key])
-    }
-
-    return(
-        array.map(error=>{
-            return(
-                <FormHelperText>{error}</FormHelperText>
-            )
-        })
-    )
-    
 }
     
 export default InputTexto;

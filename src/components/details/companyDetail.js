@@ -11,7 +11,6 @@ import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
 import Grid from "@mui/material/Grid"
 import { List, ListItem } from "@mui/material";
-import useDataEmpresa from "../data/useDataEmpresa";
 import Empresa from "../../back/model/Empresa";
 import ControlEmpresa from "../../back/control/controlEmpresa";
 import { useEffect, useState } from "react";

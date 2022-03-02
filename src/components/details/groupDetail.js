@@ -26,7 +26,7 @@ const GroupDetail = () => {
     const [grupo,setGrupo] = useState(null);
     const [isPending, setIsPending] = useState(true);
 
-    const usuario = "higo@gmail.com";
+    const usuario = {email:"higo@gmail.com"};
 
     useEffect(()=>{
 
@@ -35,8 +35,8 @@ const GroupDetail = () => {
         setTimeout(()=>{
             ControlGrupo.getById({nif:grupoempresa},grupocodigo)
             .then(data=>{
-                if(data.administrador == usuario)
-                data.admin = true;
+                if(data.administrador.email == usuario.email)
+                    data.admin = true;
                 setGrupo(data);
                 setIsPending(false)
             })

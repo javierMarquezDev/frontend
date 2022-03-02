@@ -1,33 +1,97 @@
 import { Autocomplete, Button, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Usuario from "../../back/model/Usuario";
 import InputTexto from "../form/InputTexto";
+import TiposVia from "../../back/model/TiposVia";
+import ControlUsuario from "../../back/control/controlUsuario";
+import { useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import ErroresCampo from "../form/ErroresCampo";
+import notificar from "../home/notificar";
 
 const UserForm = () => {
 
-    let usuario = new Usuario();
-    let errores = {};
+    const tiposVia = TiposVia;
+    const {idusuario} = useParams();
+    const [usuario,setUsuario] = useState(new Usuario());
+    const history = useHistory();
 
-    const [email,setEmail] = useState(usuario.email || '');
-    const [dni,setDni] = useState(usuario.dni || '');
-    const [nombre,setNombre] = useState(usuario.nombre || '');
-    const [apellido1,setApellido1] = useState(usuario.apellido1 || '');
-    const [apellido2,setApellido2] = useState(usuario.apellido2 || '');
-    const [tipoVia,setTipoVia] = useState(usuario.tipoVia || '');
-    const [nombreVia,setNombreVia] = useState(usuario.nombreVia || '');
-    const [numVia,setNumVia] = useState(usuario.numVia || '');
-    const [codigoPuerta,setCodigoPuerta] = useState(usuario.codigoPuerta || '');
+    const [email,setEmail] = useState('');
+    const [contrasena, setContrasena] = useState('');
+    const [dni,setDni] = useState('');
+    const [nombre,setNombre] = useState('');
+    const [apellido1,setApellido1] = useState('');
+    const [apellido2,setApellido2] = useState('');
+    const [tipoVia,setTipoVia] = useState('');
+    const [nombreVia,setNombreVia] = useState('');
+    const [numVia,setNumVia] = useState('');
+    const [codigoPuerta,setCodigoPuerta] = useState('');
+    const [errores,setErrores] = useState({});
+    const [isPending,setIsPending] = useState(false);
 
-    const tiposVia = [
-        {label:"C./", id:"C./"},
-        {label:"Avda./", id:"Avda./"},
-        {label:"Ctra./", id:"Ctra./"},
-        {label:"Pza./", id:"Pza./"}
-    ];
+    useEffect(()=>{
+
+        const abortCont = new AbortController();
+
+        if(idusuario){setTimeout(()=>{
+          ControlUsuario.getById(idusuario)
+          .then(res =>{
+              console.log(res)
+            setUsuario(res)
+
+            setEmail(res.email)
+            setDni(res.dni)
+            setNombre(res.nombre)
+            setApellido1(res.apellido1)
+            setApellido2(res.apellido2 || '')
+            setTipoVia(res.tipovia)
+            setNombreVia(res.nombrevia)
+            setNumVia(res.numvia)
+            setCodigoPuerta(res.codigoPuerta || '')
+
+            setIsPending(false)
+          })
+        }, 1000)}
+
+        return abortCont.abort();
+
+    },[idusuario])
+    
+    const handleCreate = (e) =>{
+
+      e.preventDefault();
+
+      const nuevoUsuario = new Usuario(email, contrasena, dni, nombre,
+        apellido1, apellido2, tipoVia.id, nombreVia,
+        numVia, codigoPuerta);
+
+      console.log(nuevoUsuario)
+
+      if(idusuario){
+        ControlUsuario.edit(nuevoUsuario)
+        .then(data =>{
+          if(data.message != null){
+            history.go(-2)
+            notificar(data.message)
+          }
+            setErrores(data);
+        })
+      }else{
+        ControlUsuario.create(nuevoUsuario)
+        .then(data => {
+          if(data.message != null){
+            history.go(-3)
+            notificar(data.message)
+          }
+            setErrores(data);
+        })
+      }
+
+    }
 
     return ( <div>
-        <Typography align="left">Editar usuario {(usuario.email==null)?"nuevo":""}</Typography>
+        <Typography align="left" variant="h5">Editar usuario {(usuario.email==null)?"nuevo":""}</Typography>
 
         
         <Box
@@ -45,7 +109,18 @@ const UserForm = () => {
                         property={email} 
                         setProperty={setEmail} 
                         errores={errores.email || null}
-                        multiline={true}
+                        disabled={true}
+                        sx={{margin:2}}
+                        />
+
+            <InputTexto formalName="Contraseña" 
+                        required = {true}
+                        id = "contrasena"
+                        property={contrasena} 
+                        setProperty={setContrasena} 
+                        errores={errores.contrasena || null}
+                        
+                        password={true}
                         sx={{margin:2}}
                         />
 
@@ -55,7 +130,7 @@ const UserForm = () => {
                         property={dni} 
                         setProperty={setDni} 
                         errores={errores.dni || null}
-                        multiline={true}
+                        
                         sx={{margin:2}}
                         />
 
@@ -65,7 +140,7 @@ const UserForm = () => {
                         property={nombre} 
                         setProperty={setNombre} 
                         errores={errores.nombre || null}
-                        multiline={true}
+            
                         sx={{margin:2}}
                         />
 
@@ -75,7 +150,7 @@ const UserForm = () => {
                         property={apellido1} 
                         setProperty={setApellido1} 
                         errores={errores.apellido1 || null}
-                        multiline={true}
+                        
                         sx={{margin:2}}
                         />
 
@@ -85,7 +160,7 @@ const UserForm = () => {
                         property={apellido2} 
                         setProperty={setApellido2} 
                         errores={errores.apellido2 || null}
-                        multiline={true}
+                        
                         sx={{margin:2}}
                         />
 
@@ -102,6 +177,8 @@ const UserForm = () => {
                         )}
                     />:null}
                 </Box>
+
+                <ErroresCampo errores={errores.tipovia}/>
             </Box>
 
             <InputTexto formalName="Nombre de vía" 
@@ -126,12 +203,12 @@ const UserForm = () => {
                         id = "codigopuerta"
                         property={codigoPuerta} 
                         setProperty={setCodigoPuerta} 
-                        errores={errores.codigoPuerta || null}
+                        errores={errores.codigopuerta || null}
                         sx={{margin:2}}
                         />
             </Box>
 
-        <Button variant="contained">Terminar</Button>
+        <Button variant="contained" onClick={(e)=>handleCreate(e)}>Terminar</Button>
     </div> );
 }
  

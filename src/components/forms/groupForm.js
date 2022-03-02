@@ -10,7 +10,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Avatar from '@mui/material/Avatar';
 import PersonIcon from '@mui/icons-material/Person'
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import Input from '@mui/material/Input';
@@ -19,27 +19,62 @@ import Grid from "@mui/material/Grid"
 import InputUsuario from "../form/InputUsuario";
 import GrupoProyecto from "../../back/model/GrupoProyecto";
 import InputTexto from "../form/InputTexto";
+import { useParams } from "react-router-dom";
+import ControlGrupo from "../../back/control/controlGrupoProyecto";
 
 const GroupForm = () => {
 
-    let empresas = [];
-    let errores = {};
+    const {grupoempresa} = useParams() || '';
+    const {grupocodigo} = useParams() || '';
+    const [empresas,setEmpresas] = useState([])
+    const [errores,setErrores] = useState({});
+    const [nombre, setNombre] = useState('');
+    const [descripcion, setDescripcion] = useState('');
+    const [fechaHora, setFechaHora] = useState(new Date());
+    const [finalizado, setFinalizado] = useState(false);
+    const [administrador, setAdministrador] = useState(null);
+    const [empresa, setEmpresa] = useState(null);
+    const [isPending, setIsPending] = useState(true);
+    const [grupo,setGrupo] = useState(new GrupoProyecto())
 
-    let grupo = new GrupoProyecto();
+    useEffect(()=>{
+        const abortCont = new AbortController();
+
+        
+            setTimeout(()=>{
+            ControlGrupo.getById({nif:grupoempresa},grupocodigo)
+            .then(data=>{
+                console.log(data)
+                setGrupo(data)
+                setNombre(data.nombre);
+                setDescripcion(data.descripcion);
+                setFechaHora(data.fechaHora);
+                setFinalizado(data.finalizado);
+                setAdministrador(data.administrador);
+                setEmpresa(data.empresa);
+                setIsPending(false)
+
+                ControlGrupo.getUsuariosFromGrupo(data)
+                .then(res => {
+                    data.usuarios = res;
+                    setGrupo(data)
+                })
+            })
+        }, 1000)
+
+        setIsPending(false)
+
+        return abortCont.abort();
+    },[grupoempresa,grupocodigo])
 
     const getEmpresas = (e)=>{
         const nombre = e.target.value;
     }
 
-    const [nombre, setNombre] = useState(grupo.nombre || '');
-    const [descripcion, setDescripcion] = useState(grupo.descripcion || '');
-    const [fechaHora, setFechaHora] = useState(grupo.fechaHora || new Date());
-    const [finalizado, setFinalizado] = useState(grupo.finalizado || false);
-    const [administrador, setAdministrador] = useState((grupo.administrador != null)?grupo.administrador.email:null);
-    const [empresa, setEmpresa] = useState((grupo.empresa != null)?grupo.empresa.nif:null);
+    
 
     return ( <div>
-                <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Editar grupo {grupo.nombre || "nuevo"}</Typography>
+                <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Editar grupo {nombre || "nuevo"}</Typography>
 
         
                 <Box
@@ -55,61 +90,66 @@ const GroupForm = () => {
                     <Box
                     display="flex"
                     >
+                    
                         <InputTexto formalName="Nombre" 
-                    required = {true}
-                    id = "nombre"
-                    property={nombre} 
-                    setProperty={setNombre} 
-                    errores={errores.nombre || null} />
+                        required = {true}
+                        id = "nombre"
+                        property={nombre} 
+                        setProperty={setNombre} 
+                        errores={errores.nombre || null} />
+                    
+                        <InputTexto formalName="Descripción" 
+                        required = {true}
+                        id = "descripcion"
+                        property={descripcion} 
+                        setProperty={setDescripcion} 
+                        errores={errores.descripcion || null}
+                        multiline={true} />
+                    
 
-                    <InputTexto formalName="Descripción" 
-                    required = {true}
-                    id = "descripcion"
-                    property={descripcion} 
-                    setProperty={setDescripcion} 
-                    errores={errores.descripcion || null}
-                    multiline={true} />
+                        <Box margin={2}>
+                            <Typography>Finalizado</Typography>
+                            <Switch label="Finalizado" id="finalizado" value={finalizado} onChange={(e)=>setFinalizado(e.target.value)} />
+                        </Box>
+                        
 
-                    <Box margin={2}>
-                        <Typography>Finalizado</Typography>
-                        <Switch label="Finalizado" id="finalizado" value={finalizado} onChange={()=>setFinalizado()} />
+                        <TextField
+                            id="fechaHora"
+                            label="Fecha límite"
+                            type="date"
+                            defaultValue={fechaHora.getFullYear()+"-"+fechaHora.getMonth().toString().padStart(2,'0')+
+                            "-"+fechaHora.getDate().toString().padStart(2,'0')}
+                            value={fechaHora.getFullYear()+"-"+fechaHora.getMonth().toString().padStart(2,'0')+
+                            "-"+fechaHora.getDate().toString().padStart(2,'0')}
+                            onChange={()=>setFechaHora()}
+                            sx={{ width: 220 }}
+                            InputLabelProps={{
+                            shrink: true,
+                            }}/>
+                            
                     </Box>
 
-                    <TextField
-                        id="fechaHora"
-                        label="Fecha límite"
-                        type="date"
-                        defaultValue={fechaHora}
-                        value={fechaHora}
-                        onChange={()=>setFechaHora()}
-                        sx={{ width: 220 }}
-                        InputLabelProps={{
-                        shrink: true,
-                        }}/>
-
-                    </Box>
-
 
                     <Box margin={2}>
-          <Typography for="administrador" color="text.secondary" align="left" >Administrador</Typography>
+                        <Typography for="administrador" color="text.secondary" align="left" >Administrador</Typography>
 
-          <Box display="flex">
-                {(grupo.usuarios != null)?<Autocomplete
-                options={grupo.usuarios}
-                defaultValue={""}
-                value={administrador}
-                onChange={(e,value)=>setAdministrador(value)}
-                getOptionLabel={option => option.email}
-                id="administrador"
-                renderInput={(params) => (
-                    <TextField {...params} label="Miembros" variant="standard" />
-                    )}
-                />:null}
-            </Box>
+                        <Box display="flex">
+                        {(grupo.usuarios != null)?<Autocomplete
+                        options={grupo.usuarios}
+                        defaultValue={""}
+                        value={administrador}
+                        onChange={(e,value)=>setAdministrador(value)}
+                        getOptionLabel={option => option.email}
+                        id="administrador"
+                        renderInput={(params) => (
+                            <TextField {...params} label="Miembros" variant="standard" />
+                            )}
+                        />:null}
+                    </Box>
 
-            </Box>
-                
-                
+                </Box>
+
+
                 <Box margin={2}>
                     <Typography for="empresa" color="text.secondary" align="left" >Empresa</Typography>
 
@@ -127,11 +167,10 @@ const GroupForm = () => {
                         />:null}
                     </Box>
                 </Box>
-            </Box>
-            
-            <InputUsuario tabla={grupo} errores={errores.usuarios||null} usuarios={grupo.usuarios||null}/>
-            
-            
+
+                <InputUsuario tabla={grupo} errores={errores.usuarios||null} usuarios={grupo.usuarios||null}/>
+                </Box>
+
     </div> );
 }
  

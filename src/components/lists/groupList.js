@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
@@ -38,6 +38,8 @@ const GroupList = () => {
             <Switch>
                 <Route exact path={match.path}>
                     <h1>Grupos</h1>
+
+                    <Button variant="contained"><Link to={`${match.url}/crear`}>Crear grupo</Link></Button>
                     
                     { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
                     {grupos && <DataTable rows={grupos} entidad="grupo" handleDelete={()=>{}} match={match} />}
@@ -52,7 +54,7 @@ const GroupList = () => {
                 <Route excact path={`${match.path}/crear`}>
                     <GroupForm />
                 </Route>
-                <Route excact path={`${match.path}/:empresa/:codigo/editar`}>
+                <Route excact path={`${match.path}/:grupoempresa/:grupocodigo/editar`}>
                     <GroupForm />
                 </Route>
             </Switch>

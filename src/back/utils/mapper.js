@@ -24,7 +24,7 @@ let Mapper = class mapper{
         userJson.tipovia = user.tipovia;
         userJson.nombrevia = user.nombrevia;
         userJson.numvia = user.numvia;
-        userJson.codigopuerta = user.codigopuerta && null;
+        userJson.codigopuerta = user.codigoPuerta || '';
         userJson.notificaciones = user.notificaciones && {};
 
         return userJson;
@@ -38,7 +38,7 @@ let Mapper = class mapper{
         return new Usuario(
             str.email, str.contrasena, str.dni,
             str.nombre, str.apellido1, str.apellido2,
-            str.tipovia, str.nombrevia, str.numvia, str.codigopuerta && null,
+            str.tipovia, str.nombrevia, str.numvia, str.codigopuerta || null,
             str.notificaciones && []
         );
 
@@ -191,7 +191,7 @@ let Mapper = class mapper{
         tareaJson.nombre = tarea.nombre;
         tareaJson.descripcion = tarea.descripcion;
         tareaJson.checked = tarea.checked;
-        tareaJson.fechaHora = tarea.fechaHora;
+        tareaJson.fechaHora = Date.prototype.toISOString(tarea.fechaHora);
         tareaJson.usuario = tarea.atareado.email;
 
         return tareaJson;
@@ -199,7 +199,7 @@ let Mapper = class mapper{
 
     static jsonToTarea(str){
         return new Tarea(str.codigo, {codigo:str.grupocodigo,empresa:str.grupoempresa},
-            str.fechahora, str.nombre, str.descripcion,
+            this.parseISOString(str.fechahora), str.nombre, str.descripcion,
             str.checked, {email:str.usuario})
     }
 

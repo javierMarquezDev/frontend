@@ -89,8 +89,6 @@ let ControlNoticia = class ctrlNews{
 
         }else if(typeof data == 'object'){
 
-            console.log(data.grupoempresa, data.grupocodigo, data.autor);
-
             noticia = Mapper.jsonToNoticia(data);
 
         }

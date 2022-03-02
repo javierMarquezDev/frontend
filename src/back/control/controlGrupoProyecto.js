@@ -68,9 +68,9 @@ let ControlGrupo = class controlGrupo {
 
         let result = [];
 
-        Array.from(gruposJson).forEach(async (element) => {
+        Array.from(gruposJson).forEach(element => {
 
-            const grupo = await this.convert(element);
+            const grupo = this.convert(element);
 
             result.push(grupo);
             
@@ -139,7 +139,7 @@ let ControlGrupo = class controlGrupo {
     //convert
 
     
-    static async convert(data){
+    static convert(data){
 
         let grupo = null;
 
