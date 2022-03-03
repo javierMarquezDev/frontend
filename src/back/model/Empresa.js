@@ -1,8 +1,8 @@
 let Empresa = class Company{
 
     constructor(nif = null, razonSocial = null, nombre = null, tipoVia = null, 
-                nombreVia = null, numVia = null, codigoPuerta = null,
-                grupoProyectos = []/*, usuarios = []*/){
+                nombreVia = null, numVia = null, codigoPuerta = null, localidad = null, 
+                provincia = null, grupoProyectos = []/*, usuarios = []*/){
 
         this.nif = nif
         this.razonSocial = razonSocial
@@ -11,6 +11,8 @@ let Empresa = class Company{
         this.nombreVia = nombreVia
         this.numVia = numVia
         this.codigoPuerta = codigoPuerta
+        this.localidad = localidad;
+        this.provincia = provincia;
         this.grupoProyectos = grupoProyectos
         //this.usuarios = usuarios
 

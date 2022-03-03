@@ -136,6 +136,30 @@ let ControlGrupo = class controlGrupo {
 
     }
 
+    static async addUser(email, grupocodigo, grupoempresa){
+
+        const response = await SrvDaoGrupoProyecto.addUsuario(email,grupocodigo,grupoempresa);
+
+        return response;
+
+    }
+
+    static async deleteUser(email, grupocodigo, grupoempresa){
+
+        const response = await SrvDaoGrupoProyecto.removeUsuario(email,grupocodigo,grupoempresa);
+
+        return response;
+
+    }
+
+    static async promoteUsuario(email, grupocodigo, grupoempresa){
+
+    }
+
+    static async degradeUsuario(email, grupocodigo, grupoempresa){
+        
+    }
+
     //convert
 
     

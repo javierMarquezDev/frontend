@@ -21,18 +21,19 @@ import InputTexto from "../form/InputTexto";
 import TiposVia from "../../back/model/TiposVia";
 import { useParams, Switch, Route } from "react-router-dom";
 import ControlEmpresa from "../../back/control/controlEmpresa";
+import notificar from "../home/notificar";
+import { useHistory } from "react-router-dom";
+import ErroresCampo from "../form/ErroresCampo";
 
 const deleteUsuario = (usuario, empresa)=>{
-
-}
-
-const handleSubmit = (empresa)=>{
 
 }
 
 const CompanyForm = () => {
 
   const {idempresa} = useParams() || '';
+  const tiposVia = TiposVia;
+  const history = useHistory();
 
   const [errores,setErrores] = useState({});
   const [empresa,setEmpresa] = useState(new Empresa());
@@ -46,6 +47,8 @@ const CompanyForm = () => {
   const [nombreVia, setNombreVia] = useState('');
   const [numVia, setNumVia] = useState('');
   const [codigoPuerta, setCodigoPuerta] = useState('');
+  const [localidad, setLocalidad] = useState('');
+  const [provincia, setProvincia] = useState('');
 
   useEffect(()=>{
 
@@ -59,7 +62,7 @@ const CompanyForm = () => {
                 setNombre(data.nombre);
                 setRazonSocial(data.razonSocial);
                 setAdministrador(data.administrador);
-                setTipoVia(data.tipoVia);
+                setTipoVia({label:data.tipoVia,id:data.tipoVia});
                 setNombreVia(data.nombreVia);
                 setNumVia(data.numVia);
                 setCodigoPuerta(data.codigoPuerta || '')
@@ -85,8 +88,44 @@ const CompanyForm = () => {
 
   },[idempresa])
 
-  const tiposVia = TiposVia;
   
+  const handleCreate = (e) =>{
+
+    e.preventDefault();
+
+    const nuevaEmpresa = new Empresa(nif, razonSocial, nombre,
+                                    tipoVia.id || '', nombreVia, numVia, codigoPuerta)
+
+    if(idempresa){
+      console.log(nuevaEmpresa)
+      ControlEmpresa.edit(nuevaEmpresa)
+      .then(data =>{
+        if(data.error != null){
+          notificar(data.message+" "+data.error.message)
+        }else if(data.message != null){
+          notificar(data.message)
+          history.go(-2)
+        }
+          console.log(data)
+          setErrores(data);
+      })
+
+    }else{
+      console.log(nuevaEmpresa)
+      ControlEmpresa.create(nuevaEmpresa)
+      .then(data =>{
+        if(data.error != null){
+          notificar(data.message+" "+data.error.message)
+        }else if(data.message != null){
+          notificar(data.message)
+          history.go(-2)
+        }
+          console.log(data)
+          setErrores(data);
+      })
+    }
+
+  }
 
     return (
         <Box>
@@ -94,6 +133,9 @@ const CompanyForm = () => {
           <div>
         <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Editar empresa {empresa.nombre || "nueva"}</Typography>
 
+        <Box display="flex">
+          <Button variant="contained" onClick={(e)=>handleCreate(e)}>Terminar</Button>
+        </Box>
       
         <Box
           component="form"
@@ -115,6 +157,7 @@ const CompanyForm = () => {
           <InputTexto formalName="CIF" 
           required = {true}
           id = "nif"
+          disabled={(idempresa)?true:false}
           property={nif} 
           setProperty={setNif} 
           errores={errores.nif || null} />
@@ -132,6 +175,8 @@ const CompanyForm = () => {
                         )}
                     />:null}
                 </Box>
+
+                <ErroresCampo errores={errores.tipovia}/>
             </Box>
 
         <InputTexto formalName="Nombre de vía" 
@@ -152,7 +197,19 @@ const CompanyForm = () => {
           id = "codigopuerta"
           property={codigoPuerta} 
           setProperty={setCodigoPuerta} 
-          errores={errores.codigoPuerta || null} />
+          errores={errores.codigopuerta || null} />
+
+        <InputTexto formalName="Localidad" 
+          id = "localidad"
+          property={localidad} 
+          setProperty={setLocalidad} 
+          errores={errores.localidad || null} />
+
+        <InputTexto formalName="Provincia" 
+          id = "provincia"
+          property={provincia} 
+          setProperty={setProvincia} 
+          errores={errores.provincia || null} />
 
         <InputTexto formalName="Razón social" 
         required = {true}

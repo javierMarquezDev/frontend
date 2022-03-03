@@ -11,10 +11,13 @@ import MenuBar from './components/home/navbar';
 import UserForm from './components/forms/userForm';
 import { Button } from '@mui/material';
 import ControlEmpresa from './back/control/controlEmpresa';
+import TransitionAlerts from './components/home/alert';
+import { useState } from 'react';
 
 function App() {
 
-  const usuario = {email:"higo@gmail.com"}
+  const usuario = "higo@gmail.com"
+
   return (
     <Router>
 

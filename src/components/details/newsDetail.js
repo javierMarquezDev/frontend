@@ -169,7 +169,7 @@ const InfoNoticia = (props)=>{
                     <Box id="fechaHora" margin={1} padding={1}>
                         <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Fecha y hora</Typography>
                         <Box display="flex">
-                            <Typography align="left">{noticia.fechaHora.getFullYear()+"-"+noticia.fechaHora.getMonth()+
+                            <Typography align="left">{noticia.fechaHora.getFullYear()+"-"+(parseInt(noticia.fechaHora.getMonth())+1)+
                             "-"+noticia.fechaHora.getDate()+` `+noticia.fechaHora.getHours().toString().padStart(2,'0')+":"
                             +noticia.fechaHora.getMinutes().toString().padStart(2,'0')+"h"}</Typography>
                         </Box>

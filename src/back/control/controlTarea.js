@@ -14,6 +14,8 @@ let ControlTarea = class controlTarea{
 
         const tareaJson = await this.convert(tarea);
 
+        console.log(tareaJson)
+
         console.log(tareaJson);
 
         const resultTarea = await SrvDaoTarea.create(tareaJson);
@@ -79,6 +81,23 @@ let ControlTarea = class controlTarea{
 
         return await this.convert(tarea);
 
+    }
+
+    static async getAllFromUsuarioAndGrupo(grupoempresa,grupocodigo,email){
+        if(grupoempresa,grupocodigo,email == "" || grupoempresa,grupocodigo,email == null)
+            return "Información no válida."
+
+        const tareasArray = await SrvDaoTarea.getAllFromGrupoAndUsuario(grupoempresa,grupocodigo,email);
+
+        let resultado = [];
+
+        Array.from(tareasArray).forEach(element => {
+            const tarea = this.convert(element);
+
+            resultado.push(tarea);
+        })
+
+        return resultado;
     }
 
     static async getFromUsuario(email){

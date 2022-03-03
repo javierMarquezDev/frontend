@@ -163,9 +163,9 @@ const InfoGrupo = (props)=>{
                     <Box id="fechahora" margin={1} padding={1}>
                         <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Fecha límite</Typography>
                         <Box display="flex">
-                            <Typography id="fechaHora"  align="left">{grupo.fechaHora.getFullYear()+"-"+grupo.fechaHora.getMonth()+
-                                    "-"+grupo.fechaHora.getDate()+` `+grupo.fechaHora.getHours().toString().padStart(2,'0')+":"
-                                    +grupo.fechaHora.getMinutes().toString().padStart(2,'0')+"h"}</Typography>
+                            <Typography id="fechaHora"  align="left">{grupo.fechaHora.getFullYear()+"-"+(parseInt(grupo.fechaHora.getMonth())+1)+
+                                    "-"+grupo.fechaHora.getDate()/*+` `+grupo.fechaHora.getHours().toString().padStart(2,'0')+":"
+                                    +grupo.fechaHora.getMinutes().toString().padStart(2,'0')+"h"*/}</Typography>
                         </Box>
                     </Box>
                 </Grid>

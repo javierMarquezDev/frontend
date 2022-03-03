@@ -125,6 +125,8 @@ const Info = (props)=>{
                                     <Typography id="nombrevia" align="left">{usuario.nombrevia}</Typography>&nbsp;
                                     <Typography id="numvia" align="left">{usuario.numvia}</Typography>&nbsp;
                                     <Typography id="codigopuerta" align="left">{usuario.codigopuerta}</Typography>&nbsp;
+                                    <Typography id="localidadprovincia" align="left">{`${usuario.localidad}, ${usuario.provincia}`}</Typography>&nbsp;
+                                    
                                 </Box>
                             </Box>
                         </Grid>

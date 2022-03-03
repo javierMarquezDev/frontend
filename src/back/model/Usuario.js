@@ -3,7 +3,7 @@ let Usuario = class User {
     //Constructor genérico
     constructor(email = null, contrasena = null, dni = null, nombre = null, apellido1 = null, apellido2 = null, 
                 tipovia = null, nombrevia = null, numvia = null, codigoPuerta = null,
-                notificaciones = {}, tareas = [], grupoProyectos = []){
+                notificaciones = {}, localidad = null, provincia = null, tareas = [], grupoProyectos = []){
         
         /*if(this.validator(email,dni,nombre,apellido1,tipovia,nombrevia,numvia,notificaciones === false)){
             return false;
@@ -22,6 +22,8 @@ let Usuario = class User {
         this.notificaciones = notificaciones;
         this.tareas = tareas;
         this.grupoProyectos = grupoProyectos;
+        this.localidad = localidad;
+        this.provincia = provincia;
 
         //this.prototype.toString = function(){nombre + " " + apellido1 + " " + apellido1};
 

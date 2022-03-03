@@ -146,6 +146,22 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
+    static async promoteUsuario(empresa, usuario){
+        
+        const response = await SrvDaoEmpresa.promoteAdmin(empresa.nif, usuario.email, true);
+
+        return response;
+
+    }
+
+    static async degradeUsuario(empresa, usuario){
+
+        const response = await SrvDaoEmpresa.promoteAdmin(empresa.nif, usuario.email, false);
+
+        return response;
+
+    }
+
     static async getEmpresasByUsuario(usuario){
 
         const empresasJson = await SrvDaoEmpresa.getEmpresasByUser(usuario.email);

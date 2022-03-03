@@ -107,7 +107,7 @@ const InfoTarea = (props)=>{
                             <Box id="fechahora" margin={1} padding={1}>
                                 <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Fecha límite</Typography>
                                 <Box display="flex">
-                                    <Typography align="left">{tarea.fechaHora.getFullYear()+"-"+tarea.fechaHora.getMonth()+
+                                    <Typography align="left">{tarea.fechaHora.getFullYear()+"-"+(parseInt(tarea.fechaHora.getMonth())+1)+
                                     "-"+tarea.fechaHora.getDate()+` `+tarea.fechaHora.getHours().toString().padStart(2,'0')+":"
                                     +tarea.fechaHora.getMinutes().toString().padStart(2,'0')+"h"}</Typography>
                                 </Box>

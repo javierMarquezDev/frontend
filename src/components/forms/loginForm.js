@@ -1,4 +1,4 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import Button from "@mui/material/Button"
 import { useState } from "react";
 import InputTexto from "../form/InputTexto";
@@ -25,6 +25,8 @@ const LoginForm = () => {
         noValidate
         autoComplete="off"
         >
+            <Typography variant="h5" sx={{marginTop:3}}>Inicio de sesión</Typography>
+
             <Grid container>
                 <Grid element xs={12} margin={2}>
 

@@ -39,7 +39,7 @@ const NewsList = (props) => {
 
         return abortCont.abort();
 
-    },[])    
+    })    
     
     return ( 
         <div>
@@ -85,7 +85,7 @@ const InfoNoticias = (props) =>{
     return(
         <Stack spacing={3} marginTop={3}>
                     <NewsForm/>
-                    {noticias.map((noticia)=>{
+                    {noticias.sort((a,b)=>{ return (a.fechaHora < b.fechaHora)?1:-1;}).map((noticia)=>{
 
                         {(noticia.usuario.email == usuario.email)?noticia.admin = true : noticia.admin = false}
 
@@ -94,7 +94,7 @@ const InfoNoticias = (props) =>{
                                 <CardContent sx={{flexDirection:"row"}}>
                                     <Typography align="left" sx={{flexGrow:1}}>{noticia.texto}</Typography>
                                     <Typography align="left" sx={{flexGrow:1, fontSize:12, marginTop:3}}>{noticia.usuario.email}</Typography>
-                                    <Typography align="left" sx={{flexGrow:1, fontSize:12}}>{noticia.fechaHora.getFullYear()+"-"+noticia.fechaHora.getMonth()+
+                                    <Typography align="left" sx={{flexGrow:1, fontSize:12}}>{noticia.fechaHora.getFullYear()+"-"+(parseInt(noticia.fechaHora.getMonth())+1)+
                                     "-"+noticia.fechaHora.getDate()+` `+noticia.fechaHora.getHours().toString().padStart(2,'0')+":"
                                     +noticia.fechaHora.getMinutes().toString().padStart(2,'0')+"h"}</Typography>
                                     <Link to={`${match.url}/${noticia.usuario.email}/${noticia.codigo}`}><Typography align="left" sx={{flexGrow:1, fontSize:10, marginTop:3}}>Ver detalle</Typography></Link>

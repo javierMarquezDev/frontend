@@ -1,4 +1,4 @@
-const notificar = (texto,usuario) =>{
+const notificar = (texto) =>{
     alert(texto)
 }
 

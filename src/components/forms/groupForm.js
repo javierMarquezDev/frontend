@@ -21,11 +21,19 @@ import GrupoProyecto from "../../back/model/GrupoProyecto";
 import InputTexto from "../form/InputTexto";
 import { useParams } from "react-router-dom";
 import ControlGrupo from "../../back/control/controlGrupoProyecto";
+import notificar from "../home/notificar";
+import { useHistory } from "react-router-dom";
+import ControlEmpresa from "../../back/control/controlEmpresa";
+import ErroresCampo from "../form/ErroresCampo";
 
 const GroupForm = () => {
 
     const {grupoempresa} = useParams() || '';
     const {grupocodigo} = useParams() || '';
+    const history = useHistory();
+    const usuario = "higo@gmail.com"
+
+    const [codigo,setCodigo] = useState('')
     const [empresas,setEmpresas] = useState([])
     const [errores,setErrores] = useState({});
     const [nombre, setNombre] = useState('');
@@ -39,44 +47,89 @@ const GroupForm = () => {
 
     useEffect(()=>{
         const abortCont = new AbortController();
+  
+        setTimeout(()=>{
 
-        
-            setTimeout(()=>{
-            ControlGrupo.getById({nif:grupoempresa},grupocodigo)
+            if(grupoempresa){ControlGrupo.getById({nif:grupoempresa},grupocodigo)
             .then(data=>{
-                console.log(data)
+
                 setGrupo(data)
+
+                setCodigo(data.codigo)
                 setNombre(data.nombre);
                 setDescripcion(data.descripcion);
                 setFechaHora(data.fechaHora);
                 setFinalizado(data.finalizado);
                 setAdministrador(data.administrador);
                 setEmpresa(data.empresa);
-                setIsPending(false)
+                
 
                 ControlGrupo.getUsuariosFromGrupo(data)
                 .then(res => {
                     data.usuarios = res;
                     setGrupo(data)
                 })
+
+            })}
+
+            ControlEmpresa.getEmpresaByAdmin({email:usuario})
+            .then(res =>{
+                console.log(res)
+                setEmpresas(res);
+                setIsPending(false)
             })
+
         }, 1000)
 
-        setIsPending(false)
-
         return abortCont.abort();
-    },[grupoempresa,grupocodigo])
+    },[])
 
-    const getEmpresas = (e)=>{
-        const nombre = e.target.value;
+    const handleSubmit = (e) =>{
+
+        console.log(fechaHora)
+
+        const nuevoGrupo = new GrupoProyecto(codigo, empresa, nombre,
+                                            descripcion, administrador, fechaHora,
+                                            finalizado)
+
+        if(grupocodigo){
+            console.log(nuevoGrupo)
+            ControlGrupo.edit(nuevoGrupo)
+            .then(data => {
+                if(data.error != null){
+                    notificar(data.message+" "+data.error.message)
+                  }else
+                  if(data.message != null){
+                    history.go(-1)
+                    notificar(data.message)
+                  }
+                    setErrores(data);
+                })
+        }else{
+            ControlGrupo.create(nuevoGrupo)
+            .then(data => {
+                if(data.error != null){
+                    notificar(data.message+" "+data.error)
+                  }else
+                  if(data.message != null){
+                    history.push('/grupos')
+                    notificar(data.message)
+                  }
+                    setErrores(data);
+            })
+        }
+
     }
-
-    
 
     return ( <div>
                 <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Editar grupo {nombre || "nuevo"}</Typography>
 
+                <Box display="flex">
+                    <Button variant="contained" onClick={(e)=>handleSubmit(e)}>Terminar</Button>
+                </Box>
         
+                { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                {grupo && <Box>
                 <Box
                 component="form"
                 sx={{
@@ -109,23 +162,28 @@ const GroupForm = () => {
 
                         <Box margin={2}>
                             <Typography>Finalizado</Typography>
-                            <Switch label="Finalizado" id="finalizado" value={finalizado} onChange={(e)=>setFinalizado(e.target.value)} />
+                            <Switch label="Finalizado" id="finalizado" defaultValue={finalizado} value={finalizado} onChange={(e)=>setFinalizado(e.target.value)} />
+                            <ErroresCampo errores={errores.finalizado}/>
                         </Box>
                         
 
-                        <TextField
-                            id="fechaHora"
-                            label="Fecha límite"
-                            type="date"
-                            defaultValue={fechaHora.getFullYear()+"-"+fechaHora.getMonth().toString().padStart(2,'0')+
-                            "-"+fechaHora.getDate().toString().padStart(2,'0')}
-                            value={fechaHora.getFullYear()+"-"+fechaHora.getMonth().toString().padStart(2,'0')+
-                            "-"+fechaHora.getDate().toString().padStart(2,'0')}
-                            onChange={()=>setFechaHora()}
-                            sx={{ width: 220 }}
-                            InputLabelProps={{
-                            shrink: true,
-                            }}/>
+                        <Box>
+                            <TextField
+                                id="fechaHora"
+                                label="Fecha límite"
+                                type="date"
+                                defaultValue={fechaHora.getFullYear()+"-"+(parseInt(fechaHora.getMonth())+1).toString().padStart(2,'0')+
+                                "-"+fechaHora.getDate().toString().padStart(2,'0')}
+                                value={fechaHora.getFullYear()+"-"+(parseInt(fechaHora.getMonth())+1).toString().padStart(2,'0')+
+                                "-"+fechaHora.getDate().toString().padStart(2,'0')}
+                                onChange={(e)=>setFechaHora(new Date(e.target.value))}
+                                sx={{ width: 220 }}
+                                InputLabelProps={{
+                                shrink: true,
+                                }}/>
+                            <ErroresCampo errores={errores.fechahora}/>
+                        </Box>
+                        
                             
                     </Box>
 
@@ -149,28 +207,32 @@ const GroupForm = () => {
 
                 </Box>
 
-
                 <Box margin={2}>
-                    <Typography for="empresa" color="text.secondary" align="left" >Empresa</Typography>
+                    <Typography for="empresa" color="text.secondary" align="left">Empresa</Typography>
 
-                    <Box display="flex">
-                        {(empresas.length)?<Autocomplete
+                    { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+
+                    {empresas && <Box display="flex">
+                        {(empresas != null)?<Autocomplete
                         options={empresas}
                         value={empresa}
-                        onChange={()=>setEmpresa()}
-                        onKeyUp={()=>getEmpresas()}
+                        defaultValue=""
+                        onChange={(e,value)=>setEmpresa(value)}
                         getOptionLabel={option => option.nif}
                         id="empresa"
                         renderInput={(params) => (
                             <TextField {...params} label="Empresas" variant="standard" />
                             )}
                         />:null}
-                    </Box>
+                    </Box>}
+                    <ErroresCampo errores={errores.empresa}/>
                 </Box>
 
                 <InputUsuario tabla={grupo} errores={errores.usuarios||null} usuarios={grupo.usuarios||null}/>
                 </Box>
-
+                </Box>
+                }
+3
     </div> );
 }
  

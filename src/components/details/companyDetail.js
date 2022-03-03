@@ -159,6 +159,7 @@ const CompanyInfo = (props) =>{
                             <Typography id="nombrevia" align="left">{empresa.nombreVia}</Typography>&nbsp;
                             <Typography id="numvia" align="left">{empresa.numVia}</Typography>&nbsp;
                             <Typography id="codigopuerta" align="left">{empresa.codigoPuerta}</Typography>&nbsp;
+                            <Typography id="codigopuerta" align="left">{`${empresa.localidad}, ${empresa.provincia}`}</Typography>&nbsp;
                         </Box>
                     </Box>
                 </Grid>

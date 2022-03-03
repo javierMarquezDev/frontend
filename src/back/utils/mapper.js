@@ -25,6 +25,8 @@ let Mapper = class mapper{
         userJson.nombrevia = user.nombrevia;
         userJson.numvia = user.numvia;
         userJson.codigopuerta = user.codigoPuerta || '';
+        userJson.localidad = user.localidad;
+        userJson.provincia = user.provincia;
         userJson.notificaciones = user.notificaciones && {};
 
         return userJson;
@@ -38,8 +40,8 @@ let Mapper = class mapper{
         return new Usuario(
             str.email, str.contrasena, str.dni,
             str.nombre, str.apellido1, str.apellido2,
-            str.tipovia, str.nombrevia, str.numvia, str.codigopuerta || null,
-            str.notificaciones && []
+            str.tipovia, str.nombrevia, str.numvia, str.codigopuerta || null, str.notificaciones && [],
+            str.localidad, str.provincia
         );
 
     }
@@ -80,6 +82,8 @@ let Mapper = class mapper{
         empresaJson.nombrevia = empresa.nombreVia;
         empresaJson.numvia = empresa.numVia;
         empresaJson.codigopuerta = empresa.codigoPuerta;
+        empresaJson.localidad = empresa.localidad;
+        empresaJson.provincia = empresa.provincia;
 
         return empresaJson;
     }
@@ -88,8 +92,7 @@ let Mapper = class mapper{
 
         return new Empresa(
             str.nif, str.razonsocial, str.nombre, str.tipovia, str.nombrevia,
-            str.numvia, str.codigopuerta && null, grupoProyectos, 
-            usuarios); 
+            str.numvia, str.codigopuerta && null, str.localidad, str.provincia, grupoProyectos);  
 
     }
 
@@ -98,12 +101,12 @@ let Mapper = class mapper{
         let grupoJson = {};
 
         grupoJson.codigo = grupo.codigo;
-        grupoJson.empresa = grupo.empresa.nif;
+        grupoJson.empresa = (grupo.empresa != null)?grupo.empresa.nif:null;
         grupoJson.nombre = grupo.nombre;
         grupoJson.descripcion= grupo.descripcion;
-        grupoJson.fechahora = Date.prototype.toISOString(grupo.fechaHora);
+        grupoJson.fechahora = grupo.fechaHora.toISOString();
         grupoJson.finalizado = grupo.finalizado;
-        grupoJson.administrador = grupo.administrador.email;
+        grupoJson.administrador = (grupo.administrador != null)?grupo.administrador.email:null;
 
         return grupoJson;
 
@@ -123,12 +126,12 @@ let Mapper = class mapper{
 
         let noticiaJson = {};
 
-        noticiaJson.codigo = noticia.codigo;
+        noticiaJson.codigo = noticia.codigo || '';
         noticiaJson.autor = noticia.usuario.email;
         noticiaJson.grupocodigo = noticia.grupoProyecto.codigo;
         noticiaJson.grupoempresa = noticia.grupoProyecto.empresa.nif;
         noticiaJson.texto = noticia.texto;
-        noticiaJson.fechahora = Date.prototype.toISOString(noticia.fechaHora);
+        noticiaJson.fechahora = noticia.fechaHora.toISOString();
         noticiaJson.imagen1 = noticia.imagenes[0] && null;
         noticiaJson.imagen2 = noticia.imagenes[1] && null;
         noticiaJson.imagen3 = noticia.imagenes[2] && null;
@@ -187,11 +190,11 @@ let Mapper = class mapper{
 
         tareaJson.codigo = tarea.codigo;
         tareaJson.grupocodigo = tarea.grupo.codigo;
-        tareaJson.grupoempresa = tarea.grupo.empresa.nif;
+        tareaJson.grupoempresa = tarea.grupo.empresa;
         tareaJson.nombre = tarea.nombre;
         tareaJson.descripcion = tarea.descripcion;
         tareaJson.checked = tarea.checked;
-        tareaJson.fechaHora = Date.prototype.toISOString(tarea.fechaHora);
+        tareaJson.fechahora = tarea.fechaHora.toISOString();
         tareaJson.usuario = tarea.atareado.email;
 
         return tareaJson;

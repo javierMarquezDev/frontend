@@ -49,6 +49,8 @@ let SrvDaoTarea = class DaoTarea{
 
     static async edit(tareaJson){
 
+        console.log(tareaJson)
+
         return await fetch(
             connectionStr+tareaJson.grupoempresa+"/"+tareaJson.grupocodigo+"/"+tareaJson.codigo,
             {
@@ -68,6 +70,24 @@ let SrvDaoTarea = class DaoTarea{
             return data;
         })
 
+    }
+
+    static async getAllFromGrupoAndUsuario(grupoempresa,grupocodigo,email){
+        return await fetch(
+            connectionStr+"grupo/usuario/"+email+"/"+grupoempresa+"/"+grupocodigo,
+            {
+                mode: 'cors',
+                method: 'GET',
+                headers:{
+                    "access-token":localStorage.getItem('token')
+                }
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            
+            return data;
+        })
     }
 
     static async getAllFromGrupo(grupoempresa, grupocodigo){

@@ -29,6 +29,8 @@ const UserForm = () => {
     const [codigoPuerta,setCodigoPuerta] = useState('');
     const [errores,setErrores] = useState({});
     const [isPending,setIsPending] = useState(false);
+    const [localidad, setLocalidad] = useState('');
+    const [provincia, setProvincia] = useState('');
 
     useEffect(()=>{
 
@@ -45,7 +47,7 @@ const UserForm = () => {
             setNombre(res.nombre)
             setApellido1(res.apellido1)
             setApellido2(res.apellido2 || '')
-            setTipoVia(res.tipovia)
+            setTipoVia({label:res.tipovia,id:res.tipovia})
             setNombreVia(res.nombrevia)
             setNumVia(res.numvia)
             setCodigoPuerta(res.codigoPuerta || '')
@@ -66,11 +68,12 @@ const UserForm = () => {
         apellido1, apellido2, tipoVia.id, nombreVia,
         numVia, codigoPuerta);
 
-      console.log(nuevoUsuario)
-
       if(idusuario){
         ControlUsuario.edit(nuevoUsuario)
         .then(data =>{
+          if(data.error != null){
+            notificar(data.message+" "+data.error.message)
+          }else
           if(data.message != null){
             history.go(-2)
             notificar(data.message)
@@ -80,8 +83,11 @@ const UserForm = () => {
       }else{
         ControlUsuario.create(nuevoUsuario)
         .then(data => {
+          if(data.error != null){
+            notificar(data.message+" "+data.error)
+          }else
           if(data.message != null){
-            history.go(-3)
+            history.push('/login')
             notificar(data.message)
           }
             setErrores(data);
@@ -93,8 +99,8 @@ const UserForm = () => {
     return ( <div>
         <Typography align="left" variant="h5">Editar usuario {(usuario.email==null)?"nuevo":""}</Typography>
 
-        
-        <Box
+        { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+        {usuario && <Box
           component="form"
           sx={{
             '& .MuiTextField-root': { m: 1, width: '25ch' },
@@ -109,7 +115,7 @@ const UserForm = () => {
                         property={email} 
                         setProperty={setEmail} 
                         errores={errores.email || null}
-                        disabled={true}
+                        disabled={(idusuario)?true:false}
                         sx={{margin:2}}
                         />
 
@@ -168,7 +174,7 @@ const UserForm = () => {
                 <Box display="flex">
                     {(tiposVia.length)?<Autocomplete
                     options={tiposVia}
-                    defaultValue={tipoVia || "C./"}
+                    defaultValue={{label:"C./", id:"C./"}}
                     value={tipoVia}
                     onChange={(e,value)=>setTipoVia(value)}
                     id="tipoVia"
@@ -206,7 +212,19 @@ const UserForm = () => {
                         errores={errores.codigopuerta || null}
                         sx={{margin:2}}
                         />
-            </Box>
+
+            <InputTexto formalName="Localidad" 
+                      id = "localidad"
+                      property={localidad} 
+                      setProperty={setLocalidad} 
+                      errores={errores.localidad || null} />
+
+            <InputTexto formalName="Provincia" 
+                      id = "provincia"
+                      property={provincia} 
+                      setProperty={setProvincia} 
+                      errores={errores.provincia || null} />
+            </Box>}
 
         <Button variant="contained" onClick={(e)=>handleCreate(e)}>Terminar</Button>
     </div> );

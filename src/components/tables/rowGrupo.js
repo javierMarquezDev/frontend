@@ -36,7 +36,7 @@ const RowGrupo = (props) => {
             <TableCell align="right">{row.descripcion}</TableCell>
             <TableCell align="right">{row.empresa.nif}</TableCell>
             <TableCell align="right">{row.administrador.email}</TableCell>
-            <TableCell align="right">{<Typography align="left" sx={{flexGrow:1, fontSize:12}}>{row.fechaHora.getFullYear()+"-"+row.fechaHora.getMonth()+
+            <TableCell align="right">{<Typography align="left" sx={{flexGrow:1, fontSize:12}}>{row.fechaHora.getFullYear()+"-"+(parseInt(row.fechaHora.getMonth())+1)+
                                     "-"+row.fechaHora.getDate()+` `+row.fechaHora.getHours().toString().padStart(2,'0')+":"
                                     +row.fechaHora.getMinutes().toString().padStart(2,'0')+"h"}</Typography>}</TableCell>
             <TableCell align="right">{row.finalizado}</TableCell>

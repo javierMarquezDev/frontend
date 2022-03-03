@@ -7,12 +7,14 @@ import InputTexto from "../form/InputTexto";
 import ControlTarea from "../../back/control/controlTarea"
 import {useParams} from 'react-router-dom';
 import ControlGrupo from "../../back/control/controlGrupoProyecto";
+import notificar from "../home/notificar";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import ErroresCampo from "../form/ErroresCampo";
 
 const TaskForm = () => {
 
     const {grupocodigo,grupoempresa,codigo} = useParams();
-
-    const submit = ()=>{}
+    const history = useHistory();
 
     const [descripcion,setDescripcion] = useState('')
     const [nombre,setNombre] = useState('')
@@ -62,12 +64,56 @@ const TaskForm = () => {
   
           return abortCont.abort();
   
-    },[grupoempresa,grupocodigo,codigo])
+    },[])
+
+
+    const handleSubmit = (e)=>{
+
+      e.preventDefault();
+
+      const nuevaTarea = new Tarea(codigo || null, {codigo:grupocodigo, empresa:grupoempresa}, fechaHora,
+                                  nombre, descripcion, checked,
+                                  atareado);
+
+                                  
+      if(codigo){
+
+        console.log(nuevaTarea)
+
+        ControlTarea.edit(nuevaTarea)
+        .then(data => {
+            if(data.error != null){
+              notificar(data.message+" "+data.error.message)
+            }else
+            if(data.message != null){
+              //history.go(0)
+              notificar(data.message)
+            }
+              console.log(data)
+              setErrores(data);
+        })
+      }else{
+        ControlTarea.create(nuevaTarea)
+        .then(data => {
+            if(data.error != null){
+              notificar(data.message+" "+data.error.message)
+            }else
+            if(data.message != null){
+              history.go(-2)
+              notificar(data.message)
+            }
+              setErrores(data);
+        })
+
+      }
+
+    }
 
 
     return ( <Box>
         <Typography variant="h5" sx={{marginTop:3, marginBottom:2}} align="left">Editar tarea {nombre || 'nueva'}</Typography>
         { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+        {tarea && <Box>
         <InputTexto formalName="Nombre" 
                     required = {true}
                     id = "nombre"
@@ -83,24 +129,27 @@ const TaskForm = () => {
                     errores={errores.descripcion || null}
                     multiline={true}
                     />
-        <TextField
-                    id="fechaHora"
-                    label="Fecha límite"
-                    type="date"
-                    defaultValue={fechaHora.getFullYear()+"-"+fechaHora.getMonth().toString().padStart(2,'0')+
-                    "-"+fechaHora.getDate().toString().padStart(2,'0')}
-                    value={fechaHora.getFullYear()+"-"+fechaHora.getMonth().toString().padStart(2,'0')+
-                    "-"+fechaHora.getDate().toString().padStart(2,'0')}
-                    onChange={()=>setFechaHora()}
-                    sx={{ width: 220 }}
-                    InputLabelProps={{
-                    shrink: true,
-                    }}/>
+
+        <Box>
+          <TextField
+            id="fechaHora"
+            label="Fecha límite"
+            type="date"
+            value={fechaHora.getFullYear()+"-"+(parseInt(fechaHora.getMonth())+1).toString().padStart(2,'0')+
+            "-"+fechaHora.getDate().toString().padStart(2,'0')}
+            onChange={(e)=>setFechaHora(new Date(e.target.value))}
+            sx={{ width: 220 }}
+            InputLabelProps={{
+            shrink: true,
+            }}/>
+            <ErroresCampo errores={errores.fechahora}/>
+        </Box>
 
         <Box margin={2}>
-                        <Typography>Tarea finalizada</Typography>
-                        <Switch label="Finalizada" id="checked" value={checked} onChange={()=>setChecked()} />
-                    </Box>
+          <Typography>Tarea finalizada</Typography>
+            <Switch label="Finalizada" id="checked" defaultValue={checked} value={checked} onChange={(e)=>setChecked(e.target.value)} />
+            <ErroresCampo errores={errores.checked}/>
+        </Box>
 
               <Typography htmlFor="atareado" color="text.secondary" align="left" >Asignar tarea</Typography>
 
@@ -120,7 +169,9 @@ const TaskForm = () => {
               />:null}
           </Box>}
 
-        <Button variant="contained" onClick={()=>submit()}>Publicar</Button>
+        </Box>}
+        
+        <Button variant="contained" onClick={(e)=>handleSubmit(e)}>Publicar</Button>
     </Box> );
 }
 

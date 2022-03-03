@@ -18,21 +18,27 @@ import FormHelperText from '@mui/material/FormHelperText';
 import Input from '@mui/material/Input';
 import Grid from "@mui/material/Grid"
 import InputTexto from "../form/InputTexto";
+import ControlEmpresa from "../../back/control/controlEmpresa";
+import ControlGrupo from "../../back/control/controlGrupoProyecto";
 
 const InputUsuario = (props) => {
 
     const usuarios = props.usuarios;
-    const errores = props.errores;
     const tabla = props.tabla;
+    const admin = props.admin;
 
     const [usuarioNuevo, setUsuarioNuevo] = useState(null);
+    const [errores, setErrores] = useState(null);
 
     const nuevoUsuario = (nuevo, tabla) =>{
 
         if(Empresa.prototype.isPrototypeOf(tabla)){
 
+            ControlEmpresa.addUsuario(tabla, nuevo, admin)
+
         }else if(GrupoProyecto.prototype.isPrototypeOf(tabla)){
 
+            ControlGrupo.addUser(nuevo.email, tabla.codigo, tabla.empresa)
         }
 
     }
@@ -41,10 +47,32 @@ const InputUsuario = (props) => {
 
         if(Empresa.prototype.isPrototypeOf(tabla)){
 
+            ControlEmpresa.deleteUsuario(tabla, eliminado)
+
         }else if(GrupoProyecto.prototype.isPrototypeOf(tabla)){
-            
+
+            ControlGrupo.deleteUser(eliminado.email, tabla.codigo, tabla.empresa)
         }
         
+    }
+
+    const promoteUser = (usuario, tabla) => {
+        if(Empresa.prototype.isPrototypeOf(tabla)){
+
+            ControlEmpresa.promoteUsuario(usuario,tabla);
+
+        }
+    }
+
+
+    const degradeUser = (usuario, tabla)=>{
+
+        if(Empresa.prototype.isPrototypeOf(tabla)){
+
+            ControlEmpresa.degradeUsuario(usuario,tabla);
+
+        }
+
     }
 
     return ( 

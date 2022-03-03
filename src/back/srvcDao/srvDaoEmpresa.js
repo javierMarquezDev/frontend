@@ -220,6 +220,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
             }
         ).then((response) => response.json())
         .then(data => {
+            console.log(data)
             return data;
         })
 
@@ -289,6 +290,26 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
             return data;
         })
 
+    }
+
+    static async promoteAdmin(empresa, usuario, admin){
+        return await fetch(
+            config.str+"empresausuarios/"+empresa+"/"+usuario,
+            {
+                mode: 'cors',
+                method: 'PUT',
+                headers:{
+                    "access-token":localStorage.getItem('token'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body:JSON.stringify({admin:admin})
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            return data;
+        })
     }
 
     static async delete(nif){
