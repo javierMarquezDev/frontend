@@ -10,16 +10,21 @@ import Button from "@mui/material/Button"
 import Grid from "@mui/material/Grid"
 import { List, ListItem } from "@mui/material";
 import ControlUsuario from "../../back/control/controlUsuario";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ControlGrupo from "../../back/control/controlGrupoProyecto";
 import ControlEmpresa from "../../back/control/controlEmpresa";
 import ControlTarea from "../../back/control/controlTarea";
+import ControlSesion from "../../back/control/controlSesion";
+import { UserContext } from "../../App";
+import AccessDenied from "../home/acessDenied";
 
 const handleDelete = (usuario)=>{}
 
 const UserDetail = () => {
 
-    const usuarioSesion = {email:"higo@gmail.com"}
+    const value = React.useContext(UserContext);
+    const usuarioSesion = value.usuario;
+    const token = value.token;
 //
     const match = useRouteMatch();
     const {idusuario} = useParams();
@@ -75,7 +80,9 @@ const UserDetail = () => {
                 {usuario && <Info usuario={usuario} match={match} isPending={isPending}/>}
             </Route>
             <Route path={`${match.path}/editar`}>
-                <UserForm />
+                {usuario && (usuario.editable)
+                ?<UserForm />
+                :<AccessDenied/>}
             </Route>
         </Switch>
     </div> );

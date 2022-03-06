@@ -6,13 +6,18 @@ import CompanyDetail from "../details/companyDetail";
 import CompanyForm from "../forms/companyForm";
 import { Box } from "@mui/system";
 import DataTable from "../tables/dataTable";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ControlEmpresa from "../../back/control/controlEmpresa";
+import notificar from '../home/notificar';
+import ControlSesion from "../../back/control/controlSesion";
+import { UserContext } from "../../App";
 
 
 const CompanyList = () => {
     
-    const usuario = {email:"higo@gmail.com"}
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
 
     const match = useRouteMatch();
     const [empresas, setEmpresas] = useState(null);
@@ -32,7 +37,16 @@ const CompanyList = () => {
 
         return abortCont.abort();
 
-    }, [])
+    }, [usuario])
+
+    const handleDelete = (idempresa) => {
+
+        ControlEmpresa.delete(idempresa)
+        .then(data => {
+            notificar(data.message)
+        })
+
+    }
     
     
     return ( 
@@ -46,7 +60,7 @@ const CompanyList = () => {
                     <Box sx={{width:'100%'}}> 
 
                         { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                        {empresas && <DataTable rows={empresas} entidad="empresa" handleDelete={()=>{}} match={match}/>}
+                        {empresas && <DataTable rows={empresas} entidad="empresa" handleDelete={handleDelete} match={match}/>}
 
                     </Box>
 

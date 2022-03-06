@@ -15,9 +15,12 @@ import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
 import Grid from "@mui/material/Grid"
 import { NoBackpackSharp } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ControlNoticia from "../../back/control/controlNoticia";
 import ControlUsuario from "../../back/control/controlUsuario";
+import ControlSesion from "../../back/control/controlSesion";
+import { UserContext } from "../../App";
+import AccessDenied from "../home/acessDenied";
 
 const handleDelete = (tarea)=>{}
 
@@ -29,7 +32,9 @@ const NewsDetail = () => {
 
     console.log([grupoempresa,grupocodigo,codigo,autor])
 
-    const usuario = "higo@gmail.com";
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
 
     useEffect(()=>{
 
@@ -64,7 +69,9 @@ const NewsDetail = () => {
                     
                 </Route>
                 <Route path={`${match.path}/editar`}>
-                    <NewsForm/>
+                    {noticia && (noticia.creador)
+                    ?<NewsForm/>
+                    :<AccessDenied/> }
                 </Route>
             </Switch>
         </div>

@@ -1,12 +1,15 @@
 import { Button, TableCell, TableRow } from "@mui/material";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { UserContext } from "../../App";
 import ControlEmpresa from "../../back/control/controlEmpresa";
 
 const RowEmpresa = (props) => {
 
     const row = props.row;
-    const usuario = {email:"higo@gmail.com"}
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
     const handleDelete = props.handleDelete;
 
     const [admin,setAdmin] = useState(false);

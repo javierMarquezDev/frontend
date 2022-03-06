@@ -13,9 +13,12 @@ import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
 import Grid from "@mui/material/Grid"
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ControlGrupo from "../../back/control/controlGrupoProyecto";
 import ControlTarea from "../../back/control/controlTarea";
+import ControlSesion from "../../back/control/controlSesion";
+import { UserContext } from "../../App";
+import AccessDenied from "../home/acessDenied";
 
 const handleDelete = (tarea)=>{}
 
@@ -29,8 +32,11 @@ const TaskDetail = () => {
     const {grupocodigo,grupoempresa,codigo} = useParams();
     const [tarea, setTarea] = useState(null)
     const [isPending,setIsPending] = useState(true);
+    const [admin,setAdmin] = useState(false);
 
-    const usuario = {email:"higo@gmail.com"}
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
 
     useEffect(()=>{
         const abortCont = new AbortController();
@@ -46,6 +52,13 @@ const TaskDetail = () => {
 
                 setTarea(data);
                 setIsPending(false)
+
+                ControlGrupo.getById({nif:grupoempresa},grupocodigo)
+                .then(res => {
+                    if(res.administrador.email == usuario.email){
+                        setAdmin(true);
+                    }
+                })
             })
         }, 1000)
 
@@ -65,7 +78,9 @@ const TaskDetail = () => {
                 
             </Route>
             <Route path={`${match.path}/editar`}>4
-                <TaskForm />
+                {(admin)
+                ?<TaskForm />
+                :<AccessDenied/>}
             </Route>
         </Switch>
     </div> );

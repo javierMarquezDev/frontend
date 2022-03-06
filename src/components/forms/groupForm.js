@@ -10,7 +10,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Avatar from '@mui/material/Avatar';
 import PersonIcon from '@mui/icons-material/Person'
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import Input from '@mui/material/Input';
@@ -25,13 +25,20 @@ import notificar from "../home/notificar";
 import { useHistory } from "react-router-dom";
 import ControlEmpresa from "../../back/control/controlEmpresa";
 import ErroresCampo from "../form/ErroresCampo";
+import { UserContext } from "../../App";
+import AccessDenied from "../home/acessDenied";
 
 const GroupForm = () => {
 
     const {grupoempresa} = useParams() || '';
     const {grupocodigo} = useParams() || '';
     const history = useHistory();
-    const usuario = "higo@gmail.com"
+    
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
+
+    console.log(value)
 
     const [codigo,setCodigo] = useState('')
     const [empresas,setEmpresas] = useState([])
@@ -44,45 +51,70 @@ const GroupForm = () => {
     const [empresa, setEmpresa] = useState(null);
     const [isPending, setIsPending] = useState(true);
     const [grupo,setGrupo] = useState(new GrupoProyecto())
+    const [usuarios,setUsuarios] = useState([]);
+    const [usuarioIsAdmin,setUsuarioIsAdmin] = useState(false);
 
     useEffect(()=>{
         const abortCont = new AbortController();
   
         setTimeout(()=>{
 
-            if(grupoempresa){ControlGrupo.getById({nif:grupoempresa},grupocodigo)
-            .then(data=>{
+            if(grupoempresa){
+                ControlGrupo.getById({nif:grupoempresa},grupocodigo)
+                .then(data=>{
 
-                setGrupo(data)
+                    if(data.administrador.email == usuario.email){
+                        setUsuarioIsAdmin(true);
 
-                setCodigo(data.codigo)
-                setNombre(data.nombre);
-                setDescripcion(data.descripcion);
-                setFechaHora(data.fechaHora);
-                setFinalizado(data.finalizado);
-                setAdministrador(data.administrador);
-                setEmpresa(data.empresa);
-                
+                        setGrupo(data)
 
-                ControlGrupo.getUsuariosFromGrupo(data)
-                .then(res => {
-                    data.usuarios = res;
-                    setGrupo(data)
+                        setCodigo(data.codigo)
+                        setNombre(data.nombre);
+                        setDescripcion(data.descripcion);
+                        setFechaHora(data.fechaHora);
+                        setFinalizado(data.finalizado);
+                        setAdministrador(data.administrador);
+                        setEmpresa(data.empresa);
+                        
+
+                        ControlGrupo.getUsuariosFromGrupo(data)
+                        .then(res => {
+                            data.usuarios = res;
+                            setGrupo(data)
+                        })
+
+                        ControlEmpresa.getEmpresaByAdmin(usuario)
+                        .then(res =>{
+                            console.log(res)
+                            setEmpresas(res);
+                            setIsPending(false)
+                        })
+
+
+                    }
+                    
+                    
+            
+            
                 })
 
-            })}
+            }else{
+                ControlEmpresa.getEmpresaByAdmin(usuario)
+                .then(res =>{
+                    console.log(res)
+                    setEmpresas(res);
+                    setIsPending(false)
+                })
 
-            ControlEmpresa.getEmpresaByAdmin({email:usuario})
-            .then(res =>{
-                console.log(res)
-                setEmpresas(res);
                 setIsPending(false)
-            })
+            }                
+
+            
 
         }, 1000)
 
         return abortCont.abort();
-    },[])
+    },[grupoempresa,grupocodigo])
 
     const handleSubmit = (e) =>{
 
@@ -92,28 +124,57 @@ const GroupForm = () => {
                                             descripcion, administrador, fechaHora,
                                             finalizado)
 
-        if(grupocodigo){
-            console.log(nuevoGrupo)
+        if(grupocodigo && grupoempresa){
+            
+            console.log(nuevoGrupo)            
+
             ControlGrupo.edit(nuevoGrupo)
             .then(data => {
                 if(data.error != null){
                     notificar(data.message+" "+data.error.message)
-                  }else
-                  if(data.message != null){
-                    history.go(-1)
+                }else
+                if(data.message != null){
+                    
                     notificar(data.message)
-                  }
+
+                    console.log(usuarios)
+
+                }
                     setErrores(data);
+
+                    ControlGrupo.modifyUsuariosBulk(nuevoGrupo, usuarios)
+                    .then(res => {
+                        
+                        if(res.administrador){
+                            data.administrador = res.administrador;
+                            setErrores(data);
+
+                        }
+                            
+                        
+                    })
+                    
                 })
+            
+        
         }else{
             ControlGrupo.create(nuevoGrupo)
             .then(data => {
                 if(data.error != null){
                     notificar(data.message+" "+data.error)
                   }else
+
                   if(data.message != null){
-                    history.push('/grupos')
+
                     notificar(data.message)
+
+                    console.log(data.grupo)
+
+                    ControlGrupo.addUsuariosBulk(data.grupo, usuarios)
+                    .then(data => {
+                        notificar(data.message)
+                        //history.push('/grupos')
+                    })
                   }
                     setErrores(data);
             })
@@ -121,7 +182,11 @@ const GroupForm = () => {
 
     }
 
-    return ( <div>
+    return ( 
+            <div>
+
+        {(usuarioIsAdmin || (grupocodigo,grupoempresa == null))
+        ?<div>
                 <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Editar grupo {nombre || "nuevo"}</Typography>
 
                 <Box display="flex">
@@ -133,7 +198,7 @@ const GroupForm = () => {
                 <Box
                 component="form"
                 sx={{
-                '& .MuiTextField-root': { m: 2, width: '25ch' },
+                
                 width:'70%'
                 }}
                 noValidate
@@ -149,7 +214,8 @@ const GroupForm = () => {
                         id = "nombre"
                         property={nombre} 
                         setProperty={setNombre} 
-                        errores={errores.nombre || null} />
+                        errores={errores.nombre || null}
+                        sx={{margin:2}} />
                     
                         <InputTexto formalName="Descripción" 
                         required = {true}
@@ -157,13 +223,16 @@ const GroupForm = () => {
                         property={descripcion} 
                         setProperty={setDescripcion} 
                         errores={errores.descripcion || null}
-                        multiline={true} />
+                        multiline={true}
+                        sx={{margin:2}} />
                     
 
                         <Box margin={2}>
-                            <Typography>Finalizado</Typography>
-                            <Switch label="Finalizado" id="finalizado" defaultValue={finalizado} value={finalizado} onChange={(e)=>setFinalizado(e.target.value)} />
-                            <ErroresCampo errores={errores.finalizado}/>
+                            
+                                <Typography>Finalizado</Typography>
+                                <Switch label="Finalizado" id="finalizado" defaultValue={false} value={finalizado} onChange={(e)=>setFinalizado(e.target.value)} />
+                                <ErroresCampo errores={errores.finalizado}/>
+                            
                         </Box>
                         
 
@@ -177,7 +246,7 @@ const GroupForm = () => {
                                 value={fechaHora.getFullYear()+"-"+(parseInt(fechaHora.getMonth())+1).toString().padStart(2,'0')+
                                 "-"+fechaHora.getDate().toString().padStart(2,'0')}
                                 onChange={(e)=>setFechaHora(new Date(e.target.value))}
-                                sx={{ width: 220 }}
+                                sx={{ width: 220,margin:2 }}
                                 InputLabelProps={{
                                 shrink: true,
                                 }}/>
@@ -192,22 +261,25 @@ const GroupForm = () => {
                         <Typography for="administrador" color="text.secondary" align="left" >Administrador</Typography>
 
                         <Box display="flex">
-                        {(grupo.usuarios != null)?<Autocomplete
-                        options={grupo.usuarios}
-                        defaultValue={""}
+                        {(usuarios)?<Autocomplete
+                        options={usuarios}
+                        defaultValue={administrador}
                         value={administrador}
                         onChange={(e,value)=>setAdministrador(value)}
                         getOptionLabel={option => option.email}
+                        sx={{width:'30%'}}
                         id="administrador"
+                        
                         renderInput={(params) => (
                             <TextField {...params} label="Miembros" variant="standard" />
                             )}
                         />:null}
+                        <ErroresCampo errores={(errores != null)?errores.administrador:null}/>
                     </Box>
 
                 </Box>
 
-                <Box margin={2}>
+                {(!grupoempresa)?<Box margin={2}>
                     <Typography for="empresa" color="text.secondary" align="left">Empresa</Typography>
 
                     { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
@@ -220,20 +292,30 @@ const GroupForm = () => {
                         onChange={(e,value)=>setEmpresa(value)}
                         getOptionLabel={option => option.nif}
                         id="empresa"
+                        sx={{width:'30%'}}
                         renderInput={(params) => (
                             <TextField {...params} label="Empresas" variant="standard" />
                             )}
                         />:null}
                     </Box>}
                     <ErroresCampo errores={errores.empresa}/>
-                </Box>
+                </Box>:""}
 
-                <InputUsuario tabla={grupo} errores={errores.usuarios||null} usuarios={grupo.usuarios||null}/>
+                    { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                    {(empresa && ((grupoempresa && grupocodigo)?grupo.usuarios:true)) && <InputUsuario empresa={empresa} 
+                                              tabla={grupo} 
+                                              errores={errores.usuarios||null} 
+                                              usuarios={grupo.usuarios}
+                                              setUsuarios={setUsuarios}/>}
                 </Box>
                 </Box>
                 }
-3
-    </div> );
+
+        </div>
+        :<AccessDenied/>}
+
+            </div>
+     );
 }
  
 export default GroupForm;

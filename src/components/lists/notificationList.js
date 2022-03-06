@@ -6,8 +6,10 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { Box } from "@mui/system";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ControlUsuario from "../../back/control/controlUsuario";
+import ControlSesion from "../../back/control/controlSesion";
+import { UserContext } from "../../App";
 
 const handleClick = (ntf)=>{
 
@@ -15,8 +17,11 @@ const handleClick = (ntf)=>{
 
 const NotificationList = () => {
     
-    const usuario = {email:"higo@gmail.com", nombre:"Rodrigo", apellido1: "Díaz", apellido2: "de Vivar", dni:"77378971W", tipovia:"C./", nombrevia:"Andrés Segovia", numvia:"15"}
-    const [notificaciones,setNotificaciones] = useState(null);
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+      const token = value.token;
+
+    const [notificaciones,setNotificaciones] = useState({});
     const [isPending, setIsPending] = useState(true);
 
     useEffect(() => {
@@ -35,7 +40,7 @@ const NotificationList = () => {
 
         return abortCont.abort();
 
-    }, [usuario]);
+    }, []);
 
     return ( <Container sx={{height:300, width:700, margin:"auto"}}>
 
@@ -51,10 +56,15 @@ const NotificationList = () => {
 const InfoNtfs = props =>{
 
     const ntfs = props.ntfs;
+    console.log(ntfs)
 
     return (
         <Stack spacing={2} marginTop={3}>
-        {ntfs.map((ntf)=>{
+        {(!ntfs)?
+            <Box>
+                <Typography>Sin datos.</Typography>
+            </Box>
+        :(ntfs.map((ntf)=>{
             return(
                 <Card>
                     <CardContent>
@@ -70,7 +80,7 @@ const InfoNtfs = props =>{
                     </CardActions>
                 </Card>
             );
-        })}
+        }))}
         </Stack>
     )
 

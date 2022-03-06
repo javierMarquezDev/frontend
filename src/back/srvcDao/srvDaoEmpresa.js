@@ -92,6 +92,8 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
 
     static async edit(empresaJson){
 
+        console.log(empresaJson)
+
         let cif = empresaJson.nif;
         empresaJson.nif = undefined;
 
@@ -230,6 +232,8 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
         const cif = empresa.nif;
         const email = usuario.email;
 
+        console.log(cif,email)
+
         return await fetch(
             connectionStr+"checkadmin/"+cif+"/"+email,
             {
@@ -244,7 +248,7 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(cif,email,data)
+            console.log(data)
             return data[0];
         })
     }
@@ -269,6 +273,84 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
         .then(data => {
             return data;
         })
+    }
+
+    static async addUsuariosBulk(empresa, usuarios,admins){
+
+        let rows = [];
+
+        if(admins.length < 1)
+            return {administrador:"El campo debe incluir al menos un administrador"}
+
+        usuarios.forEach(element => {
+
+            let usuarioEsAdmin;
+
+            (admins.find(usuario => usuario.email === element.email ))?usuarioEsAdmin=true:usuarioEsAdmin=false;
+
+            rows.push({empresa:empresa.nif, usuario:element.email, admin: usuarioEsAdmin });
+            
+        });
+
+        console.log(rows)
+
+        return await fetch(
+            connectionStr+"empresausuarios/bulk/",
+            {
+                mode: 'cors',
+                method: 'POST',
+                headers:{
+                    "access-token":localStorage.getItem('token'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(rows)
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            return data;
+        })
+
+    }
+
+    static async modifyUsuariosBulk(empresa, usuarios,admins){
+
+        let rows = [];
+
+        if(admins.length < 1)
+            return {administrador:"El campo debe incluir al menos un administrador"}
+
+        usuarios.forEach(element => {
+
+            let usuarioEsAdmin;
+
+            (admins.find(usuario => usuario.email === element.email ))?usuarioEsAdmin=true:usuarioEsAdmin=false;
+
+            rows.push({empresa:empresa.nif, usuario:element.email, admin: usuarioEsAdmin });
+            
+        });
+
+        console.log(rows)
+
+        return await fetch(
+            connectionStr+"empresausuarios/bulk/"+empresa.nif,
+            {
+                mode: 'cors',
+                method: 'POST',
+                headers:{
+                    "access-token":localStorage.getItem('token'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(rows)
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            return data;
+        })
+
     }
 
     static async getAdminsByEmpresa(empresa){

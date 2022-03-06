@@ -1,18 +1,38 @@
 import { Box, Grid, Typography } from "@mui/material";
 import Button from "@mui/material/Button"
-import { useState } from "react";
+import React, { useState } from "react";
+import ControlSesion from "../../back/control/controlSesion";
 import InputTexto from "../form/InputTexto";
+import notificar from "../home/notificar";
+import { useHistory } from "react-router-dom";
+import { UserContext } from "../../App";
 
 const LoginForm = () => {
 
-    let errores = [];
+    //Gestionar redirección programática
+    const history = useHistory();
 
+    const {usuario,setUsuario,token,setToken} = React.useContext(UserContext);
+
+    //Submit formulario
     const submit = ()=>{
-
+        ControlSesion.createSesion(email,contrasena)
+        .then(data => {
+            console.log(data)
+            if(data.error != null){
+                setErrores(data.error);
+            }else{
+                setUsuario(data.usuario);
+                setToken(data.token);
+                notificar(data);
+                history.go(-1)
+            }
+        })
     }
 
     const [email,setEmail] = useState('');
     const [contrasena,setContrasena] = useState('');
+    const [errores,setErrores] = useState([]);
 
 
     return ( <div>

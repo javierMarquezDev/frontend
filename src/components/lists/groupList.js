@@ -1,19 +1,38 @@
 import { Button, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
 import ControlGrupo from '../../back/control/controlGrupoProyecto';
 import GroupDetail from '../details/groupDetail';
 import GroupForm from '../forms/groupForm';
+import notificar from '../home/notificar';
 import DataTable from '../tables/dataTable';
 import NewsList from './newsList';
+import {useHistory} from 'react-router-dom';
+import ControlSesion from '../../back/control/controlSesion';
+import { UserContext } from '../../App';
 
 const GroupList = () => {
 
+    const history = useHistory();
     const match = useRouteMatch();
     const [grupos, setGrupos] = useState(null);
     const [isPending,setIsPending] = useState(true)
-    const usuario = {email:"higo@gmail.com"}
+    
+    
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
+
+    const handleDelete = (grupoempresa,grupocodigo)=>{
+
+        ControlGrupo.delete({empresa:{nif:grupoempresa}, codigo:grupocodigo})
+        .then(data => {
+            notificar(data.message);
+            //history.go(0)
+        })
+
+    }
 
     useEffect(()=>{
 
@@ -42,7 +61,7 @@ const GroupList = () => {
                     <Button variant="contained"><Link to={`${match.url}/crear`}>Crear grupo</Link></Button>
                     
                     { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                    {grupos && <DataTable rows={grupos} entidad="grupo" handleDelete={()=>{}} match={match} />}
+                    {grupos && <DataTable rows={grupos} entidad="grupo" handleDelete={handleDelete} match={match} />}
                     
                 </Route>
                 <Route path={`${match.path}/:grupoempresa/:grupocodigo/noticias`}> 

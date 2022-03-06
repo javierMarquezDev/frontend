@@ -5,20 +5,26 @@ import { useRouteMatch } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import ControlEmpresa from "../../back/control/controlEmpresa";
 import UserDetail from "../details/userDetail";
-import NewUserCompanyForm from "../forms/newUserCompanyForm";
-import DataTable from "../tables/dataTable";
-
-const handleDelete = (usuario)=>{}
+import notificar from "../home/notificar";
+import { useHistory } from "react-router-dom";
 
 const CompanyUserList = (props) => {
+
     const empresa = props.empresa;
     const match = useRouteMatch();
     const [usuarios,setUsuarios] = useState(null);
     const [isPending, setIsPending] = useState(true);
+    const history = useHistory();
     
 
 
-    const deleteUsuario = (usuario)=>{
+    const handleDelete = (usuario)=>{
+
+        ControlEmpresa.deleteUsuario(empresa, usuario)
+        .then(data => {
+            notificar(data.message)
+            history.go(0)
+        })
 
     }
 
@@ -38,7 +44,7 @@ const CompanyUserList = (props) => {
 
         return abortCont.abort();
 
-    },[])
+    },[empresa])
     
     return ( <div>
         {empresa && 
@@ -47,19 +53,12 @@ const CompanyUserList = (props) => {
 
             <Typography variant="h5" align="left" marginTop={3} marginBottom={3}>Usuarios empresa "{empresa.nombre}"</Typography>
 
-            <Box display="flex">
-                <Button variant="contained"><Link to={`${match.url}/nuevousuario`} style={{textDecoration:"none", color:"white"}}>Añadir usuario</Link></Button>
-            </Box>
-
                 <Box>
                     { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                    {usuarios && <Usuarios usuarios={usuarios} match={match} empresa={empresa}/>}
+                    {usuarios && <Usuarios handleDelete={handleDelete} usuarios={usuarios} match={match} empresa={empresa}/>}
                 </Box>
                 
             </Route> 
-            <Route exact path={`${match.path}/nuevousuario`}>
-                <NewUserCompanyForm/>
-            </Route>
             <Route path={`${match.path}/:idusuario`}>
                 <UserDetail/>
             </Route>
@@ -74,6 +73,7 @@ const Usuarios = (props) =>{
     const usuarios = props.usuarios;
     const match = props.match;
     const empresa = props.empresa;
+    const handleDelete = props.handleDelete;
 
     console.log(usuarios);
 
@@ -91,7 +91,7 @@ const Usuarios = (props) =>{
                                 </Box>
                                     
                                     <Button variant="outlined" sx={{marginRight:1, marginLeft:1}}><Link to={`${match.url}/${usuario.email}`} style={{textDecoration:"none"}}>VER</Link></Button>
-                                    {(empresa.admin)?<Button onClick={()=>{handleDelete(usuario)}} variant="contained">ELIMINAR</Button>:""}
+                                    {(empresa.admin)?<Button onClick={()=>handleDelete(usuario)} variant="contained">ELIMINAR</Button>:""}
                                 
                             </Box>
                         );

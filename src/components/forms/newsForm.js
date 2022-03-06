@@ -1,6 +1,6 @@
 import { Box, Button, Typography } from "@mui/material";
 import { isFocusable } from "@testing-library/user-event/dist/utils";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ControlNoticia from "../../back/control/controlNoticia";
 import Noticia from "../../back/model/Noticia";
@@ -8,11 +8,16 @@ import InputTexto from "../form/InputTexto";
 import notificar from "../home/notificar";
 import { useHistory } from "react-router-dom";
 import ControlGrupo from "../../back/control/controlGrupoProyecto";
+import ControlSesion from "../../back/control/controlSesion";
+import { UserContext } from "../../App";
+import AccessDenied from "../home/acessDenied";
 
 
 const NewsForm = () => {
 
-    const email = "higo@gmail.com"
+    const valueSesion = React.useContext(UserContext);
+    const usuarioSesion = valueSesion.usuario;
+    const token = valueSesion.token;
     const history = useHistory();
 
     const {grupoempresa,grupocodigo,autor,codigo} = useParams();
@@ -20,10 +25,12 @@ const NewsForm = () => {
     const [noticia,setNoticia] = useState(new Noticia())
     const [texto,setTexto] = useState('')
     const [noticiaCodigo,setCodigo] = useState('')
-    const [usuario,setUsuario] = useState({email:email})
+    const [usuario,setUsuario] = useState(usuarioSesion)
     const [grupo,setGrupo] = useState(null)
     const [fechaHora,setFechaHora] = useState(null)
     const [isPending, setIsPending] = useState(true);
+    const [usuarioIsAdmin,setUsuarioIsAdmin] = useState(false);
+    const [usuarioIsPoster,setUsuarioIsPoster] = useState(false);
 
     useEffect(()=>{
 
@@ -40,6 +47,9 @@ const NewsForm = () => {
               setUsuario(res.usuario)
               setFechaHora(res.fechaHora)
 
+              if(usuario.email == usuarioSesion.email)
+                setUsuarioIsPoster(true);
+
             setIsPending(false)
           })}
 
@@ -49,6 +59,8 @@ const NewsForm = () => {
             .then(data => {
               console.log(data)
               setGrupo(data)
+              if(data.administrador.email == usuarioSesion.email)
+                setUsuarioIsAdmin(true);
             })
 
           }
@@ -94,7 +106,8 @@ const NewsForm = () => {
     }
 
     return ( <div>
-        {(noticia || grupo) && <Box sx={{width:'100%'}} display="flex">
+        {(noticia || grupo) && 
+        ((codigo && autor)?((usuarioIsPoster)?<Box sx={{width:'100%'}} display="flex">
         <InputTexto formalName={(noticia.codigo)?"Editar noticia":"Escribir noticia" }
                     required = {true}
                     id = "texto"
@@ -104,7 +117,20 @@ const NewsForm = () => {
                     multiline={true}
                     sx={{width:'100%',margin:2}} />
         <Button variant="contained" onClick={(e)=>handleSubmit(e)}>Publicar</Button>
-    </Box>}
+    </Box>
+    :<AccessDenied/>)
+    :
+    <Box sx={{width:'100%'}} display="flex">
+        <InputTexto formalName={(noticia.codigo)?"Editar noticia":"Escribir noticia" }
+                    required = {true}
+                    id = "texto"
+                    property={texto} 
+                    setProperty={setTexto} 
+                    errores={errores.texto || null}
+                    multiline={true}
+                    sx={{width:'100%',margin:2}} />
+        <Button variant="contained" onClick={(e)=>handleSubmit(e)}>Publicar</Button>
+    </Box>)}
     </div> );
 }
  

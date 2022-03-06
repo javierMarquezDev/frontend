@@ -19,12 +19,10 @@ let ControlGrupo = class controlGrupo {
 
     static async delete(grupoProyecto){
 
-        if(grupoProyecto === null || !GrupoProyecto.prototype.isPrototypeOf(grupoProyecto))
+        if(grupoProyecto === null)
             return "Información no válida."
 
-        const grupoProyectoJson = await this.convert(grupoProyecto);
-
-        return await SrvDaoGrupoProyecto.delete(grupoProyectoJson);
+        return await SrvDaoGrupoProyecto.delete(grupoProyecto);
 
     }
 
@@ -109,7 +107,11 @@ let ControlGrupo = class controlGrupo {
 
     static async isMember(usuario,grupo){
 
+        console.log(usuario,grupo)
+
         const response = await SrvDaoGrupoProyecto.isMember(usuario,grupo);
+
+        console.log(response)
 
         if(response != null)
             return true;
@@ -117,6 +119,19 @@ let ControlGrupo = class controlGrupo {
         return false;
 
     }
+
+    static async addUsuariosBulk(grupo,usuarios){
+
+        return await SrvDaoGrupoProyecto.addUsuariosBulk(grupo,usuarios);
+
+    }
+
+    static async modifyUsuariosBulk(grupo,usuarios){
+
+        return await SrvDaoGrupoProyecto.modifyUsuariosBulk(grupo,usuarios);
+
+    }
+    
 
     static async getByFin(fin = false){
 

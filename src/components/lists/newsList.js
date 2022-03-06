@@ -1,20 +1,20 @@
-import { Button, Card, CardActionArea, CardActions, CardContent, Stack, Typography } from "@mui/material";
+import { Button, Card, CardActions, CardContent, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import { useRouteMatch } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import ControlGrupo from "../../back/control/controlGrupoProyecto";
-import GroupDetail from "../details/groupDetail";
 import NewsDetail from '../details/newsDetail';
 import NewsForm from "../forms/newsForm";
-import DataTable from "../tables/dataTable";
 import ControlNoticia from "../../back/control/controlNoticia"
+import notificar from "../home/notificar";
+import { useHistory } from "react-router-dom";
 
 const NewsList = (props) => {
     const {grupocodigo} = useParams();
     const {grupoempresa} = useParams();
     const match = useRouteMatch();
     const grupo = props.grupo;
+    const history = useHistory();
 
     const [noticias,setNoticias] = useState(null);
     const [isPending, setIsPending] = useState(true);
@@ -39,7 +39,15 @@ const NewsList = (props) => {
 
         return abortCont.abort();
 
-    })    
+    },[grupoempresa,grupocodigo])    
+
+    const handleDelete = (noticia) => {
+        ControlNoticia.delete(noticia)
+        .then(data => {
+            notificar(data.message)
+            history.go(0)
+        })
+    }
     
     return ( 
         <div>
@@ -55,7 +63,7 @@ const NewsList = (props) => {
                 </Typography>
 
                 { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                {noticias && <InfoNoticias noticias={noticias} match={match} grupocodigo={grupocodigo} grupoempresa={grupoempresa}/> }
+                {noticias && <InfoNoticias handleDelete={handleDelete} noticias={noticias} match={match} grupocodigo={grupocodigo} grupoempresa={grupoempresa}/> }
 
                 
 
@@ -79,6 +87,7 @@ const InfoNoticias = (props) =>{
     const match = props.match;
     const grupocodigo = props.codigo;
     const grupoempresa = props.empresa;
+    const handleDelete = props.handleDelete;
 
     console.log(noticias)
 
@@ -101,7 +110,7 @@ const InfoNoticias = (props) =>{
                                 </CardContent>
                                 <CardActions sx={{flexDirection:"row-reverse"}}>
                                     {(noticia.admin)?<Button><Link to={`${match.url}/${noticia.usuario.email}/${noticia.codigo}/editar`}>EDITAR</Link></Button>:""}
-                                    {(noticia.admin)?<Button>ELIMINAR</Button>:""}
+                                    {(noticia.admin)?<Button onClick={()=>handleDelete(noticia)} >ELIMINAR</Button>:""}
                                 </CardActions>
                             </Card>
                         );

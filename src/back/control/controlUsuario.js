@@ -46,11 +46,11 @@ let ControlUsuario = class controlUsuario {
     static async getById(email){
 
         if(email === null || email === "" || !validator.isEmail(email))
-            return("Información no válida.");
+            return({error:"Información no válida."});
 
         const usuarioJson = await SrvDaoUsuario.getById(email);
 
-        if(usuarioJson.email == null) return "El usuario no existe";
+        if(usuarioJson.email == null) return {error:"El usuario no existe"};
 
         return this.convert(usuarioJson);
 

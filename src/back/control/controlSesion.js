@@ -11,19 +11,15 @@ let ControlSesion = class controlSesion{
 
         if(responseLogin.usuario != undefined && responseLogin.token != undefined){
 
-            let usuario = await ControlUsuario.getById(email);
-
-            console.log(usuario);
-
             const token = responseLogin.token;
 
             //set localstorage sesion object
-            localStorage.setItem("usuario",JSON.stringify(usuario));
+            localStorage.setItem("usuario",JSON.stringify(responseLogin.usuario));
             localStorage.setItem("token",token);
 
         }
 
-        return responseLogin.message;
+        return {usuario:responseLogin.usuario, token:responseLogin.token};
 
     };
 
@@ -54,12 +50,12 @@ let ControlSesion = class controlSesion{
 
     //Get usuario de la sesión
     static getSessionUser(){
-        return JSON.parse(localStorage.getItem("usuario") && null);
+        return JSON.parse(localStorage.getItem("usuario") || null);
     }
 
     //Get token de la sesión
     static getSessionToken(){
-        return localStorage.getItem("token") && null;
+        return localStorage.getItem("token") || null;
     }
 
 }

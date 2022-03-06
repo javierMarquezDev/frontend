@@ -1,11 +1,16 @@
 import { Button, TableCell, TableRow, Typography } from "@mui/material";
+import React from "react";
 import { Link } from "react-router-dom";
+import { UserContext } from "../../App";
+import ControlSesion from "../../back/control/controlSesion";
 
 const RowGrupo = (props) => {
 
     const row = props.row;
     const handleDelete = props.handleDelete;
-    const usuario = {email:"higo@gmail.com"}
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
 
     if(usuario.email == row.administrador.email){
         row.admin = true
@@ -73,7 +78,7 @@ const CellDelete = (props) => {
 
     return ( 
         <TableCell align="right">
-            <Button variant="contained" onClick={()=>{handleDelete(row.empresa,row.codigo)}}>ELIMINAR</Button>
+            <Button variant="contained" onClick={()=>{handleDelete(row.empresa.nif,row.codigo)}}>ELIMINAR</Button>
         </TableCell>
      );
 }

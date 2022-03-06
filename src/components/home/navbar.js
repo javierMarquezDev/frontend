@@ -2,12 +2,24 @@ import { AppBar, Badge, Button, IconButton, MenuItem, Toolbar, Typography } from
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Link } from "react-router-dom";
 import PersonIcon from '@mui/icons-material/Person';
+import ControlSesion from "../../back/control/controlSesion";
+import { Box } from "@mui/system";
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { UserContext } from "../../App";
 
 const MenuBar = () => {
 
-  let loggedIn = true;
+  const value = React.useContext(UserContext);
 
-  const usuario = {email:"higo@gmail.com"}
+  const history = useHistory();
+
+  const logout = ()=>{
+    ControlSesion.destroySesion();
+    value.setToken(null)
+    value.setUsuario(null)
+    history.push('/login')
+  }
 
   return ( 
     <AppBar position="fixed">
@@ -25,30 +37,36 @@ const MenuBar = () => {
         </MenuItem>
 
         {/*LOGIN / LOGOUT / SIGNUP*/}
-        <MenuItem>
+        {(!value.usuario)
+        ?<MenuItem>
           
           <Link to='/login'>
             <Button variant="contained">Iniciar sesión</Button>
           </Link>
       
         </MenuItem>
+        :""}
 
-        <MenuItem>
+        {(value.usuario)
+        ?<MenuItem>
 
-          <Link to='/logout'>
-            <Button variant="contained">Cerrar sesión</Button>
-          </Link>
+          <Button variant="contained" onClick={()=>logout()}>Cerrar sesión</Button>
 
         </MenuItem>
+        :""}
 
-        <MenuItem>
+        {(!value.usuario)
+        ?<MenuItem>
           <Link to='/signup'>
             <Button variant="contained">Registrarse</Button>
           </Link>
         </MenuItem>
+        :""}
 
         {/*NOTIFICACIONES*/}
-        {(loggedIn)?<MenuLogged usuario={usuario}/>:null}
+
+        
+        {value.usuario && <MenuLogged usuario={value.usuario}/>}
         
       </Toolbar>
     </AppBar>
@@ -64,7 +82,7 @@ const MenuLogged = (props)=>{
   return(
 
     <MenuItem>
-      <MenuItem>
+      {/*<MenuItem>
           <Link to="/ntfs" style={{color:"white"}}>
 
             <IconButton
@@ -78,17 +96,21 @@ const MenuLogged = (props)=>{
             
           </Link>
           
-        </MenuItem>
+      </MenuItem>*/}
 
-        <MenuItem>
-          <Link to={`/${usuario.email}/perfil`} style={{color:"white"}}>
+        <MenuItem >
+          <Link to={`/${usuario.email}/perfil`} style={{color:"white"}} >
+            <Box display="flex" alignItems="center">
 
-            <IconButton
-              size="large"
-              color="inherit"
-            >
-              <PersonIcon/>
-            </IconButton>
+              <IconButton
+                size="large"
+                color="inherit"
+              >
+                <PersonIcon/>
+              </IconButton>
+              <Typography color='white'>{usuario.nombre}&nbsp;{usuario.apellido1}&nbsp;{usuario.apellido2 || ''}</Typography>
+
+            </Box>
             
           </Link>
           
@@ -97,5 +119,7 @@ const MenuLogged = (props)=>{
 
   )
 }
+
+
  
 export default MenuBar;

@@ -92,7 +92,7 @@ let Mapper = class mapper{
 
         return new Empresa(
             str.nif, str.razonsocial, str.nombre, str.tipovia, str.nombrevia,
-            str.numvia, str.codigopuerta && null, str.localidad, str.provincia, grupoProyectos);  
+            str.numvia, str.codigopuerta, str.localidad, str.provincia, grupoProyectos);  
 
     }
 

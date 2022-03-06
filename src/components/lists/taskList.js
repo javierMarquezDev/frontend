@@ -1,5 +1,5 @@
 import { Autocomplete, Box, Button, Card, CardActionArea, CardActions, CardContent, Stack, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import { useRouteMatch } from "react-router-dom";
 import { useParams } from "react-router-dom";
@@ -13,6 +13,8 @@ import TaskForm from "../forms/taskForm";
 import PersonIcon from "@mui/icons-material/Person";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import notificar from "../home/notificar";
+import ControlSesion from "../../back/control/controlSesion";
+import { UserContext } from "../../App";
 
 
 const TaskList = () => {
@@ -22,8 +24,9 @@ const TaskList = () => {
     const match = useRouteMatch();
     const [userFilter,setUserFilter] = useState({email:'Todas'});
 
-    const usuario = {email:"higo@gmail.com"}
-    //const usuario = {email:"misaclumsy@hotmail.es"}
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
 
     const [tareas, setTareas ] = useState(null)
     const [isPending, setIsPending] = useState(true);
@@ -169,7 +172,7 @@ const InfoTareas = props =>{
                                     <Link to={`${match.url}/${tarea.codigo}`}><Typography align="left" sx={{flexGrow:1, fontSize:12}}>Ver detalle</Typography></Link>
                                 </CardContent>
                                 <CardActions sx={{flexDirection:"row-reverse"}}>
-                                    <ActionsAdmin handleDelete={handleDelete} grupoempresa={grupoempresa} grupocodigo={grupocodigo} tarea={tarea} usuario={usuario} match={match}/>
+                                    <ActionsAdmin handleDelete={()=>handleDelete(tarea)} grupoempresa={grupoempresa} grupocodigo={grupocodigo} tarea={tarea} usuario={usuario} match={match}/>
                                     {(tarea.atareado.email == usuario.email)?<Button variant="contained" onClick={()=>{handleCheck(tarea)}}>{(tarea.checked)?'NO HECHA':'HECHA'}</Button>:""}
                 
                                 </CardActions>

@@ -83,12 +83,28 @@ let ControlEmpresa = class CtrlCompany{
 
     static async isMember(empresa, usuario){
 
-        const response = await SrvDaoEmpresa.isAdmin(empresa,usuario);
+        const response = await SrvDaoEmpresa.isMember(empresa,usuario);
 
-        if(response != null)
+        console.log(response.length)
+
+        if(response.length)
             return true;
         
         return false;
+
+    }
+
+    static async addUsuariosBulk(empresa,usuarios,admins){
+
+        console.log(empresa,usuarios,admins)
+
+        return await SrvDaoEmpresa.addUsuariosBulk(empresa,usuarios,admins);
+        
+    }
+
+    static async moidfyUsuariosBulk(empresa,usuarios,admins){
+
+        return await SrvDaoEmpresa.modifyUsuariosBulk(empresa,usuarios,admins);
 
     }
 

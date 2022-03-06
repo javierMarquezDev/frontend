@@ -13,8 +13,11 @@ import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
 import Grid from "@mui/material/Grid"
 import ControlGrupo from "../../back/control/controlGrupoProyecto";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ControlUsuario from "../../back/control/controlUsuario";
+import ControlSesion from "../../back/control/controlSesion";
+import { UserContext } from "../../App";
+import AccessDenied from "../home/acessDenied";
 
 const handleDelete = (grupo) => {}
 
@@ -22,23 +25,36 @@ const GroupDetail = () => {
     const {grupocodigo} = useParams();
     const {grupoempresa} = useParams();
     const match = useRouteMatch();
+    const [member,setMember] = useState(false);
 
     const [grupo,setGrupo] = useState(null);
     const [isPending, setIsPending] = useState(true);
 
-    const usuario = {email:"higo@gmail.com"};
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
 
     useEffect(()=>{
 
         const abortCont = new AbortController();
+        console.log({codigo:grupocodigo,empresa:{nif:grupoempresa}})
 
         setTimeout(()=>{
-            ControlGrupo.getById({nif:grupoempresa},grupocodigo)
-            .then(data=>{
-                if(data.administrador.email == usuario.email)
-                    data.admin = true;
-                setGrupo(data);
-                setIsPending(false)
+            ControlGrupo.isMember(usuario,{codigo:grupocodigo,empresa:{nif:grupoempresa}})
+            .then(data => {
+                
+                setMember(data);
+                if(data){
+
+                    ControlGrupo.getById({nif:grupoempresa},grupocodigo)
+                    .then(data=>{
+                        if(data.administrador.email == usuario.email)
+                            data.admin = true;
+                        setGrupo(data);
+                        setIsPending(false)
+                    })
+
+                }
             })
         }, 1000)
 
@@ -48,7 +64,9 @@ const GroupDetail = () => {
 
     return ( 
         <div>
-            <Switch>
+            
+            {(member)
+            ?<Switch>
                 <Route exact path={`${match.path}`}>
                     
                 { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
@@ -56,18 +74,18 @@ const GroupDetail = () => {
                 
                 </Route>
                 <Route path={`${match.path}/editar`}>
-                    <GroupForm />
-                </Route>
-                <Route path={`${match.path}/eliminar`}>
-                    Eliminar
+                    {grupo && (grupo.admin)
+                    ?<GroupForm />
+                    :<AccessDenied/>}
                 </Route>
                 <Route path={`${match.path}/tareas`}>
                     <TaskList/>
                 </Route>
                 <Route path={`${match.path}/usuarios`}>
-                    <GroupUserList/>
+                    <GroupUserList />
                 </Route>
             </Switch>
+            :<AccessDenied/>}
         </div>
      );
 }

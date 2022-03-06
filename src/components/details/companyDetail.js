@@ -13,35 +13,57 @@ import Grid from "@mui/material/Grid"
 import { List, ListItem } from "@mui/material";
 import Empresa from "../../back/model/Empresa";
 import ControlEmpresa from "../../back/control/controlEmpresa";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useButton } from "@mui/base";
+import ControlSesion from "../../back/control/controlSesion";
+import { UserContext } from "../../App";
+import AccessDenied from "../home/acessDenied";
 
 const handleDelete = (usuario)=>{}
 
 const CompanyDetail = () => {
+
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
 
     const {idempresa} = useParams();
     const [empresa, setEmpresa] = useState(null);
     const match = useRouteMatch();
     const [isPending, setIsPending] = useState(true);
     const [usuarios, setUsuarios] = useState(null);
+    const [member,setMember] = useState(false);
 
     useEffect(()=>{
 
         const abortCont = new AbortController();
 
         setTimeout(()=>{
-            ControlEmpresa.getById(idempresa)
-            .then(data=>{
-                data.admin = true;
-                setEmpresa(data);
-                setIsPending(false)
+            ControlEmpresa.isMember({nif:idempresa},usuario)
+            .then(data => {
+                setMember(data);
+                if(data){
+                    ControlEmpresa.getById(idempresa)
+                    .then(data=>{
+                    
+                        setEmpresa(data);
 
-                ControlEmpresa.getUsuariosByEmpresa(data)
-                .then(data => {
-                    setUsuarios(data);
-                })
+                        ControlEmpresa.getUsuariosByEmpresa(data)
+                        .then(data => {
+                            setUsuarios(data);
+                        })
+
+                        ControlEmpresa.isAdmin({nif:idempresa},usuario).then((res)=>{
+                            (res)?data.admin = true:data.admin = false;
+                            setEmpresa(data);
+                            setIsPending(false)
+                        })
+
+
+                    })
+                }
             })
+            
         }, 1000)
 
         return abortCont.abort();
@@ -49,18 +71,22 @@ const CompanyDetail = () => {
     }, [idempresa])
 
     return ( <div>
-        <Switch>
+        {(member)
+        ?<Switch>
             <Route exact path={`${match.path}`}>
                 { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
                 { empresa && <CompanyInfo empresa={empresa} usuarios={usuarios} isPending={isPending} match={match}/>}
             </Route>
             <Route path={`${match.path}/editar`}>
-                <CompanyForm />
+                {empresa && (empresa.admin)
+                ?<CompanyForm />
+                :<AccessDenied/>}
             </Route>
             <Route path={`${match.path}/usuarios`}>
                 <CompanyUserList empresa={empresa} />
             </Route>
         </Switch>
+        :<AccessDenied/>}
     </div> );
 }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Empresa from "../../back/model/Empresa";
 import GrupoProyecto from "../../back/model/GrupoProyecto";
 import { Autocomplete, FormLabel, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
@@ -20,86 +20,164 @@ import Grid from "@mui/material/Grid"
 import InputTexto from "../form/InputTexto";
 import ControlEmpresa from "../../back/control/controlEmpresa";
 import ControlGrupo from "../../back/control/controlGrupoProyecto";
+import { useHistory } from "react-router-dom";
+import ControlUsuario from "../../back/control/controlUsuario";
+import ErroresCampo from "./ErroresCampo";
+import ControlSesion from "../../back/control/controlSesion";
+import { UserContext } from "../../App";
 
 const InputUsuario = (props) => {
 
+
+    const history = useHistory();
     const usuarios = props.usuarios;
     const tabla = props.tabla;
     const admin = props.admin;
+    const empresa = props.empresa;
+    const setUsuarios = props.setUsuarios;
+    
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
 
     const [usuarioNuevo, setUsuarioNuevo] = useState(null);
+    const [usuariosNuevos, setUsuariosNuevos] = useState([]);
     const [errores, setErrores] = useState(null);
+    const [usuariosEmpresa, setUsuariosEmpresa] = useState([])
+    const [isPending, setIsPending] = useState(true);
 
-    const nuevoUsuario = (nuevo, tabla) =>{
+    //Obtener usuarios de empresa
+    useEffect(() => {
+        const abortCont = new AbortController();
 
-        if(Empresa.prototype.isPrototypeOf(tabla)){
+        setUsuariosNuevos(usuarios || [])
+        setUsuarios(usuarios || []);
+  
+        setTimeout(()=>{
 
-            ControlEmpresa.addUsuario(tabla, nuevo, admin)
+            ControlEmpresa.getUsuariosByEmpresa(empresa)
+            .then(data => {
+                setUsuariosEmpresa(data);
+                setIsPending(false)
+            })
 
-        }else if(GrupoProyecto.prototype.isPrototypeOf(tabla)){
+        }, 1000)
 
-            ControlGrupo.addUser(nuevo.email, tabla.codigo, tabla.empresa)
+        return abortCont.abort();
+    },[empresa]);
+
+
+    //Añadir usuario
+    const nuevoUsuario = () =>{
+
+        setIsPending(true)
+
+
+        //Comprobar si existe
+
+        if(usuarioNuevo != null){
+            ControlUsuario.getById(usuarioNuevo.email)
+            .then(data => {
+                if(data.error){
+                    setErrores({"usuario":data});
+                    return;
+                }else{
+                    
+                        if(empresa){
+                            //Comprobar si es miembro de la empresa
+                            
+                            ControlEmpresa.isMember(empresa, {email:usuarioNuevo.email})
+                            .then(data => {{
+                                console.log(empresa)
+                                console.log(data)
+                                if(data === false){
+                                    setErrores({usuario:{miembro:"El usuario no pertenece a la empresa"}})
+                                }else{
+            
+                                    setErrores(null)
+
+                                    let array = usuariosNuevos;
+
+                                    if(array.find(element => element.email == usuarioNuevo.email) === undefined){
+                                    
+                                        
+                                        array.push(usuarioNuevo)
+                                        setUsuarios(array);
+                                        setUsuariosNuevos(array)
+                                        
+                                    }
+                                    
+            
+                                }
+                            }})
+            
+                        }else{
+                            setErrores({usuario:{empresa: "Es obligatorio rellenar la empresa"}})
+                            
+                        }
+            
+                    
+            
+                }
+                
+            })
         }
-
+        
+        setIsPending(false)
+        
     }
 
     const deleteUsuario = (eliminado, tabla) =>{
 
-        if(Empresa.prototype.isPrototypeOf(tabla)){
-
-            ControlEmpresa.deleteUsuario(tabla, eliminado)
-
-        }else if(GrupoProyecto.prototype.isPrototypeOf(tabla)){
-
-            ControlGrupo.deleteUser(eliminado.email, tabla.codigo, tabla.empresa)
-        }
+        let array = usuariosNuevos;
+        let nuevoArray = array.filter(element => element.email != eliminado.email)
+        setUsuariosNuevos(nuevoArray);
+        setUsuarios(nuevoArray);
         
-    }
-
-    const promoteUser = (usuario, tabla) => {
-        if(Empresa.prototype.isPrototypeOf(tabla)){
-
-            ControlEmpresa.promoteUsuario(usuario,tabla);
-
-        }
-    }
-
-
-    const degradeUser = (usuario, tabla)=>{
-
-        if(Empresa.prototype.isPrototypeOf(tabla)){
-
-            ControlEmpresa.degradeUsuario(usuario,tabla);
-
-        }
-
     }
 
     return ( 
         <Grid container>
             <Grid item xs={12}>
-                <Box marginTop={3}>
-                <Typography for="usuarios" align="left" fontWeight="bold">Añadir o quitar usuarios</Typography>
+                <Box margin={2}>
+                    <Typography htmlFor="usuarios" align="left" fontWeight="bold">Añadir o quitar usuarios</Typography>
 
-                <Box display="flex">
-                    <InputTexto formalName="Añadir miembro" 
-                    id = "usuarionuevo"
-                    property={usuarioNuevo} 
-                    setProperty={setUsuarioNuevo} 
-                    errores={(errores != null)?errores:null} />
+                    { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+
+                    {(usuariosEmpresa) && <Box display="flex">
+                        <Autocomplete
+                        options={usuariosEmpresa}
+                        value={usuarioNuevo}
+                        onChange={(e,value)=>setUsuarioNuevo(value)}
+                        getOptionLabel={option => option.email}
+                        id="usuarios"
+                        selectOnFocus
+                        clearOnBlur
+                        handleHomeEndKeys
+                        freeSolo
+                        sx={{width:'20%'}}
+                        renderInput={(params) => (
+                            <TextField {...params} label="Miembros de la empresa" variant="standard" />
+                            )}
+                        />
+                        <ErroresCampo errores={(errores != null)?errores.usuario:null}/>
+                    </Box>}
+                    
                 </Box>
-                </Box>
+
+
             </Grid>
             <Grid item xs={12}>
                 <Box display="flex" margin={2}>
-                    <Button variant="contained" onClick={()=>nuevoUsuario(usuarioNuevo,tabla)}>
+                    <Button variant="contained" onClick={()=>nuevoUsuario()}>
                         Añadir usuario
                     </Button>
                 </Box>
             </Grid>
             <Grid item xs={12}>
                 <List sx={{width:'70%'}}>
-                    {(usuarios != null)?usuarios.map((usuario)=>{
+                { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                    {usuariosNuevos && usuariosNuevos.map((usuario)=>{
                         return(
                             <ListItem 
                             value={usuario}
@@ -116,7 +194,8 @@ const InputUsuario = (props) => {
                                 </ListItemAvatar>    
                             {usuario.email} </ListItem>
                         )
-                    }):null}
+                    })
+                }
                     
                 </List>
             </Grid>

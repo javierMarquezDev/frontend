@@ -1,6 +1,6 @@
 import { Autocomplete, Button, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Usuario from "../../back/model/Usuario";
 import InputTexto from "../form/InputTexto";
 import TiposVia from "../../back/model/TiposVia";
@@ -9,6 +9,8 @@ import { useParams } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import ErroresCampo from "../form/ErroresCampo";
 import notificar from "../home/notificar";
+import { UserContext } from "../../App";
+import AccessDenied from "../home/acessDenied";
 
 const UserForm = () => {
 
@@ -16,6 +18,10 @@ const UserForm = () => {
     const {idusuario} = useParams();
     const [usuario,setUsuario] = useState(new Usuario());
     const history = useHistory();
+
+    const valueSesion = React.useContext(UserContext);
+    const usuarioSesion = valueSesion.usuario;
+    const token = valueSesion.token;
 
     const [email,setEmail] = useState('');
     const [contrasena, setContrasena] = useState('');
@@ -31,10 +37,18 @@ const UserForm = () => {
     const [isPending,setIsPending] = useState(false);
     const [localidad, setLocalidad] = useState('');
     const [provincia, setProvincia] = useState('');
+    const [usuarioIsAdmin, setUsuarioIsAdmin] = useState(false);
 
     useEffect(()=>{
 
         const abortCont = new AbortController();
+
+        if(usuarioSesion){
+          if(usuarioSesion.email == idusuario)
+            setUsuarioIsAdmin(true);
+
+        }
+          
 
         if(idusuario){setTimeout(()=>{
           ControlUsuario.getById(idusuario)
@@ -97,6 +111,8 @@ const UserForm = () => {
     }
 
     return ( <div>
+      {((idusuario && usuarioIsAdmin) || (!idusuario && !usuarioIsAdmin))
+      ?<div>
         <Typography align="left" variant="h5">Editar usuario {(usuario.email==null)?"nuevo":""}</Typography>
 
         { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
@@ -227,7 +243,8 @@ const UserForm = () => {
             </Box>}
 
         <Button variant="contained" onClick={(e)=>handleCreate(e)}>Terminar</Button>
-    </div> );
+    </div>
+    :<AccessDenied/>} </div>);
 }
  
 export default UserForm;

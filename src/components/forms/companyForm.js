@@ -10,7 +10,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Avatar from '@mui/material/Avatar';
 import PersonIcon from '@mui/icons-material/Person'
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import Input from '@mui/material/Input';
@@ -24,12 +24,19 @@ import ControlEmpresa from "../../back/control/controlEmpresa";
 import notificar from "../home/notificar";
 import { useHistory } from "react-router-dom";
 import ErroresCampo from "../form/ErroresCampo";
+import InputUsuarioEmpresa from "../form/InputUsuarioEmpresa";
+import { UserContext } from "../../App";
+import AccessDenied from "../home/acessDenied";
 
 const deleteUsuario = (usuario, empresa)=>{
 
 }
 
 const CompanyForm = () => {
+
+  const value = React.useContext(UserContext);
+  const usuarioSesion = value.usuario;
+  const token = value.token;
 
   const {idempresa} = useParams() || '';
   const tiposVia = TiposVia;
@@ -42,51 +49,70 @@ const CompanyForm = () => {
   const [nif, setNif] = useState('');
   const [nombre, setNombre] = useState('');
   const [razonSocial, setRazonSocial] = useState();
-  const [administrador, setAdministrador] = useState(null);
   const [tipoVia, setTipoVia] = useState('');
   const [nombreVia, setNombreVia] = useState('');
   const [numVia, setNumVia] = useState('');
   const [codigoPuerta, setCodigoPuerta] = useState('');
   const [localidad, setLocalidad] = useState('');
+  const [usuarios, setUsuarios] = useState([])
   const [provincia, setProvincia] = useState('');
+  const [admins,setAdmins] = useState([])
+  const [usuarioIsAdmin, setUsuarioIsAdmin] = useState(false);
 
   useEffect(()=>{
 
     const abortCont = new AbortController();
 
-        if(idempresa){setTimeout(()=>{
-            ControlEmpresa.getById(idempresa)
-            .then(data=>{
-                setEmpresa(data);
-                setNif(data.nif);
-                setNombre(data.nombre);
-                setRazonSocial(data.razonSocial);
-                setAdministrador(data.administrador);
-                setTipoVia({label:data.tipoVia,id:data.tipoVia});
-                setNombreVia(data.nombreVia);
-                setNumVia(data.numVia);
-                setCodigoPuerta(data.codigoPuerta || '')
-                setIsPending(false)
+    if(idempresa){
 
-                ControlEmpresa.getUsuariosByEmpresa(data)
-                .then(res => {
-                    data.usuarios = res;
-                    setEmpresa(data)
-                })
+      setTimeout(()=>{
 
-                ControlEmpresa.getAdminByEmpresa(data)
-                .then(res => {
-                    setAdministrador(res[0])
-                    console.log(res)
-                })
-            })
-        }, 1000)}
+        ControlEmpresa.isAdmin({nif:idempresa},usuarioSesion)
+        .then(data => {
+            setUsuarioIsAdmin(data)
+
+            if(data){
+              ControlEmpresa.getById(idempresa)
+              .then(data=>{
+                  setEmpresa(data);
+                  setNif(data.nif);
+                  setNombre(data.nombre);
+                  setRazonSocial(data.razonSocial);
+                  setTipoVia({label:data.tipoVia,id:data.tipoVia});
+                  setNombreVia(data.nombreVia);
+                  setNumVia(data.numVia);
+                  setLocalidad(data.localidad)
+                  setProvincia(data.provincia)
+                  setCodigoPuerta(data.codigoPuerta)
+                  
+
+                  ControlEmpresa.getUsuariosByEmpresa(data)
+                  .then(res => {
+                      setUsuarios(res)
+                      setIsPending(false)
+                  })
+
+                  ControlEmpresa.getAdminByEmpresa(data)
+                  .then(res => {
+                      setAdmins(res)
+                      setIsPending(false)
+                  })
+              })
+            }
+        })
+        
+          
+      }, 1000)
+
+    }
+
+        
 
         setIsPending(false)
 
         return abortCont.abort();
 
-  },[idempresa])
+  },[])
 
   
   const handleCreate = (e) =>{
@@ -94,35 +120,77 @@ const CompanyForm = () => {
     e.preventDefault();
 
     const nuevaEmpresa = new Empresa(nif, razonSocial, nombre,
-                                    tipoVia.id || '', nombreVia, numVia, codigoPuerta)
+                                    tipoVia.id || '', nombreVia, numVia, codigoPuerta,
+                                    localidad, provincia)
 
     if(idempresa){
-      console.log(nuevaEmpresa)
+      
+      setIsPending(true)
+
       ControlEmpresa.edit(nuevaEmpresa)
       .then(data =>{
         if(data.error != null){
           notificar(data.message+" "+data.error.message)
         }else if(data.message != null){
           notificar(data.message)
-          history.go(-2)
-        }
-          console.log(data)
+        }else{
           setErrores(data);
-      })
+        }
+          
+          
 
+          ControlEmpresa.moidfyUsuariosBulk(nuevaEmpresa, usuarios, admins)
+          .then(res => {
+              
+              if(res.administrador != null){
+                  data.administrador = {empty:res.administrador};
+                  notificar(res.administrador);
+                  setErrores(data);
+                  
+              }else{
+                history.go(-1)
+              }
+
+              setIsPending(false)
+              
+              
+          })
+          
+      })
+      
     }else{
-      console.log(nuevaEmpresa)
-      ControlEmpresa.create(nuevaEmpresa)
+
+      if(admins.length>0){ControlEmpresa.create(nuevaEmpresa)
       .then(data =>{
         if(data.error != null){
           notificar(data.message+" "+data.error.message)
         }else if(data.message != null){
           notificar(data.message)
-          history.go(-2)
+
+          console.log(usuarios)
+          console.log(admins)
+          ControlEmpresa.addUsuariosBulk(data.empresa,usuarios,admins)
+          .then(res => {
+            
+            if(res.administrador != null){
+              data.administrador = {empty:res.administrador};
+              notificar(res.administrador);
+              setErrores(data);
+            }else{
+              history.go(-1)
+            }
+
+            setIsPending(false)
+
+          })
+
+          
         }
           console.log(data)
           setErrores(data);
-      })
+      })}else{
+        setErrores({administrador:{empty:"Debe introducirse un administrador."}})
+      }
     }
 
   }
@@ -130,7 +198,8 @@ const CompanyForm = () => {
     return (
         <Box>
           { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-          <div>
+      {(usuarioIsAdmin || (idempresa == null))
+      ?<div>
         <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Editar empresa {empresa.nombre || "nueva"}</Typography>
 
         <Box display="flex">
@@ -219,33 +288,36 @@ const CompanyForm = () => {
           errores={errores.razonsocial || null} />
 
         <Box margin={2}>
-          <Typography for="administrador" color="text.secondary" align="left" >Administrador</Typography>
+          <Typography for="administrador" color="text.secondary" align="left" >Administradores</Typography>
 
-          {administrador && <Box display="flex">
-              {(empresa.usuarios != null)?<Autocomplete
-              options={empresa.usuarios}
-              defaultValue={administrador}
-              value={administrador}
-              onChange={(e,value)=>setAdministrador(value)}
-              getOptionLabel={option => option.email}
-              id="administrador"
-              renderInput={(params) => (
-                  <TextField {...params} label="Miembros" variant="standard" />
-                )}
-              />:null}
-          </Box>}
+          { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+          {usuarios && <InputUsuarioEmpresa 
+                                              opciones={usuarios}
+                                              errores={errores.administrador||null} 
+                                              usuarios={admins}
+                                              setUsuarios={setAdmins}/>}
+          
 
         </Box>
-
+        <Box margin={2}>
+        <Typography for="administrador" color="text.secondary" align="left" >Miembros</Typography>
+        { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                    {(usuarios) && <InputUsuarioEmpresa 
+                                              
+                                              errores={errores.usuarios||null} 
+                                              usuarios={usuarios}
+                                              setUsuarios={setUsuarios}/>}
+      </Box>
+    
+      
       
     </Box>
 
-    <InputUsuario tabla={empresa} errores={errores.usuarios || null} usuarios={empresa.usuarios || null}/>
       
-    </div> 
+    </div> :<AccessDenied/>}
           
         </Box>
-
+      
      );
 }
 

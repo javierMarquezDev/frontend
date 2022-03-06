@@ -65,14 +65,76 @@ let srvDaoGrupoProyecto = class groupProject{
 
     }
 
+    static async addUsuariosBulk(grupo, usuarios){
+
+        let rows = [];
+
+        usuarios.forEach(element => {
+
+            rows.push({empresagrupo:grupo.empresa, codigogrupo:grupo.codigo, usuario:element.email, admin:false});
+            
+        });
+
+        return await fetch(
+            connectionStr+"grupousuarios/bulk/",
+            {
+                mode: 'cors',
+                method: 'POST',
+                headers:{
+                    "access-token":localStorage.getItem('token'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(rows)
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            return data;
+        })
+
+    }
+
+    static async modifyUsuariosBulk(grupo, usuarios){
+
+        let rows = [];
+
+        usuarios.forEach(element => {
+
+            rows.push({empresagrupo:grupo.empresa.nif, codigogrupo:grupo.codigo, usuario:element.email, admin:false});
+            
+        });
+
+        return await fetch(
+            connectionStr+"grupousuarios/bulk/"+grupo.empresa.nif+"/"+grupo.codigo,
+            {
+                mode: 'cors',
+                method: 'POST',
+                headers:{
+                    "access-token":localStorage.getItem('token'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(rows)
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            return data;
+        })
+
+    }
+
     static async isMember(usuario, grupo){
+
+        console.log(usuario,grupo)
 
         const email = usuario.email;
         const grupocodigo = grupo.codigo;
         const grupoempresa = grupo.empresa.nif;
 
         return await fetch(
-            config.str+"usuariogrupos/"+email+"/"+grupocodigo+"/"+grupoempresa,
+            config.route+"usuariogrupos/"+email+"/"+grupocodigo+"/"+grupoempresa,
             {
                 mode: 'cors',
                 method: 'GET',
@@ -83,7 +145,7 @@ let srvDaoGrupoProyecto = class groupProject{
             }
         ).then((response) => response.json())
         .then(data => {
-            
+
             return data;
         })        
 
@@ -131,6 +193,8 @@ let srvDaoGrupoProyecto = class groupProject{
 
     static async edit(grupoJson){
 
+        console.log(grupoJson)
+
         return await fetch(
             connectionStr+grupoJson.empresa+"/"+grupoJson.codigo,
             {
@@ -154,8 +218,10 @@ let srvDaoGrupoProyecto = class groupProject{
 
     static async delete(grupoJson){
 
+        console.log(grupoJson)
+
         return await fetch(
-            connectionStr+grupoJson.empresa+"/"+grupoJson.codigo,
+            connectionStr+grupoJson.empresa.nif+"/"+grupoJson.codigo,
             {
                 mode: 'cors',
                 method: 'DELETE',
@@ -204,8 +270,10 @@ let srvDaoGrupoProyecto = class groupProject{
             "empresagrupo":nif
         }
 
+        console.log(usuariogrupo)
+
         return await fetch(
-            connectionStr,
+            connectionStr+nif+"/"+id,
             {
                 mode: 'cors',
                 method: 'POST',
@@ -227,7 +295,7 @@ let srvDaoGrupoProyecto = class groupProject{
 
     static async removeUsuario(email, id, empresa){
         return await fetch(
-            connectionStr+email+"/"+id+"/"+empresa,
+            config.route+"usuariogrupos/"+email+"/"+id+"/"+empresa,
             {
                 mode: 'cors',
                 method: 'DELETE',

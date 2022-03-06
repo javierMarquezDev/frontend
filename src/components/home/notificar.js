@@ -1,5 +1,10 @@
-const notificar = (texto) =>{
-    alert(texto)
+
+
+const notificar = (message) =>{
+
+    alert(message)
+
+    
 }
 
 export default notificar;
