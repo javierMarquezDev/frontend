@@ -3,25 +3,26 @@ import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import Usuario from "../../back/model/Usuario";
 import InputTexto from "../form/InputTexto";
-import TiposVia from "../../back/model/TiposVia";
+
 import ControlUsuario from "../../back/control/controlUsuario";
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import ErroresCampo from "../form/ErroresCampo";
-import notificar from "../home/notificar";
 import { UserContext } from "../../App";
 import AccessDenied from "../home/acessDenied";
+import useNotificar from "../home/notificar";
 
-const UserForm = () => {
+const UserForm = (props) => {
 
-    const tiposVia = TiposVia;
+    const notificar = useNotificar();
+
+    
     const {idusuario} = useParams();
     const [usuario,setUsuario] = useState(new Usuario());
     const history = useHistory();
 
     const valueSesion = React.useContext(UserContext);
     const usuarioSesion = valueSesion.usuario;
-    const token = valueSesion.token;
 
     const [email,setEmail] = useState('');
     const [contrasena, setContrasena] = useState('');
@@ -29,7 +30,7 @@ const UserForm = () => {
     const [nombre,setNombre] = useState('');
     const [apellido1,setApellido1] = useState('');
     const [apellido2,setApellido2] = useState('');
-    const [tipoVia,setTipoVia] = useState('');
+    
     const [nombreVia,setNombreVia] = useState('');
     const [numVia,setNumVia] = useState('');
     const [codigoPuerta,setCodigoPuerta] = useState('');
@@ -44,32 +45,39 @@ const UserForm = () => {
         const abortCont = new AbortController();
 
         if(usuarioSesion){
-          if(usuarioSesion.email == idusuario)
+          if(usuarioSesion.email === idusuario){
             setUsuarioIsAdmin(true);
+
+            if(idusuario){setTimeout(()=>{
+              ControlUsuario.getById(idusuario)
+              .then(res =>{
+                  console.log(res)
+                setUsuario(res)
+    
+                setEmail(res.email)
+                setDni(res.dni)
+                setNombre(res.nombre)
+                setApellido1(res.apellido1)
+                setApellido2(res.apellido2 || '')
+                
+                setNombreVia(res.nombrevia)
+                setNumVia(res.numvia)
+                setCodigoPuerta(res.codigoPuerta || '')
+                setLocalidad(res.localidad)
+                setProvincia(res.provincia)
+    
+                setIsPending(false)
+              })
+            }, 1000)}
+    
+
+
+          }
 
         }
           
 
-        if(idusuario){setTimeout(()=>{
-          ControlUsuario.getById(idusuario)
-          .then(res =>{
-              console.log(res)
-            setUsuario(res)
-
-            setEmail(res.email)
-            setDni(res.dni)
-            setNombre(res.nombre)
-            setApellido1(res.apellido1)
-            setApellido2(res.apellido2 || '')
-            setTipoVia({label:res.tipovia,id:res.tipovia})
-            setNombreVia(res.nombrevia)
-            setNumVia(res.numvia)
-            setCodigoPuerta(res.codigoPuerta || '')
-
-            setIsPending(false)
-          })
-        }, 1000)}
-
+        
         return abortCont.abort();
 
     },[idusuario])
@@ -78,19 +86,20 @@ const UserForm = () => {
 
       e.preventDefault();
 
-      const nuevoUsuario = new Usuario(email, contrasena, dni, nombre,
-        apellido1, apellido2, tipoVia.id, nombreVia,
-        numVia, codigoPuerta);
+      const nuevoUsuario = new Usuario(email, null, dni, nombre,
+        apellido1, apellido2, nombreVia,
+        numVia, codigoPuerta,null,localidad,provincia);
 
       if(idusuario){
         ControlUsuario.edit(nuevoUsuario)
         .then(data =>{
           if(data.error != null){
-            notificar(data.message+" "+data.error.message)
+            notificar({type:"ERROR",message:data.message})
           }else
           if(data.message != null){
-            history.go(-2)
-            notificar(data.message)
+            props.setHasChanged(true)
+            history.push(`/${idusuario}/perfil`)
+            notificar({type:"SUCCESS",message:data.error})
           }
             setErrores(data);
         })
@@ -98,11 +107,11 @@ const UserForm = () => {
         ControlUsuario.create(nuevoUsuario)
         .then(data => {
           if(data.error != null){
-            notificar(data.message+" "+data.error)
+            notificar({type:"ERROR",message:data.message})
           }else
           if(data.message != null){
             history.push('/login')
-            notificar(data.message)
+            notificar({type:"SUCCESS",message:data.message})
           }
             setErrores(data);
         })
@@ -111,19 +120,20 @@ const UserForm = () => {
     }
 
     return ( <div>
-      {((idusuario && usuarioIsAdmin) || (!idusuario && !usuarioIsAdmin))
-      ?<div>
-        <Typography align="left" variant="h5">Editar usuario {(usuario.email==null)?"nuevo":""}</Typography>
+      <Box sx={{margin:2}}>
 
         { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+
+        <Typography align="left" variant="h5" marginTop={4} marginBottom={2} >Editar usuario {(usuario.email==null)?"nuevo":usuario.email}</Typography>
+
+        <Button variant="contained" onClick={(e)=>handleCreate(e)}>Terminar</Button>
+
         {usuario && <Box
           component="form"
           sx={{
             '& .MuiTextField-root': { m: 1, width: '25ch' },
             width:'70%'
           }}
-          noValidate
-          autoComplete="off"
         >
             <InputTexto formalName="Dirección de e-mail" 
                         required = {true}
@@ -135,7 +145,7 @@ const UserForm = () => {
                         sx={{margin:2}}
                         />
 
-            <InputTexto formalName="Contraseña" 
+            {/*<InputTexto formalName="Contraseña" 
                         required = {true}
                         id = "contrasena"
                         property={contrasena} 
@@ -144,7 +154,7 @@ const UserForm = () => {
                         
                         password={true}
                         sx={{margin:2}}
-                        />
+        />*/}
 
             <InputTexto formalName="DNI" 
                         required = {true}
@@ -186,7 +196,7 @@ const UserForm = () => {
                         sx={{margin:2}}
                         />
 
-            <Box sx={{margin:2}}>
+            {/*<Box sx={{margin:2}}>
                 <Box display="flex">
                     {(tiposVia.length)?<Autocomplete
                     options={tiposVia}
@@ -201,7 +211,7 @@ const UserForm = () => {
                 </Box>
 
                 <ErroresCampo errores={errores.tipovia}/>
-            </Box>
+            </Box>*/}
 
             <InputTexto formalName="Nombre de vía" 
                         required = {true}
@@ -233,18 +243,21 @@ const UserForm = () => {
                       id = "localidad"
                       property={localidad} 
                       setProperty={setLocalidad} 
-                      errores={errores.localidad || null} />
+                      errores={errores.localidad || null}
+                      sx={{margin:2}}/>
 
             <InputTexto formalName="Provincia" 
                       id = "provincia"
                       property={provincia} 
                       setProperty={setProvincia} 
-                      errores={errores.provincia || null} />
+                      errores={errores.provincia || null}
+                      sx={{margin:2}}/>
             </Box>}
 
-        <Button variant="contained" onClick={(e)=>handleCreate(e)}>Terminar</Button>
-    </div>
-    :<AccessDenied/>} </div>);
+        
+    </Box>
+    
+    </div>);
 }
  
 export default UserForm;

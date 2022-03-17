@@ -27,7 +27,7 @@ const RowUsuario = (props) => {
             <TableCell align="right">{row.nombre}</TableCell>
             <TableCell align="right">{row.apellido1}</TableCell>
             {(apellido2)?<TableCell align="right">{row.apellido2}</TableCell>:""}
-            <TableCell align="right">{row.tipovia}{row.nombrevia}&nbsp;{row.numvia}&nbsp;{row.codigoPuerta}</TableCell>
+            <TableCell align="right">{row.nombrevia}&nbsp;{row.numvia}&nbsp;{row.codigoPuerta}</TableCell>
             <TableCell align="right">{row.fechaHora}</TableCell>
             <TableCell align="right">{row.finalizado}</TableCell>
             <TableCell align="right">{(row.admin)?"Admin":"No admin"}</TableCell>

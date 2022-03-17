@@ -55,10 +55,12 @@ const InputUsuarioEmpresa = (props) => {
     //Añadir usuario
     const nuevoUsuario = () =>{
 
+        const usuario = (opciones)?usuarioNuevo:{email:usuarioNuevo};
+
         setIsPending(true);
 
         //Comprobar si existe
-        ControlUsuario.getById(usuarioNuevo)
+        ControlUsuario.getById(usuario.email)
         .then(data => {
             if(data.error){
 
@@ -72,8 +74,8 @@ const InputUsuarioEmpresa = (props) => {
                     setErrores(null);
                     let array = usuarios;
 
-                    if(array.find(element => element.email == usuarioNuevo) === undefined){
-                        array.push({email:usuarioNuevo})
+                    if(array.find(element => element.email == usuario.email) === undefined){
+                        array.push(usuario)
                         setUsuarios(array);
                         
                     }
@@ -133,8 +135,8 @@ const InputUsuarioEmpresa = (props) => {
                             <Autocomplete
                             
                             options={opciones}
-                            value={{email:usuarioNuevo}}
-                            onChange={(e,value)=>setUsuarioNuevo(value.email)}
+                            value={usuarioNuevo}
+                            onChange={(e,value)=>setUsuarioNuevo(value)}
                             getOptionLabel={option => option.email}
                             id="usuarios"
                             selectOnFocus

@@ -5,15 +5,17 @@ import { useParams } from "react-router-dom";
 import ControlNoticia from "../../back/control/controlNoticia";
 import Noticia from "../../back/model/Noticia";
 import InputTexto from "../form/InputTexto";
-import notificar from "../home/notificar";
 import { useHistory } from "react-router-dom";
 import ControlGrupo from "../../back/control/controlGrupoProyecto";
 import ControlSesion from "../../back/control/controlSesion";
 import { UserContext } from "../../App";
 import AccessDenied from "../home/acessDenied";
+import useNotificar from "../home/notificar";
 
 
-const NewsForm = () => {
+const NewsForm = (props) => {
+
+  const notificar = useNotificar();
 
     const valueSesion = React.useContext(UserContext);
     const usuarioSesion = valueSesion.usuario;
@@ -31,13 +33,15 @@ const NewsForm = () => {
     const [isPending, setIsPending] = useState(true);
     const [usuarioIsAdmin,setUsuarioIsAdmin] = useState(false);
     const [usuarioIsPoster,setUsuarioIsPoster] = useState(false);
+    const setHasChanged = props.setHasChanged;
 
     useEffect(()=>{
 
         const abortCont = new AbortController();
 
         setTimeout(()=>{
-          if(autor && codigo){ControlNoticia.getById(grupoempresa,grupocodigo,autor,codigo)
+          if(autor && codigo){
+            ControlNoticia.getById(grupoempresa,grupocodigo,autor,codigo)
           .then(res =>{
                         
               setNoticia(res)
@@ -78,11 +82,12 @@ const NewsForm = () => {
         ControlNoticia.edit(nuevaNoticia)
         .then(data=>{
           if(data.error != null){
-            notificar(data.message+" "+data.error.message)
+            notificar({type:"ERROR",message:data.message})
           }else
           if(data.message != null){
-            history.go(-1)
-            notificar(data.message)
+            notificar({type:"SUCCESS",message:data.message})
+            setHasChanged(true);
+            history.push(`/grupos/${grupoempresa}/${grupocodigo}/noticias`)
           }
             setErrores(data);
         })
@@ -92,11 +97,12 @@ const NewsForm = () => {
         ControlNoticia.create(nuevaNoticia)
         .then(data =>{
           if(data.error != null){
-            notificar(data.message+" "+data.error)
+            notificar({type:"ERROR",message:data.message})
           }else
           if(data.message != null){
-            history.go(0)
-            notificar(data.message)
+            notificar({type:"SUCCESS",message:"Noticia publicada con éxito."})
+            setHasChanged(true);
+            
           }
             setErrores(data);
         })
@@ -107,7 +113,7 @@ const NewsForm = () => {
 
     return ( <div>
         {(noticia || grupo) && 
-        ((codigo && autor)?((usuarioIsPoster)?<Box sx={{width:'100%'}} display="flex">
+        <Box sx={{width:'100%'}} display="flex">
         <InputTexto formalName={(noticia.codigo)?"Editar noticia":"Escribir noticia" }
                     required = {true}
                     id = "texto"
@@ -116,21 +122,9 @@ const NewsForm = () => {
                     errores={errores.texto || null}
                     multiline={true}
                     sx={{width:'100%',margin:2}} />
-        <Button variant="contained" onClick={(e)=>handleSubmit(e)}>Publicar</Button>
-    </Box>
-    :<AccessDenied/>)
-    :
-    <Box sx={{width:'100%'}} display="flex">
-        <InputTexto formalName={(noticia.codigo)?"Editar noticia":"Escribir noticia" }
-                    required = {true}
-                    id = "texto"
-                    property={texto} 
-                    setProperty={setTexto} 
-                    errores={errores.texto || null}
-                    multiline={true}
-                    sx={{width:'100%',margin:2}} />
-        <Button variant="contained" onClick={(e)=>handleSubmit(e)}>Publicar</Button>
-    </Box>)}
+        <Button variant="contained" onClick={(e)=>{setTexto(''); handleSubmit(e)}}>Publicar</Button>
+    </Box>}
+    
     </div> );
 }
  

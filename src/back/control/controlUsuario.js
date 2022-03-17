@@ -4,6 +4,10 @@ import Usuario from "../model/Usuario";
 import Mapper from "../utils/mapper"
 import SrvDaoUsuario from "../srvcDao/srvDaoUsuario";
 
+
+/**
+ * Clase para el control de la entidad Usuario
+ */
 let ControlUsuario = class controlUsuario {
 
     static async create(usuario){
@@ -36,6 +40,8 @@ let ControlUsuario = class controlUsuario {
             return("Información no válida.");
 
         const usuarioJson = this.convert(usuario);
+
+        delete usuario.contrasena;
 
         return SrvDaoUsuario.edit(usuarioJson);
 
@@ -114,8 +120,15 @@ let ControlUsuario = class controlUsuario {
 
     }
 
-    //convert
+    static async changePass(usuario,pass){
+        return await SrvDaoUsuario.edit({email:usuario.email,contrasena:pass});
+    }
 
+        /**
+     * Mapear objeto de la clase Usuario para enviarlo a base de datos o viceversa
+     * @param {Object} data 
+     * @returns {Object} data
+     */
     static convert(data){
 
         let usuario = null;
@@ -137,6 +150,8 @@ let ControlUsuario = class controlUsuario {
          return usuario;
 
     }
+
+
 }
 
 export default ControlUsuario;

@@ -21,7 +21,6 @@ let Mapper = class mapper{
         userJson.nombre = user.nombre;
         userJson.apellido1 = user.apellido1;
         userJson.apellido2 = user.apellido2;
-        userJson.tipovia = user.tipovia;
         userJson.nombrevia = user.nombrevia;
         userJson.numvia = user.numvia;
         userJson.codigopuerta = user.codigoPuerta || '';
@@ -40,7 +39,7 @@ let Mapper = class mapper{
         return new Usuario(
             str.email, str.contrasena, str.dni,
             str.nombre, str.apellido1, str.apellido2,
-            str.tipovia, str.nombrevia, str.numvia, str.codigopuerta || null, str.notificaciones && [],
+            str.nombrevia, str.numvia, str.codigopuerta || null, str.notificaciones && [],
             str.localidad, str.provincia
         );
 
@@ -78,7 +77,6 @@ let Mapper = class mapper{
         empresaJson.nif = empresa.nif;
         empresaJson.razonsocial = empresa.razonSocial;
         empresaJson.nombre = empresa.nombre;
-        empresaJson.tipovia = empresa.tipoVia;
         empresaJson.nombrevia = empresa.nombreVia;
         empresaJson.numvia = empresa.numVia;
         empresaJson.codigopuerta = empresa.codigoPuerta;
@@ -91,7 +89,7 @@ let Mapper = class mapper{
     static jsonToEmpresa(str, admin, grupoProyectos = [], usuarios = []){
 
         return new Empresa(
-            str.nif, str.razonsocial, str.nombre, str.tipovia, str.nombrevia,
+            str.nif, str.razonsocial, str.nombre, str.nombrevia,
             str.numvia, str.codigopuerta, str.localidad, str.provincia, grupoProyectos);  
 
     }

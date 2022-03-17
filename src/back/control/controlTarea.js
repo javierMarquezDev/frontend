@@ -3,8 +3,11 @@ import ControlGrupoProyecto from "./controlGrupoProyecto";
 import ControlUsuario from "./controlUsuario";
 import Mapper from "../utils/mapper";
 import Tarea from "../model/Tarea"
-import ControlArchivo from '../control/controlArchivo';
 
+
+/**
+ * Clase para el control de la entidad Tarea
+ */
 let ControlTarea = class controlTarea{
 
     static async create(tarea){
@@ -123,10 +126,10 @@ let ControlTarea = class controlTarea{
 
     //convert
 
-    /**
-     * Convertir json en objeto Tarea,
-     * y sus respectivos objetos anidados.
-     * @param {*} data 
+        /**
+     * Mapear objeto de la clase Tarea para enviarlo a base de datos o viceversa
+     * @param {Object} data 
+     * @returns {Object} data
      */
      static convert(data){
 

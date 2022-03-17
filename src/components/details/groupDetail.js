@@ -2,8 +2,7 @@ import { Link, useRouteMatch } from "react-router-dom";
 import { useParams, Switch, Route } from "react-router-dom";
 import GroupForm from "../forms/groupForm";
 import TaskList from "../lists/taskList";
-import GroupUserList from "../lists/groupUserList";
-import CompanyUserList from '../lists/companyUserList';
+
 import UserForm from "../forms/userForm";
 import Typography from "@mui/material/Typography"
 import Box from "@mui/material/Box"
@@ -18,14 +17,17 @@ import ControlUsuario from "../../back/control/controlUsuario";
 import ControlSesion from "../../back/control/controlSesion";
 import { UserContext } from "../../App";
 import AccessDenied from "../home/acessDenied";
+import NewsList from "../lists/newsList";
 
 const handleDelete = (grupo) => {}
 
-const GroupDetail = () => {
+const GroupDetail = (props) => {
     const {grupocodigo} = useParams();
     const {grupoempresa} = useParams();
     const match = useRouteMatch();
     const [member,setMember] = useState(false);
+    const [admin,setAdmin] = useState(false);
+    const [hasChanged,setHasChanged] = useState(false);
 
     const [grupo,setGrupo] = useState(null);
     const [isPending, setIsPending] = useState(true);
@@ -42,15 +44,23 @@ const GroupDetail = () => {
         setTimeout(()=>{
             ControlGrupo.isMember(usuario,{codigo:grupocodigo,empresa:{nif:grupoempresa}})
             .then(data => {
+
+                console.log(data)
                 
                 setMember(data);
+
+                
                 if(data){
 
                     ControlGrupo.getById({nif:grupoempresa},grupocodigo)
-                    .then(data=>{
-                        if(data.administrador.email == usuario.email)
-                            data.admin = true;
+                    .then(data => {
                         setGrupo(data);
+
+
+                        ControlGrupo.isAdmin(data,usuario)
+                        .then(data => {
+                            setAdmin(data);
+                        })
                         setIsPending(false)
                     })
 
@@ -60,32 +70,45 @@ const GroupDetail = () => {
 
         return abortCont.abort();
 
-    }, [grupocodigo,grupoempresa])
+    }, [grupocodigo,grupoempresa,hasChanged])
 
     return ( 
         <div>
             
-            {(member)
-            ?<Switch>
-                <Route exact path={`${match.path}`}>
+            <Switch>
+                {(member)
+                ?
+                    <Route exact path={`${match.path}`}>
+                        
+                    { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                    {grupo && <InfoGrupo grupo={grupo} match={match} admin={admin}/>}
                     
-                { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                {grupo && <InfoGrupo grupo={grupo} match={match}/>}
-                
+                    </Route>
+                :""}
+
+                {(admin)
+                ?
+                <Route exact path={`${match.path}/editar`}> 
+                    <GroupForm setHasChanged={setHasChanged}/>
                 </Route>
-                <Route path={`${match.path}/editar`}>
-                    {grupo && (grupo.admin)
-                    ?<GroupForm />
-                    :<AccessDenied/>}
+                :""}
+                {(member)
+                    ?
+                <Route path={`${match.path}/tareas`}> 
+                    <TaskList />
                 </Route>
-                <Route path={`${match.path}/tareas`}>
-                    <TaskList/>
+                :""}
+                {(member)
+                    ?
+                <Route path={`${match.path}/noticias`}> 
+                    <NewsList />
                 </Route>
-                <Route path={`${match.path}/usuarios`}>
-                    <GroupUserList />
+                :""}
+                <Route path="*">
+                    <AccessDenied/>
                 </Route>
             </Switch>
-            :<AccessDenied/>}
+            
         </div>
      );
 }
@@ -151,12 +174,17 @@ const InfoGrupo = (props)=>{
 
     const grupo = props.grupo;
     const match = props.match;
+    const admin = props.admin;
 
     return(
     <Box>
         <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Información del grupo "{grupo.nombre}"</Typography>
 
-        {(grupo.admin?<BotonesEditable match={match} handleDelete={handleDelete} grupo={grupo}/>:null)}
+        <Box>
+            <Link to={`/grupos/${grupo.empresa.nif}/${grupo.codigo}/noticias`}><Button variant="contained">Feed</Button></Link>
+        </Box>
+
+        {(admin?<BotonesEditable match={match} handleDelete={handleDelete} grupo={grupo}/>:null)}
 
         <Grid container spacing={2} marginTop={2}>
                 <Grid item xs={4} sx={{padding:1}}>
@@ -197,22 +225,22 @@ const InfoGrupo = (props)=>{
                     </Box>
                 </Grid>
 
-                <Grid item xs={4} sx={{padding:1}}>
+                {/*<Grid item xs={4} sx={{padding:1}}>
                     <Box id="administrador" margin={1} padding={1}>
                         <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Administrador</Typography>
                         <Box display="flex">
                             <Card id="administrador">
-                                {(grupo.administrador.email)?<InfoAdmin admin={grupo.administrador}/>:<Typography sx={{fontSize:12}} align="left">Sin información</Typography>}
+                                {(administrador.email)?<InfoAdmin admin={administrador}/>:<Typography sx={{fontSize:12}} align="left">Sin información</Typography>}
                             </Card>
                         </Box>
                     </Box>
-                </Grid>
+                </Grid>*/}
 
-                <Grid item xs={6} sx={{padding:1}}>
+                {/*<Grid item xs={6} sx={{padding:1}}>
                     <Box id="administrador" margin={1} padding={1} display="flex">
                         <Link to={`${match.url}/usuarios`}><Button variant="contained">Miembros</Button></Link>
                     </Box>
-                </Grid>
+            </Grid>*/}
 
                 <Grid item xs={6} sx={{padding:1}}>
                     <Box id="administrador" margin={1} padding={1} display="flex">

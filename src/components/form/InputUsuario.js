@@ -50,8 +50,7 @@ const InputUsuario = (props) => {
     useEffect(() => {
         const abortCont = new AbortController();
 
-        setUsuariosNuevos(usuarios || [])
-        setUsuarios(usuarios || []);
+        //setUsuarios(usuarios || [])
   
         setTimeout(()=>{
 
@@ -64,13 +63,14 @@ const InputUsuario = (props) => {
         }, 1000)
 
         return abortCont.abort();
-    },[empresa]);
+    },[empresa,usuarios]);
 
 
     //Añadir usuario
     const nuevoUsuario = () =>{
 
         setIsPending(true)
+        console.log(usuarioNuevo)
 
 
         //Comprobar si existe
@@ -80,58 +80,39 @@ const InputUsuario = (props) => {
             .then(data => {
                 if(data.error){
                     setErrores({"usuario":data});
+                    setIsPending(false);
                     return;
                 }else{
-                    
-                        if(empresa){
-                            //Comprobar si es miembro de la empresa
-                            
-                            ControlEmpresa.isMember(empresa, {email:usuarioNuevo.email})
-                            .then(data => {{
-                                console.log(empresa)
-                                console.log(data)
-                                if(data === false){
-                                    setErrores({usuario:{miembro:"El usuario no pertenece a la empresa"}})
-                                }else{
             
-                                    setErrores(null)
+                    setErrores(null)
 
-                                    let array = usuariosNuevos;
+                    let array = usuarios;
 
-                                    if(array.find(element => element.email == usuarioNuevo.email) === undefined){
-                                    
-                                        
-                                        array.push(usuarioNuevo)
-                                        setUsuarios(array);
-                                        setUsuariosNuevos(array)
-                                        
-                                    }
-                                    
-            
-                                }
-                            }})
-            
-                        }else{
-                            setErrores({usuario:{empresa: "Es obligatorio rellenar la empresa"}})
-                            
-                        }
-            
+                    if(array.find(element => element.email == usuarioNuevo.email) === undefined){
                     
-            
+                        
+                        array.push(usuarioNuevo)
+
+                        setUsuarios(array)
+                        
+                    }
+
+                    setIsPending(false)
+
                 }
                 
             })
         }
         
-        setIsPending(false)
+        
         
     }
 
     const deleteUsuario = (eliminado, tabla) =>{
 
-        let array = usuariosNuevos;
+        let array = usuarios;
         let nuevoArray = array.filter(element => element.email != eliminado.email)
-        setUsuariosNuevos(nuevoArray);
+        
         setUsuarios(nuevoArray);
         
     }
@@ -152,9 +133,6 @@ const InputUsuario = (props) => {
                         getOptionLabel={option => option.email}
                         id="usuarios"
                         selectOnFocus
-                        clearOnBlur
-                        handleHomeEndKeys
-                        freeSolo
                         sx={{width:'20%'}}
                         renderInput={(params) => (
                             <TextField {...params} label="Miembros de la empresa" variant="standard" />
@@ -177,7 +155,7 @@ const InputUsuario = (props) => {
             <Grid item xs={12}>
                 <List sx={{width:'70%'}}>
                 { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                    {usuariosNuevos && usuariosNuevos.map((usuario)=>{
+                    {usuarios.map((usuario)=>{
                         return(
                             <ListItem 
                             value={usuario}

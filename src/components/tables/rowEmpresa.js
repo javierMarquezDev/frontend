@@ -16,7 +16,7 @@ const RowEmpresa = (props) => {
 
     useEffect(()=>{
         ControlEmpresa.isAdmin(row,usuario).then((res)=>{
-            (res)?setAdmin(true):setAdmin(false);
+            if(res)setAdmin(true)
         })
     });
 
@@ -38,17 +38,17 @@ const RowEmpresa = (props) => {
             {row.nif}
             </TableCell>
             <TableCell align="right">{row.nombre}</TableCell>
-            <TableCell align="right">{row.tipoVia}&nbsp;{row.nombreVia}&nbsp;{row.numVia}&nbsp;{row.codigoPuerta || null} </TableCell>
             <TableCell align="right">{row.razonSocial}</TableCell>
-            <TableCell align="right">{admin && (admin)?"Admin":"No admin"}</TableCell>
+            <TableCell align="right">{row.nombreVia}&nbsp;{row.numVia}&nbsp;{row.codigoPuerta}</TableCell>
+            <TableCell align="right">{(admin)?"Admin":"No admin"}</TableCell>
             <TableCell align="right">
                 <Button variant="outlined">
                     <Link style={{textDecoration:"none"}} to={"/empresas/"+row.nif}>VER</Link>
                 </Button>
             </TableCell>
 
-            {admin && (admin)?<CellEdit row={row}/>:""}
-            {admin && (admin)?<CellDelete row={row} handleDelete={handleDelete} />:""}
+            {(admin)?<CellEdit row={row}/>:""}
+            {(admin)?<CellDelete row={row} handleDelete={handleDelete} />:""}
             
             
         </TableRow>

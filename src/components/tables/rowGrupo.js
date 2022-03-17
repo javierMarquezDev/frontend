@@ -1,7 +1,8 @@
 import { Button, TableCell, TableRow, Typography } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { UserContext } from "../../App";
+import ControlGrupo from "../../back/control/controlGrupoProyecto";
 import ControlSesion from "../../back/control/controlSesion";
 
 const RowGrupo = (props) => {
@@ -11,12 +12,13 @@ const RowGrupo = (props) => {
     const value = React.useContext(UserContext);
     const usuario = value.usuario;
     const token = value.token;
+    const [admin,setAdmin] = useState(false);
 
-    if(usuario.email == row.administrador.email){
-        row.admin = true
-    }else{
-        row.admin = false;
-    }
+    useEffect(()=>{
+        ControlGrupo.isAdmin(row,usuario).then((res)=>{
+            (res)?setAdmin(true):setAdmin(false);
+        })
+    });
 
     
 
@@ -45,15 +47,15 @@ const RowGrupo = (props) => {
                                     "-"+row.fechaHora.getDate()+` `+row.fechaHora.getHours().toString().padStart(2,'0')+":"
                                     +row.fechaHora.getMinutes().toString().padStart(2,'0')+"h"}</Typography>}</TableCell>
             <TableCell align="right">{row.finalizado}</TableCell>
-            <TableCell align="right">{(row.admin)?"Admin":"No admin"}</TableCell>
+            <TableCell align="right">{admin && (admin)?"Admin":"No admin"}</TableCell>
             <TableCell align="right">
                 <Button variant="outlined">
                     <Link style={{textDecoration:"none"}} to={"/grupos/"+row.empresa.nif+"/"+row.codigo+"/noticias"}>VER</Link>
                 </Button>
             </TableCell>
 
-            {(row.admin)?<CellEdit row={row}/>:""}
-            {(row.admin)?<CellDelete row={row} handleDelete={handleDelete}/>:""}
+            {(admin)?<CellEdit row={row}/>:""}
+            {(admin)?<CellDelete row={row} handleDelete={handleDelete}/>:""}
             
             
         </TableRow>

@@ -4,6 +4,9 @@ import ControlUsuario from "./controlUsuario";
 import SrvDaoNoticia from "../srvcDao/srvDaoNoticia";
 import Mapper from "../utils/mapper";
 
+/**
+ * Clase para el control de la entidad Noticia
+ */
 let ControlNoticia = class ctrlNews{
 
     static async edit(noticia){
@@ -77,8 +80,11 @@ let ControlNoticia = class ctrlNews{
 
     }
 
-    //convert
-    
+        /**
+     * Mapear objeto de la clase Noticia para enviarlo a base de datos o viceversa
+     * @param {Object} data 
+     * @returns {Object} data
+     */
     static async convert(data){
 
         let noticia = null;

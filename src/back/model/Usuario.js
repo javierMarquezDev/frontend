@@ -2,7 +2,7 @@ let Usuario = class User {
 
     //Constructor genérico
     constructor(email = null, contrasena = null, dni = null, nombre = null, apellido1 = null, apellido2 = null, 
-                tipovia = null, nombrevia = null, numvia = null, codigoPuerta = null,
+                nombrevia = null, numvia = null, codigoPuerta = null,
                 notificaciones = {}, localidad = null, provincia = null, tareas = [], grupoProyectos = []){
         
         /*if(this.validator(email,dni,nombre,apellido1,tipovia,nombrevia,numvia,notificaciones === false)){
@@ -15,7 +15,6 @@ let Usuario = class User {
         this.nombre = nombre;
         this.apellido1 = apellido1;
         this.apellido2 = apellido2;
-        this.tipovia = tipovia;
         this.nombrevia = nombrevia;
         this.numvia = numvia;
         this.codigoPuerta = codigoPuerta;
@@ -30,18 +29,18 @@ let Usuario = class User {
     }
 
     //Validador ¿tipado?
-    validator(email = null, dni = null, nombre = null, apellido1 = null, 
-        tipovia = null, nombrevia = null, numvia = null,
-        notificaciones = null){
+    // validator(email = null, dni = null, nombre = null, apellido1 = null, 
+    //     tipovia = null, nombrevia = null, numvia = null,
+    //     notificaciones = null){
 
-            if(email === null || dni === null || nombre === null || apellido1 === null || tipovia === null ||
-                nombrevia === null || numvia === null ){
-                    return false;
-            }
+    //         if(email === null || dni === null || nombre === null || apellido1 === null || tipovia === null ||
+    //             nombrevia === null || numvia === null ){
+    //                 return false;
+    //         }
 
-            return true;
+    //         return true;
 
-    }
+    // }
 
 }
 

@@ -17,8 +17,10 @@ import ControlTarea from "../../back/control/controlTarea";
 import ControlSesion from "../../back/control/controlSesion";
 import { UserContext } from "../../App";
 import AccessDenied from "../home/acessDenied";
+import useNotificar from "../home/notificar";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import PassForm from "../forms/passForm";
 
-const handleDelete = (usuario)=>{}
 
 const UserDetail = () => {
 
@@ -29,39 +31,68 @@ const UserDetail = () => {
     const match = useRouteMatch();
     const {idusuario} = useParams();
     const [usuario,setUsuario] = useState(null)
+    const [grupos,setGrupos] = useState([])
+    const [empresas,setEmpresas] = useState([])
+    const [tareas,setTareas] = useState([])
     const [isPending,setIsPending] = useState(true);
+    const [editable,setEditable] = useState(false);
+    const [hasChanged,setHasChanged] = useState(false);
+    const notificar = useNotificar()
+    const history = useHistory();
+
+    const deleteUser = (usuario)=>{
+    
+        ControlUsuario.delete(usuario)
+        .then(data => {
+            if(data.message){
+                notificar({type:'SUCCESS',message:data.message});
+                ControlSesion.destroySesion()
+                value.setToken(null)
+                value.setUsuario(null)
+                history.push('/login')
+            }else{
+                notificar({type:'SUCCESS',message:data.error});
+            }
+        })
+    }
 
     useEffect(()=>{
 
         const abortCont = new AbortController();
 
         setTimeout(()=>{
+
+            if(idusuario === usuarioSesion.email)
+                setEditable(true)
+            
           ControlUsuario.getById(idusuario)
           .then(res =>{
               console.log(res)
-              if(res.email == usuarioSesion.email)
-                res.editable = true;
+              
+              
             setUsuario(res)
+            setHasChanged(false);
+            setIsPending(false)
 
             ControlGrupo.getFromUsuario(idusuario)
             .then(data =>{
                 console.log(data)
-                res.grupos = data;
-                setUsuario(res);
+                setGrupos(data)
+                
             })
 
             ControlEmpresa.getEmpresasByUsuario({email:idusuario})
             .then(data =>{
                 console.log(data)
-                res.empresas = data;
-                setUsuario(res);
+                setEmpresas(data)
+                
             })
 
             ControlTarea.getFromUsuario(idusuario)
             .then(data =>{
               res.tareas = data;
-              setUsuario(res)  
-              setIsPending(false)
+              setTareas(data)
+              
             })
 
           })
@@ -69,7 +100,9 @@ const UserDetail = () => {
 
         return abortCont.abort();
 
-    },[])
+    },[hasChanged])
+
+
 
     
 
@@ -77,12 +110,30 @@ const UserDetail = () => {
         <Switch>
             <Route exact path={`${match.path}`}>
                 { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                {usuario && <Info usuario={usuario} match={match} isPending={isPending}/>}
+                {usuario && <Info 
+                    usuario={usuario} 
+                    match={match} 
+                    empresas={empresas}
+                    grupos={grupos}
+                    tareas={tareas}
+                    isPending={isPending}
+                    editable={editable}
+                    deleteUser={deleteUser}/>}
             </Route>
-            <Route path={`${match.path}/editar`}>
-                {usuario && (usuario.editable)
-                ?<UserForm />
-                :<AccessDenied/>}
+            {usuario && (editable)
+            ?
+                <Route path={`${match.path}/editar`}>
+                    <UserForm setHasChanged={setHasChanged} />       
+                </Route>
+            :""}
+            {usuario && (editable)
+            ?
+                <Route path={`${match.path}/cambiarpass`}>
+                    <PassForm/>
+                </Route>
+            :""}
+            <Route path="*">
+                <AccessDenied/>
             </Route>
         </Switch>
     </div> );
@@ -92,14 +143,18 @@ const Info = (props)=>{
 
     const match = props.match;
     const usuario = props.usuario;
+    const empresas = props.empresas;
+    const tareas = props.tareas;
+    const grupos = props.grupos;
     const isPending = props.isPending;
+    const editable = props.editable;
 
     return(
         <Box>
             <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Información de {usuario.nombre}&nbsp;{usuario.apellido1}&nbsp;{usuario.apellido2}</Typography>
 
             <Box display="flex">
-                {(usuario.editable?<BotonesEditable match={match} handleDelete={handleDelete} usuario={usuario}/>:null)}
+                {(editable?<BotonesEditable match={match} handleDelete={props.deleteUser} usuario={usuario}/>:null)}
             </Box>
 
             <Grid container spacing={2} marginTop={2}>
@@ -128,7 +183,7 @@ const Info = (props)=>{
                             <Box id="direccion" margin={1} padding={1}>
                                 <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Dirección postal</Typography>
                                 <Box display="flex" sx={{flexDirection:"row"}} align="left">
-                                    <Typography id="tipovia" align="left">{usuario.tipovia}</Typography>&nbsp;
+                        
                                     <Typography id="nombrevia" align="left">{usuario.nombrevia}</Typography>&nbsp;
                                     <Typography id="numvia" align="left">{usuario.numvia}</Typography>&nbsp;
                                     <Typography id="codigopuerta" align="left">{usuario.codigopuerta}</Typography>&nbsp;
@@ -143,19 +198,19 @@ const Info = (props)=>{
                         <Grid item xs={4}>
 
                             { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                            {(usuario.editable)?usuario.empresas && <ListaEmpresas empresas={usuario.empresas} />:""}
+                            {(editable)?empresas && <ListaEmpresas empresas={empresas} />:""}
 
                         </Grid>
                             
                         <Grid item xs={4}>
                             { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                            {(usuario.editable)?usuario.grupos && <ListaGrupos grupos={usuario.grupos} />:""}
+                            {(editable)?grupos && <ListaGrupos grupos={grupos} />:""}
                             
                         </Grid>
 
                         <Grid item xs={4}>
                             { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                            {(usuario.editable)?usuario.tareas && <ListaTareas tareas={usuario.tareas}/>:""}
+                            {(editable)?tareas && <ListaTareas tareas={tareas}/>:""}
                             
                         </Grid>
 
@@ -175,10 +230,17 @@ const BotonesEditable = (props)=>{
 
     return(
         <Box display="contained">
-            <Button variant="outlined">
+            <Button variant="outlined" sx={{margin:1}}>
                 <Link to={`${match.url}/editar`} sx={{margin:1}} sx={{textDecoration:"none",color:"text.primary"}}>
-                Editar</Link></Button>
-            <Button onClick={()=>{handleDelete(usuario)}} variant="contained" sx={{margin:1}}>Eliminar</Button>
+                    Editar
+                </Link>
+            </Button>
+            <Button variant="outlined" sx={{margin:1}}>
+                <Link to={`${match.url}/cambiarpass`} sx={{margin:1}} sx={{textDecoration:"none",color:"text.primary"}}>
+                    Cambiar contraseña
+                </Link>
+            </Button>
+            <Button onClick={()=>{props.handleDelete(usuario)}} variant="contained" sx={{margin:1}}>Eliminar</Button>
         </Box>
     )
 }
@@ -196,9 +258,18 @@ const ListaGrupos = (props)=>{
                     return(
                         <ListItem id={grupo.empresa.nif+grupo.codigo} sx={{padding:1, overflow:"hidden"}}>
                         
-                            
-                                <Typography sx={{fontWeight:"bold", marginRight:2}}>{grupo.nombre}</Typography>
-                                <Typography>{grupo.descripcion}</Typography>
+                            <Grid container>
+                                <Grid element xs={4}>
+
+                                    <Link to={`/grupos/${grupo.empresa.nif}/${grupo.codigo}`}>
+                                        <Typography sx={{fontWeight:"bold"}}>{grupo.nombre}</Typography>
+                                    </Link>
+                                    
+                                </Grid>
+                                <Grid element xs={8}>
+                                    <Typography sx={{width:'100%'}} noWrap>{grupo.descripcion}</Typography>
+                                </Grid>
+                            </Grid>
                             
                         </ListItem>
                     )
@@ -222,9 +293,17 @@ const ListaEmpresas = (props)=>{
                 {empresas.map((empresa)=>{
                     return(
                         <ListItem id={empresa.nif} sx={{padding:1, overflow:"hidden"}}>
-                            
-                                <Typography sx={{fontWeight:"bold", marginRight:2}}>{empresa.nombre}</Typography>
-                                <Typography>{empresa.razonsocial}</Typography>
+
+                            <Grid container>
+                                <Grid element xs={4}>
+                                    <Link to={`/empresas/${empresa.nif}`}>
+                                        <Typography sx={{fontWeight:"bold"}}>{empresa.nombre}</Typography>
+                                    </Link>
+                                </Grid>
+                                <Grid element xs={8}>
+                                    <Typography sx={{width:'100%'}} noWrap>{empresa.razonSocial}</Typography>
+                                </Grid>
+                            </Grid>
                             
                         </ListItem>
                     )
@@ -249,10 +328,17 @@ const ListaTareas = (props)=>{
                 {tareas.map((tarea)=>{
                     return(
                         <ListItem id={tarea.grupo.empresa+tarea.grupo.codigo+tarea.codigo} sx={{padding:1, overflow:"hidden"}}>
-                            
-                                <Typography sx={{fontWeight:"bold"}} align="left">{tarea.nombre}</Typography>
-                                <Typography align="left">{tarea.descripcion}</Typography>
-                                <Typography align="left"><Link to={tarea.link}>Ver</Link></Typography>
+
+                            <Grid container>
+                                <Grid element xs={4}>
+                                    <Link to={`/grupos/${tarea.grupo.empresa}/${tarea.grupo.codigo}`}>
+                                        <Typography sx={{fontWeight:"bold"}}>{tarea.nombre}</Typography>
+                                    </Link>
+                                </Grid>
+                                <Grid element xs={8}>
+                                    <Typography sx={{width:'100%'}} noWrap>{tarea.descripcion}</Typography>
+                                </Grid>
+                            </Grid>
                             
                         </ListItem>
                     )

@@ -1,4 +1,5 @@
 import config from "../config/config.json";
+import ControlSesion from "../control/controlSesion";
 
 let SrvDaoSesion = class DaoSesion {
 
@@ -41,6 +42,55 @@ let SrvDaoSesion = class DaoSesion {
             return data;
             
         });
+
+    }
+
+    static async checkSesion(token){
+
+        
+        let valid = await fetch(`${config.route}token`,{
+                method:'POST',
+                mode:'cors',
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({token:token})
+            })
+            .then(data => {
+                return data.json()
+            })
+            .then(data => {
+                
+                return (data.unvalid === undefined)?true:false;
+            })
+        
+        return valid;
+
+    }
+
+    static async checkPass(email,pass){
+
+        let correct = await fetch(`${config.route}checkpass`,{
+            method:'POST',
+            mode:'cors',
+            headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'access-token': localStorage.getItem('token')
+            },
+            body: JSON.stringify({email:email,pass:pass})
+        })
+        .then(data => {
+            return data.json()
+        })
+        .then(data => {
+            
+            console.log(data)
+            return data.valid;
+        })
+    
+    return correct;
 
     }
 

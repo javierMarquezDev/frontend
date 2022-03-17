@@ -1,23 +1,34 @@
 import { Button, Card, CardActions, CardContent, Stack, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import { useRouteMatch } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import NewsDetail from '../details/newsDetail';
 import NewsForm from "../forms/newsForm";
 import ControlNoticia from "../../back/control/controlNoticia"
-import notificar from "../home/notificar";
 import { useHistory } from "react-router-dom";
+import ControlGrupo from "../../back/control/controlGrupoProyecto";
+import AccessDenied from "../home/acessDenied";
+import { UserContext } from "../../App";
+import useNotificar from "../home/notificar";
 
 const NewsList = (props) => {
+
+    const notificar = useNotificar();
     const {grupocodigo} = useParams();
     const {grupoempresa} = useParams();
     const match = useRouteMatch();
     const grupo = props.grupo;
     const history = useHistory();
 
+    const value = React.useContext(UserContext);
+    const usuario = value.usuario;
+    const token = value.token;
+
     const [noticias,setNoticias] = useState(null);
     const [isPending, setIsPending] = useState(true);
+    const [isMember, setIsMember] = useState(false);
+    const [hasChanged,setHasChanged] = useState(false);
 
 
     useEffect(()=>{
@@ -25,12 +36,23 @@ const NewsList = (props) => {
         const abortCont = new AbortController();
 
         setTimeout(()=>{
-            ControlNoticia.getByGrupo(grupoempresa, grupocodigo)
-            .then(data=>{
-                
-                setNoticias(data);
-                setIsPending(false);
-                
+            ControlGrupo.isMember(usuario, {codigo:grupocodigo, empresa:{nif:grupoempresa}})
+            .then(data => {
+
+                if(data){
+
+                    setIsMember(true);
+
+                    ControlNoticia.getByGrupo(grupoempresa, grupocodigo)
+                    .then(data=>{
+                        
+                        setNoticias(data);
+                        setIsPending(false);
+                        setHasChanged(false);
+                        
+                    })
+                }else{return}
+
             })
             
         }, 1000)
@@ -39,40 +61,54 @@ const NewsList = (props) => {
 
         return abortCont.abort();
 
-    },[grupoempresa,grupocodigo])    
+    },[grupoempresa,grupocodigo,hasChanged])    
 
     const handleDelete = (noticia) => {
         ControlNoticia.delete(noticia)
         .then(data => {
-            notificar(data.message)
-            history.go(0)
+            notificar({type:"SUCCESS",message:data.message})
+            setHasChanged(true);
         })
     }
     
     return ( 
         <div>
             <Switch>
+            {(isMember)?
             <Route exact path={match.path}>
                 <Typography variant="h3" align="left">{`Feed del grupo`}</Typography>
                 <Typography align="left" marginTop={1} marginBottom={2}>
 
-                    <Link to={`/grupos/${grupoempresa}/${grupocodigo}/detalle`} color="text.secondary" style={{textDecoration:"none"}}>
+                    <Link to={`/grupos/${grupoempresa}/${grupocodigo}`} color="text.secondary" style={{textDecoration:"none"}}>
                         Información del grupo
                     </Link>
                     
                 </Typography>
 
                 { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                {noticias && <InfoNoticias handleDelete={handleDelete} noticias={noticias} match={match} grupocodigo={grupocodigo} grupoempresa={grupoempresa}/> }
+                {noticias && <InfoNoticias 
+                                    handleDelete={handleDelete} 
+                                    noticias={noticias} 
+                                    match={match} 
+                                    grupocodigo={grupocodigo} 
+                                    grupoempresa={grupoempresa}
+                                    setHasChanged={setHasChanged}/> }
 
-                
+            </Route>
+            :""}
 
-            </Route> 
+            {(isMember)?
             <Route exact path={`${match.path}/:autor/:codigo`}>
                 <NewsDetail/>
             </Route>
+            :""}
+            {(isMember)?
             <Route exact path={`${match.path}/:autor/:codigo/editar`}>
-                <NewsForm/>
+                <NewsForm setHasChanged={setHasChanged} />
+            </Route>
+            :""}
+            <Route path="*">
+                <AccessDenied/>
             </Route>
         </Switch>
         </div>
@@ -88,12 +124,13 @@ const InfoNoticias = (props) =>{
     const grupocodigo = props.codigo;
     const grupoempresa = props.empresa;
     const handleDelete = props.handleDelete;
+    const setHasChanged = props.setHasChanged;
 
     console.log(noticias)
 
     return(
         <Stack spacing={3} marginTop={3}>
-                    <NewsForm/>
+                    <NewsForm setHasChanged={setHasChanged} />
                     {noticias.sort((a,b)=>{ return (a.fechaHora < b.fechaHora)?1:-1;}).map((noticia)=>{
 
                         {(noticia.usuario.email == usuario.email)?noticia.admin = true : noticia.admin = false}

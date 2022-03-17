@@ -48,6 +48,8 @@ let srvDaoUsuario = class DaoUsuario{
 
     static edit(usuarioJson){
 
+        console.log(usuarioJson);
+
         const email = usuarioJson.email
 
         usuarioJson.email = undefined;
@@ -60,7 +62,8 @@ let srvDaoUsuario = class DaoUsuario{
                 headers:{
                     //"access-token":localStorage.getItem('token'),
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'access-token': localStorage.getItem('token')
                 },
                 body: JSON.stringify(usuarioJson)
 

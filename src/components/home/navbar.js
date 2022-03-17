@@ -14,11 +14,14 @@ const MenuBar = () => {
 
   const history = useHistory();
 
+  
   const logout = ()=>{
-    ControlSesion.destroySesion();
+
+    ControlSesion.destroySesion()
     value.setToken(null)
     value.setUsuario(null)
     history.push('/login')
+    
   }
 
   return ( 

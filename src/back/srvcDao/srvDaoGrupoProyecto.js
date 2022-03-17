@@ -1,4 +1,5 @@
 import config from "../config/config.json";
+import SrvDaoArchivo from "./srvDaoArchivo";
 
 const connectionStr = config.route+"grupos/";
 
@@ -65,13 +66,60 @@ let srvDaoGrupoProyecto = class groupProject{
 
     }
 
-    static async addUsuariosBulk(grupo, usuarios){
+    static async getAdminsFromGrupo(grupo){
+        const codigo = grupo.codigo;
+        const empresa = grupo.empresa.nif;
+
+        console.log(grupo)
+
+        return await fetch(
+            connectionStr+"admins/search/"+empresa+"/"+codigo,
+            {
+                mode: 'cors',
+                method: 'GET',
+                headers:{
+                    "access-token":localStorage.getItem('token')
+                }
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            
+            return data;
+        })        
+    }
+
+    static async getGruposFromAdmin(admin){
+        const email = admin.email;
+
+        return await fetch(
+            connectionStr+"admin/search/"+email,
+            {
+                mode: 'cors',
+                method: 'GET',
+                headers:{
+                    "access-token":localStorage.getItem('token')
+                }
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            
+            return data;
+        })        
+    }
+
+    static async addUsuariosBulk(grupo, usuarios, admins){
 
         let rows = [];
 
         usuarios.forEach(element => {
 
-            rows.push({empresagrupo:grupo.empresa, codigogrupo:grupo.codigo, usuario:element.email, admin:false});
+            let usuarioEsAdmin;
+
+            (admins.find(usuario => usuario.email === element.email ))?usuarioEsAdmin=true:usuarioEsAdmin=false;
+
+            rows.push({empresagrupo:grupo.empresa, codigogrupo:grupo.codigo, usuario:element.email, administrador: usuarioEsAdmin});
             
         });
 
@@ -95,15 +143,23 @@ let srvDaoGrupoProyecto = class groupProject{
 
     }
 
-    static async modifyUsuariosBulk(grupo, usuarios){
+    static async modifyUsuariosBulk(grupo, usuarios, admins){
+
+        
 
         let rows = [];
 
         usuarios.forEach(element => {
 
-            rows.push({empresagrupo:grupo.empresa.nif, codigogrupo:grupo.codigo, usuario:element.email, admin:false});
+            let usuarioEsAdmin;
+
+            (admins.find(usuario => usuario.email === element.email ))?usuarioEsAdmin=true:usuarioEsAdmin=false;
+            
+            rows.push({empresagrupo:grupo.empresa.nif, codigogrupo:grupo.codigo, usuario:element.email, administrador:usuarioEsAdmin});
             
         });
+
+        console.log("admins",rows)
 
         return await fetch(
             connectionStr+"grupousuarios/bulk/"+grupo.empresa.nif+"/"+grupo.codigo,
@@ -125,9 +181,36 @@ let srvDaoGrupoProyecto = class groupProject{
 
     }
 
+    static async isAdmin(grupo, usuario){
+
+        console.log(grupo)
+
+        const grupocodigo = grupo.codigo;
+        const grupoempresa = grupo.empresa.nif;
+        const email = usuario.email;
+
+        return await fetch(
+            connectionStr+"checkadmin/"+grupoempresa+"/"+grupocodigo+"/"+email,
+            {
+                mode: 'cors',
+                method: 'GET',
+                headers:{
+                    "access-token":localStorage.getItem('token'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+
+            }
+        ).then((response) => response.json())
+        .then(data => {
+            console.log(data)
+            return data[0];
+        })
+    }
+
     static async isMember(usuario, grupo){
 
-        console.log(usuario,grupo)
+        
 
         const email = usuario.email;
         const grupocodigo = grupo.codigo;
@@ -151,7 +234,10 @@ let srvDaoGrupoProyecto = class groupProject{
 
     }
 
+
     static async getOneById(empresa = "", id = ""){
+
+        console.log(empresa,id)
 
         return await fetch(
             connectionStr+empresa.nif+"/"+id,

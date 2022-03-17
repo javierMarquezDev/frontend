@@ -2,11 +2,6 @@ import NewsForm from "../forms/newsForm";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import { useRouteMatch } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import GroupForm from "../forms/groupForm";
-import TaskList from "../lists/taskList";
-import GroupUserList from "../lists/groupUserList";
-import CompanyUserList from '../lists/companyUserList';
-import UserForm from "../forms/userForm";
 import Typography from "@mui/material/Typography"
 import Box from "@mui/material/Box"
 import Stack from "@mui/material/Stack"
@@ -21,6 +16,7 @@ import ControlUsuario from "../../back/control/controlUsuario";
 import ControlSesion from "../../back/control/controlSesion";
 import { UserContext } from "../../App";
 import AccessDenied from "../home/acessDenied";
+import ControlGrupo from "../../back/control/controlGrupoProyecto";
 
 const handleDelete = (tarea)=>{}
 
@@ -29,6 +25,7 @@ const NewsDetail = () => {
     const match = useRouteMatch();
     const [noticia,setNoticia] = useState(null)
     const [isPending, setIsPending] = useState(true);
+    const [miembro,setMiembro] = useState(false);
 
     console.log([grupoempresa,grupocodigo,codigo,autor])
 
@@ -41,16 +38,30 @@ const NewsDetail = () => {
         const abortCont = new AbortController();
 
         setTimeout(()=>{
-            ControlNoticia.getById(grupoempresa,grupocodigo,autor,codigo)
+
+            ControlGrupo.isMember(usuario, {codigo:grupocodigo, empresa:{nif:grupoempresa}})
             .then(data=>{
-                if(data.autor == usuario.email)
-                    {data.creador = true;}
-                else{
-                    data.creador = false;
+                if(data){
+                    setMiembro(true)
+
+                    ControlNoticia.getById(grupoempresa,grupocodigo,autor,codigo)
+                    .then(data=>{
+                        if(data.autor == usuario.email)
+                            {data.creador = true;}
+                        else{
+                            data.creador = false;
+                        }
+                        setNoticia(data);
+                        setIsPending(false)
+                    })
+                    
+                }else{
+
+                    return;
+
                 }
-                setNoticia(data);
-                setIsPending(false)
             })
+            
         }, 1000)
 
         return abortCont.abort();
@@ -60,18 +71,27 @@ const NewsDetail = () => {
     return ( 
         <div>
             <Switch>
-                <Route exact path={`${match.path}`}>
-                    <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Detalles de la noticia</Typography>
+                {miembro && (miembro)
+                ?
+                    <Route exact path={`${match.path}`}>
+                        <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Detalles de la noticia</Typography>
 
 
-                    { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                    {noticia && <InfoNoticia noticia={noticia} match={match}/> }
-                    
-                </Route>
-                <Route path={`${match.path}/editar`}>
-                    {noticia && (noticia.creador)
-                    ?<NewsForm/>
-                    :<AccessDenied/> }
+                        { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                        {noticia && <InfoNoticia noticia={noticia} match={match}/> }
+                        
+                    </Route>
+                :""}
+                {noticia && (noticia.creador)
+                ?
+                    <Route path={`${match.path}/editar`}>
+                        
+                        <NewsForm/>
+                        
+                    </Route>
+                :""}
+                <Route path="*">
+                    <AccessDenied/>
                 </Route>
             </Switch>
         </div>

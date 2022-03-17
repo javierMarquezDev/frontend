@@ -21,18 +21,17 @@ import InputTexto from "../form/InputTexto";
 import TiposVia from "../../back/model/TiposVia";
 import { useParams, Switch, Route } from "react-router-dom";
 import ControlEmpresa from "../../back/control/controlEmpresa";
-import notificar from "../home/notificar";
 import { useHistory } from "react-router-dom";
 import ErroresCampo from "../form/ErroresCampo";
 import InputUsuarioEmpresa from "../form/InputUsuarioEmpresa";
 import { UserContext } from "../../App";
 import AccessDenied from "../home/acessDenied";
+import useNotificar from "../home/notificar";
 
-const deleteUsuario = (usuario, empresa)=>{
 
-}
+const CompanyForm = (props) => {
 
-const CompanyForm = () => {
+  const notificar = useNotificar();
 
   const value = React.useContext(UserContext);
   const usuarioSesion = value.usuario;
@@ -49,7 +48,7 @@ const CompanyForm = () => {
   const [nif, setNif] = useState('');
   const [nombre, setNombre] = useState('');
   const [razonSocial, setRazonSocial] = useState();
-  const [tipoVia, setTipoVia] = useState('');
+  
   const [nombreVia, setNombreVia] = useState('');
   const [numVia, setNumVia] = useState('');
   const [codigoPuerta, setCodigoPuerta] = useState('');
@@ -78,7 +77,7 @@ const CompanyForm = () => {
                   setNif(data.nif);
                   setNombre(data.nombre);
                   setRazonSocial(data.razonSocial);
-                  setTipoVia({label:data.tipoVia,id:data.tipoVia});
+                  
                   setNombreVia(data.nombreVia);
                   setNumVia(data.numVia);
                   setLocalidad(data.localidad)
@@ -117,72 +116,79 @@ const CompanyForm = () => {
   
   const handleCreate = (e) =>{
 
-    e.preventDefault();
-
     const nuevaEmpresa = new Empresa(nif, razonSocial, nombre,
-                                    tipoVia.id || '', nombreVia, numVia, codigoPuerta,
+                                    nombreVia, numVia, codigoPuerta,
                                     localidad, provincia)
 
     if(idempresa){
       
       setIsPending(true)
 
-      ControlEmpresa.edit(nuevaEmpresa)
-      .then(data =>{
-        if(data.error != null){
-          notificar(data.message+" "+data.error.message)
-        }else if(data.message != null){
-          notificar(data.message)
-        }else{
-          setErrores(data);
-        }
-          
-          
+      if(admins.length > 0){
+        ControlEmpresa.edit(nuevaEmpresa)
+        .then(data =>{
+          if(data.error != null){
+            notificar({type:"ERROR",message:data.message})
+          }else if(data.message != null){
+            notificar({type:"SUCCESS",message:data.message})
+            props.setHasChanged(true);
+            history.push(`/empresas`)
+          }else{
+            console.log(data)
+            setErrores(data);
+          }
+            
+            
 
-          ControlEmpresa.moidfyUsuariosBulk(nuevaEmpresa, usuarios, admins)
-          .then(res => {
-              
-              if(res.administrador != null){
-                  data.administrador = {empty:res.administrador};
-                  notificar(res.administrador);
-                  setErrores(data);
-                  
-              }else{
-                history.go(-1)
-              }
+            ControlEmpresa.moidfyUsuariosBulk(nuevaEmpresa, usuarios, admins)
+            .then(res => {
+                
+                if(res.administrador != null){
+                    data.administrador = {empty:res.administrador};
+                    notificar({type:"ERROR",message:res.administrador})
+                    setErrores(data);
+                    
+                }else{
+                  notificar({type:"SUCCESS",message:res.message})
+                }
 
-              setIsPending(false)
-              
-              
-          })
-          
-      })
+                setIsPending(false)
+                
+                
+            })
+            
+        })
+      }else{
+        setErrores({administrador:{empty:"Debe introducirse un administrador."}})
+      }
       
     }else{
 
       if(admins.length>0){ControlEmpresa.create(nuevaEmpresa)
       .then(data =>{
         if(data.error != null){
-          notificar(data.message+" "+data.error.message)
+          notificar({type:"ERROR",message:data.message})
         }else if(data.message != null){
-          notificar(data.message)
+          notificar({type:"SUCCESS",message:data.message})
 
-          console.log(usuarios)
-          console.log(admins)
           ControlEmpresa.addUsuariosBulk(data.empresa,usuarios,admins)
           .then(res => {
             
             if(res.administrador != null){
               data.administrador = {empty:res.administrador};
-              notificar(res.administrador);
+              notificar({type:"ERROR",message:res.administrador})
               setErrores(data);
             }else{
-              history.go(-1)
+              notificar({type:"SUCCESS",message:data.message})
             }
 
+            
             setIsPending(false)
 
           })
+
+          props.setHasChanged(true);
+          history.push(`/empresas/${nuevaEmpresa.nif}`)
 
           
         }
@@ -198,123 +204,128 @@ const CompanyForm = () => {
     return (
         <Box>
           { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-      {(usuarioIsAdmin || (idempresa == null))
-      ?<div>
-        <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Editar empresa {empresa.nombre || "nueva"}</Typography>
 
-        <Box display="flex">
-          <Button variant="contained" onClick={(e)=>handleCreate(e)}>Terminar</Button>
-        </Box>
-      
-        <Box
-          component="form"
-          sx={{
-            '& .MuiTextField-root': { m: 1, width: '25ch' },
-            width:'70%'
-          }}
-          noValidate
-          autoComplete="off"
-        >
-          
-          <InputTexto formalName="Nombre" 
-          required = {true}
-          id = "nombre"
-          property={nombre} 
-          setProperty={setNombre} 
-          errores={errores.nombre || null} />
+          <div>
+              <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Editar empresa {empresa.nombre || "nueva"}</Typography>
 
-          <InputTexto formalName="CIF" 
-          required = {true}
-          id = "nif"
-          disabled={(idempresa)?true:false}
-          property={nif} 
-          setProperty={setNif} 
-          errores={errores.nif || null} />
+              <Box display="flex">
+                <Button variant="contained" onClick={(e)=>handleCreate(e)}>Terminar</Button>
+              </Box>
+            
+              <Box
+                component="form"
+                display="-ms-flexbox"
+                sx={{width:'70%',margin:2}}
+              >
+                
+                <InputTexto formalName="Nombre" 
+                required = {true}
+                id = "nombre"
+                property={nombre} 
+                setProperty={setNombre} 
+                errores={errores.nombre || null}
+                sx={{margin:2, width:'40%'}} />
 
-          <Box>
-                <Box display="flex">
-                    {(tiposVia.length)?<Autocomplete
-                    options={tiposVia}
-                    defaultValue={""}
-                    value={tipoVia}
-                    onChange={(e,value)=>setTipoVia(value)}
-                    id="tipoVia"
-                    renderInput={(params) => (
-                        <TextField {...params} label="Tipos de vía" variant="standard" />
-                        )}
-                    />:null}
-                </Box>
+                <InputTexto formalName="CIF" 
+                required = {true}
+                id = "nif"
+                disabled={(idempresa)?true:false}
+                property={nif} 
+                setProperty={setNif} 
+                errores={errores.nif || null}
+                sx={{margin:2, width:'40%'}} />
 
-                <ErroresCampo errores={errores.tipovia}/>
-            </Box>
+                {/*<Box sx={{margin:2}}>
+                      <Box display="flex">
+                          {(tiposVia.length)?<Autocomplete
+                          options={tiposVia}
+                          defaultValue={""}
+                          value={tipoVia}
+                          onChange={(e,value)=>setTipoVia(value)}
+                          id="tipoVia"
+                          renderInput={(params) => (
+                              <TextField {...params} label="Tipos de vía" variant="standard" />
+                              )}
+                          />:null}
+                      </Box>
 
-        <InputTexto formalName="Nombre de vía" 
-        required = {true}
-          id = "nombrevia"
-          property={nombreVia} 
-          setProperty={setNombreVia} 
-          errores={errores.nombrevia || null} />
+                      <ErroresCampo errores={errores.tipovia}/>
+                </Box>*/}
 
-        <InputTexto formalName="Número" 
-        required = {true}
-          id = "numvia"
-          property={numVia} 
-          setProperty={setNumVia} 
-          errores={errores.numvia || null} />
+              <InputTexto formalName="Nombre de vía" 
+              required = {true}
+                id = "nombrevia"
+                property={nombreVia} 
+                setProperty={setNombreVia} 
+                errores={errores.nombrevia || null}
+                sx={{margin:2, width:'40%'}} />
 
-        <InputTexto formalName="Código de puerta" 
-          id = "codigopuerta"
-          property={codigoPuerta} 
-          setProperty={setCodigoPuerta} 
-          errores={errores.codigopuerta || null} />
+              <InputTexto formalName="Número" 
+              required = {true}
+                id = "numvia"
+                property={numVia} 
+                setProperty={setNumVia} 
+                errores={errores.numvia || null}
+                sx={{margin:2, width:'40%'}} />
 
-        <InputTexto formalName="Localidad" 
-          id = "localidad"
-          property={localidad} 
-          setProperty={setLocalidad} 
-          errores={errores.localidad || null} />
+              <InputTexto formalName="Código de puerta" 
+                id = "codigopuerta"
+                property={codigoPuerta} 
+                setProperty={setCodigoPuerta} 
+                errores={errores.codigopuerta || null}
+                sx={{margin:2, width:'40%'}} />
 
-        <InputTexto formalName="Provincia" 
-          id = "provincia"
-          property={provincia} 
-          setProperty={setProvincia} 
-          errores={errores.provincia || null} />
+              <InputTexto formalName="Localidad" 
+                id = "localidad"
+                property={localidad} 
+                setProperty={setLocalidad} 
+                errores={errores.localidad || null}
+                sx={{margin:2, width:'40%'}} />
 
-        <InputTexto formalName="Razón social" 
-        required = {true}
-          id = "razonsocial"
-          property={razonSocial} 
-          setProperty={setRazonSocial} 
-          errores={errores.razonsocial || null} />
+              <InputTexto formalName="Provincia" 
+                id = "provincia"
+                property={provincia} 
+                setProperty={setProvincia} 
+                errores={errores.provincia || null}
+                sx={{margin:2, width:'40%'}} />
 
-        <Box margin={2}>
-          <Typography for="administrador" color="text.secondary" align="left" >Administradores</Typography>
+              <InputTexto formalName="Razón social" 
+              required = {true}
+                id = "razonsocial"
+                property={razonSocial} 
+                setProperty={setRazonSocial} 
+                errores={errores.razonsocial || null}
+                sx={{margin:2, width:'40%'}} />
 
-          { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-          {usuarios && <InputUsuarioEmpresa 
-                                              opciones={usuarios}
-                                              errores={errores.administrador||null} 
-                                              usuarios={admins}
-                                              setUsuarios={setAdmins}/>}
-          
+              
+            
+          </Box>
 
-        </Box>
-        <Box margin={2}>
-        <Typography for="administrador" color="text.secondary" align="left" >Miembros</Typography>
-        { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                    {(usuarios) && <InputUsuarioEmpresa 
-                                              
-                                              errores={errores.usuarios||null} 
-                                              usuarios={usuarios}
-                                              setUsuarios={setUsuarios}/>}
-      </Box>
-    
-      
-      
-    </Box>
+          <Box margin={2}>
+                <Typography for="administrador" color="text.secondary" align="left" >Administradores</Typography>
 
-      
-    </div> :<AccessDenied/>}
+                { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                {usuarios && <InputUsuarioEmpresa 
+                                                    opciones={usuarios}
+                                                    errores={errores.administrador||null} 
+                                                    usuarios={admins}
+                                                    setUsuarios={setAdmins}/>}
+                
+
+              </Box>
+              <Box margin={2}>
+              <Typography for="administrador" color="text.secondary" align="left" >Miembros</Typography>
+              { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+              {(usuarios) && <InputUsuarioEmpresa 
+                                                    
+                              errores={errores.usuarios||null} 
+                              usuarios={usuarios}
+                              setUsuarios={setUsuarios}
+                              sx={{margin:2}}/>}
+              </Box>
+
+            
+          </div> 
           
         </Box>
       

@@ -19,7 +19,7 @@ const NotificationList = () => {
     
     const value = React.useContext(UserContext);
     const usuario = value.usuario;
-      const token = value.token;
+    const token = value.token;
 
     const [notificaciones,setNotificaciones] = useState({});
     const [isPending, setIsPending] = useState(true);

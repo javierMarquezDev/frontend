@@ -232,8 +232,6 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
         const cif = empresa.nif;
         const email = usuario.email;
 
-        console.log(cif,email)
-
         return await fetch(
             connectionStr+"checkadmin/"+cif+"/"+email,
             {
@@ -248,12 +246,15 @@ let SrvDaoEmpresa = class ServiceDaoEmpresa{
             }
         ).then((response) => response.json())
         .then(data => {
-            console.log(data)
+        
             return data[0];
         })
     }
 
     static async isMember(empresa, usuario){
+
+        console.log(empresa.nif)
+
         const cif = empresa.nif;
         const email = usuario.email;
 

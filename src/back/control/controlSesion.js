@@ -2,12 +2,17 @@ import SrvDaoSesion from "../srvcDao/srvDaoSesion";
 import ControlUsuario from "./controlUsuario";
 import Sesion from "../model/Sesion";
 
+/**
+ * Clase para el control de la Sesión de usuario
+ */
 let ControlSesion = class controlSesion{
 
     //Crear objeto Sesión en el localStorage
     static async createSesion(email, pass){
 
         const responseLogin = await SrvDaoSesion.login(email,pass);
+
+        console.log(responseLogin)
 
         if(responseLogin.usuario != undefined && responseLogin.token != undefined){
 
@@ -19,7 +24,10 @@ let ControlSesion = class controlSesion{
 
         }
 
-        return {usuario:responseLogin.usuario, token:responseLogin.token};
+        return {usuario:responseLogin.usuario, 
+                token:responseLogin.token, 
+                error: responseLogin.error || null, 
+                message: responseLogin.message || null};
 
     };
 
@@ -56,6 +64,30 @@ let ControlSesion = class controlSesion{
     //Get token de la sesión
     static getSessionToken(){
         return localStorage.getItem("token") || null;
+    }
+
+    //Comprobar contraseña
+    static async checkPass(usuario,pass){
+        return await SrvDaoSesion.checkPass(usuario.email,pass).then(data => data);
+    }
+
+    //Comprobar si el token es válido
+    static async checkSessionToken(){
+
+        let response = await SrvDaoSesion.checkSesion( this.getSessionToken() )
+        .then(data => {
+            if(data){
+                
+                return {valid: true, message: 'Sesión activa'}
+            }
+                
+
+            return {unvalid: true, message: 'Sesión expirada'}
+        })
+
+        console.log(response)
+
+        return response;
     }
 
 }

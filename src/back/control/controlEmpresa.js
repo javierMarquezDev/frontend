@@ -4,8 +4,16 @@ import ControlUsuario from "./controlUsuario";
 import ControlGrupoProyecto from "./controlGrupoProyecto";
 import Empresa from "../model/Empresa";
 
+/**
+ * Clase para el control de la entidad Empresa
+ */
 let ControlEmpresa = class CtrlCompany{
 
+    /**
+     * Modificar una empresa existente
+     * @param {Empresa} empresa 
+     * @returns {Object} Mensaje de confirmación
+     */
     static async edit(empresa){
 
         if(empresa == null || empresa == "" || empresa.nif === null || empresa.nif === "")
@@ -17,6 +25,11 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
+    /**
+     * Eliminar una empresa existente
+     * @param {Empresa} empresa 
+     * @returns {Object} Mensaje de confirmación
+     */
     static async delete(empresa){
 
         if(empresa == null || empresa == "")
@@ -26,6 +39,11 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
+    /**
+     * Crear una nueva empresa
+     * @param {Empresa} empresa 
+     * @returns {Object} Mensaje de confirmación
+     */
     static async create(empresa){
 
         if(empresa == null || empresa == "")
@@ -39,8 +57,11 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
-    //get
-
+    /**
+     * Obtener empresas según su nombre
+     * @param {String} name 
+     * @returns {Array} empresas
+     */
     static async getByName(name){
 
         if(name == null || name == "")
@@ -62,6 +83,11 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
+    /**
+     * Obtener empresa según su Id (CIF)
+     * @param {String} cif
+     * @returns {Empresa} empresa
+     */
     static async getById(nif){
 
         if(nif == null || nif == "")
@@ -73,6 +99,12 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
+    /**
+     * Comprobar si un usuario es administrador de una empresa
+     * @param {Empresa} empresa
+     * @param {Usuario} usuario
+     * @returns {Boolean} respuesta
+     */
     static async isAdmin(empresa, usuario){
 
         const response = await SrvDaoEmpresa.isAdmin(empresa,usuario);
@@ -81,7 +113,15 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
+    /**
+     * Comprobar si un usuario es miembro de una empresa
+     * @param {Empresa} empresa
+     * @param {Usuario} usuario
+     * @returns {Boolean} respuesta
+     */
     static async isMember(empresa, usuario){
+
+        console.log(empresa,usuario)
 
         const response = await SrvDaoEmpresa.isMember(empresa,usuario);
 
@@ -90,10 +130,17 @@ let ControlEmpresa = class CtrlCompany{
         if(response.length)
             return true;
         
-        return false;
+        return response;
 
     }
 
+    /**
+     * Asociar varios usuarios a una empresa
+     * @param {Empresa} empresa
+     * @param {Array} usuarios
+     * @param {Array} admins
+     * @returns {Object} respuesta
+     */
     static async addUsuariosBulk(empresa,usuarios,admins){
 
         console.log(empresa,usuarios,admins)
@@ -102,12 +149,24 @@ let ControlEmpresa = class CtrlCompany{
         
     }
 
+    /**
+     * Modificar lista de miembros de una empresa
+     * @param {Empresa} empresa
+     * @param {Array} usuarios
+     * @param {Array} admins
+     * @returns {Object} respuesta
+     */
     static async moidfyUsuariosBulk(empresa,usuarios,admins){
 
         return await SrvDaoEmpresa.modifyUsuariosBulk(empresa,usuarios,admins);
 
     }
 
+    /**
+     * Obtener lista de usuarios administradores de una empresa
+     * @param {Empresa} empresa
+     * @returns {Array} admins
+     */
     static async getAdminByEmpresa(empresa){
 
         if(empresa == null || empresa.nif == null || empresa.nif === "")
@@ -129,6 +188,11 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
+    /**
+     * Obtener lista de empresas administradas por un usuario
+     * @param {Usuario} admin
+     * @returns {Array} empresas
+     */
     static async getEmpresaByAdmin(admin){
 
         if(admin == null || admin == "")
@@ -140,7 +204,12 @@ let ControlEmpresa = class CtrlCompany{
 
         empresasArray.forEach(element => {
 
-            const empresa = this.convert(element);
+            const empresa = ControlEmpresa.getById(element.nif)
+            .then(data => {
+                return data;
+            })
+            
+            empresa = this.convert(empresa);
 
             resultado.push(empresa);
             
@@ -150,34 +219,53 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
+    /**
+     * Asociar un usuario a una empresa indicando si la administra
+     * @param {Empresa} empresa 
+     * @param {Usuario} usuario 
+     * @param {Boolean} admin 
+     * @returns {Object} Confirmación
+     */
     static async addUsuario(empresa, usuario, admin){
 
         return await SrvDaoEmpresa.addUser(empresa.nif, usuario.email, admin);
 
     }
 
+    /**
+     * Eliminar a un usuario de la lista de miembros de una empresa
+     * @param {Empresa} empresa 
+     * @param {Usuario} usuario 
+     * @returns {Object} Confirmación
+     */
     static async deleteUsuario(empresa, usuario){
 
         return await SrvDaoEmpresa.deleteUser(empresa.nif, usuario.email);
 
     }
 
-    static async promoteUsuario(empresa, usuario){
+    
+    // static async promoteUsuario(empresa, usuario){
         
-        const response = await SrvDaoEmpresa.promoteAdmin(empresa.nif, usuario.email, true);
+    //     const response = await SrvDaoEmpresa.promoteAdmin(empresa.nif, usuario.email, true);
 
-        return response;
+    //     return response;
 
-    }
+    // }
 
-    static async degradeUsuario(empresa, usuario){
+    // static async degradeUsuario(empresa, usuario){
 
-        const response = await SrvDaoEmpresa.promoteAdmin(empresa.nif, usuario.email, false);
+    //     const response = await SrvDaoEmpresa.promoteAdmin(empresa.nif, usuario.email, false);
 
-        return response;
+    //     return response;
 
-    }
+    // }
 
+    /**
+     * Obtener lista de empresas de las que forma parte un usuario
+     * @param {Usuario} usuario 
+     * @returns {Array} empresas
+     */
     static async getEmpresasByUsuario(usuario){
 
         const empresasJson = await SrvDaoEmpresa.getEmpresasByUser(usuario.email);
@@ -190,6 +278,11 @@ let ControlEmpresa = class CtrlCompany{
 
     }
 
+    /**
+     * Obtener lista de usuarios miembros de una empresa
+     * @param {Empresa} empresa
+     * @returns {Array} miembros
+     */
     static async getUsuariosByEmpresa(empresa){
 
         const usuariosJson = await SrvDaoEmpresa.getUsersByEmpresa(empresa.nif);
@@ -201,8 +294,12 @@ let ControlEmpresa = class CtrlCompany{
         return usuarios;
     }
     
-    //convert
 
+    /**
+     * Mapear objeto de la clase Empresa para enviarlo a base de datos o viceversa
+     * @param {Object} data 
+     * @returns {Object} data
+     */
     static convert(data){
 
         let empresa = null;

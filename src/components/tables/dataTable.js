@@ -12,6 +12,8 @@ import Switch from '@mui/material/Switch';
 import { useRouteMatch } from 'react-router-dom/cjs/react-router-dom.min';
 import RowEmpresa from './rowEmpresa';
 import RowGrupo from './rowGrupo';
+import RowTarea from './rowTarea';
+import { Typography } from '@mui/material';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -47,9 +49,10 @@ export default function DataTable(props) {
   
     const rows = props.rows;
     const handleDelete = props.handleDelete;
+    const handleDone = props.handleDone;
     const entidad = props.entidad;
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('calories');
+  const [orderBy, setOrderBy] = React.useState('');
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
@@ -80,10 +83,13 @@ export default function DataTable(props) {
 
           >
 
+                        
+
             <TableBody>
               {/* if you don't need to support IE11, you can replace the `stableSort` call with:
                  rows.slice().sort(getComparator(order, orderBy)) */}
-              {stableSort(rows, getComparator(order, orderBy))
+              {rows.length>0
+              ?stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
 
@@ -103,11 +109,17 @@ export default function DataTable(props) {
                             <RowEmpresa row={row} key={row.email} handleDelete={handleDelete}/>
                         );
                         break;
+                    case "tarea":
+                        return (
+                            <RowTarea row={row} handleDone={handleDone}/>
+                        );
+                        break;
                     
                 }
 
                   
-                })}
+                })
+              :<Typography align="center" margin={1}>Sin datos.</Typography>}
               {emptyRows > 0 && (
                 <TableRow
                 >

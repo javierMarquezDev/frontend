@@ -3,8 +3,6 @@ import { FormHelperText } from "@mui/material";
 const ErroresCampo = (props)=>{
 
     const errores = props.errores;
-
-    console.log(errores)
     
     let array = [];
 

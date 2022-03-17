@@ -1,11 +1,6 @@
 import { Link, useRouteMatch } from "react-router-dom";
 import TaskForm from "../forms/taskForm";
 import { useParams, Switch, Route } from "react-router-dom";
-import GroupForm from "../forms/groupForm";
-import TaskList from "../lists/taskList";
-import GroupUserList from "../lists/groupUserList";
-import CompanyUserList from '../lists/companyUserList';
-import UserForm from "../forms/userForm";
 import Typography from "@mui/material/Typography"
 import Box from "@mui/material/Box"
 import Stack from "@mui/material/Stack"
@@ -33,6 +28,7 @@ const TaskDetail = () => {
     const [tarea, setTarea] = useState(null)
     const [isPending,setIsPending] = useState(true);
     const [admin,setAdmin] = useState(false);
+    const [miembro,setMiembro] = useState(false)
 
     const value = React.useContext(UserContext);
     const usuario = value.usuario;
@@ -42,24 +38,37 @@ const TaskDetail = () => {
         const abortCont = new AbortController();
 
         setTimeout(()=>{
-            ControlTarea.getById(grupoempresa,grupocodigo,codigo)
+            ControlGrupo.isMember(usuario, {codigo:grupocodigo, empresa:{nif:grupoempresa}})
             .then(data=>{
-                if(data.atareado.email == usuario.email)
-                    {data.asignado = true;}
-                else{
-                    data.asignado = false;
+                if(data){
+                    setMiembro(true)
+
+                    ControlTarea.getById(grupoempresa,grupocodigo,codigo)
+                    .then(data=>{
+                        if(data.atareado.email == usuario.email)
+                            {data.asignado = true;}
+                        else{
+                            data.asignado = false;
+                        }
+
+                        setTarea(data);
+
+                        setIsPending(false)
+                    })
+
+                    ControlGrupo.getById({nif:grupoempresa},grupocodigo)
+                    .then(res => {
+                        if(res.administrador.email == usuario.email){
+                            setAdmin(true);
+                        }
+                        
+                    })
+
+                }else{
+                    return;
                 }
-
-                setTarea(data);
-                setIsPending(false)
-
-                ControlGrupo.getById({nif:grupoempresa},grupocodigo)
-                .then(res => {
-                    if(res.administrador.email == usuario.email){
-                        setAdmin(true);
-                    }
-                })
             })
+            
         }, 1000)
 
         return abortCont.abort();
@@ -69,18 +78,24 @@ const TaskDetail = () => {
 
     return ( <div>
         <Switch>
-            <Route exact path={`${match.path}`}>
-                <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Información de la tarea</Typography>
+            {(miembro)
+            ?
+                <Route exact path={`${match.path}`}>
+                    <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Información de la tarea</Typography>
 
-                
-                { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                {tarea && <InfoTarea tarea={tarea} match={match} grupocodigo={grupocodigo} grupoempresa={grupoempresa}/>}
-                
-            </Route>
-            <Route path={`${match.path}/editar`}>4
-                {(admin)
-                ?<TaskForm />
-                :<AccessDenied/>}
+                    { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                    {tarea && <InfoTarea tarea={tarea} match={match} grupocodigo={grupocodigo} grupoempresa={grupoempresa}/>}
+                    
+                </Route>
+            :""}
+            {(admin)
+            ?
+                <Route path={`${match.path}/editar`}>4
+                    <TaskForm />       
+                </Route>
+            :""}
+            <Route path="*">
+                <AccessDenied/>
             </Route>
         </Switch>
     </div> );

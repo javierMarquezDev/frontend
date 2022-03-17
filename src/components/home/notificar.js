@@ -1,10 +1,23 @@
+import { NotificationContext } from "../home/NotificationProvider";
+import {v4} from "uuid";
+import { useContext } from "react";
 
+const useNotificar = () =>{
 
-const notificar = (message) =>{
+  const dispatch = useContext(NotificationContext);
 
-    alert(message)
+  return (props)=>{
 
+    dispatch({
+      type: "ADD_NOTIFICATION",
+      payload: {
+        id: v4(),
+        ...props
+      }
+    })
+  }
+  
     
 }
 
-export default notificar;
+export default useNotificar;

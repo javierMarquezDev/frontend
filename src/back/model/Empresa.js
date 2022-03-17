@@ -1,13 +1,12 @@
 let Empresa = class Company{
 
-    constructor(nif = null, razonSocial = null, nombre = null, tipoVia = null, 
+    constructor(nif = null, razonSocial = null, nombre = null, 
                 nombreVia = null, numVia = null, codigoPuerta = null, localidad = null, 
                 provincia = null, grupoProyectos = []/*, usuarios = []*/){
 
         this.nif = nif
         this.razonSocial = razonSocial
         this.nombre = nombre
-        this.tipoVia = tipoVia
         this.nombreVia = nombreVia
         this.numVia = numVia
         this.codigoPuerta = codigoPuerta
@@ -19,10 +18,10 @@ let Empresa = class Company{
     }
 
     validator(nif = null, razonSocial = null, nombre = null, administrador = null,
-            tipoVia = null, nombreVia = null, numVia = null){
+            nombreVia = null, numVia = null){
 
             if(nif === null || razonSocial === null || nombre === null || administrador === null ||
-                tipoVia === null || nombreVia === null || numVia === null){
+                nombreVia === null || numVia === null){
                     return false;
             }
 

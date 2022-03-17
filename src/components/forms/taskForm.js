@@ -7,13 +7,15 @@ import InputTexto from "../form/InputTexto";
 import ControlTarea from "../../back/control/controlTarea"
 import {useParams} from 'react-router-dom';
 import ControlGrupo from "../../back/control/controlGrupoProyecto";
-import notificar from "../home/notificar";
+import useNotificar from "../home/notificar";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import ErroresCampo from "../form/ErroresCampo";
 import { UserContext } from "../../App";
 import AccessDenied from "../home/acessDenied";
 
-const TaskForm = () => {
+const TaskForm = (props) => {
+
+    const notificar = useNotificar();
 
     const {grupocodigo,grupoempresa,codigo} = useParams();
     const history = useHistory();
@@ -92,11 +94,13 @@ const TaskForm = () => {
         ControlTarea.edit(nuevaTarea)
         .then(data => {
             if(data.error != null){
-              notificar(data.message+" "+data.error.message)
+              notificar({type:"ERROR",message:data.message})
             }else
             if(data.message != null){
-              //history.go(0)
-              notificar(data.message)
+              
+              notificar({type:"SUCCESS",message:data.message})
+              props.setHasChanged(true);
+              history.push(`/grupos/${grupoempresa}/${grupocodigo}/tareas`)
             }
               console.log(data)
               setErrores(data);
@@ -105,11 +109,12 @@ const TaskForm = () => {
         ControlTarea.create(nuevaTarea)
         .then(data => {
             if(data.error != null){
-              notificar(data.message+" "+data.error.message)
+              notificar({type:"ERROR",message:data.message})
             }else
             if(data.message != null){
-              history.go(-2)
-              notificar(data.message)
+              notificar({type:"SUCCESS",message:data.message})
+              props.setHasChanged(true);
+              history.push(`/grupos/${grupoempresa}/${grupocodigo}/tareas`)
             }
               setErrores(data);
         })
@@ -123,14 +128,14 @@ const TaskForm = () => {
         <Typography variant="h5" sx={{marginTop:3, marginBottom:2}} align="left">Editar tarea {nombre || 'nueva'}</Typography>
         { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
         {tarea && 
-        ((usuarioIsAdmin)
-        ?<Box>
+        <Box>
         <InputTexto formalName="Nombre" 
                     required = {true}
                     id = "nombre"
                     property={nombre} 
                     setProperty={setNombre} 
                     errores={errores.nombre || null}
+                    sx={{margin:2}}
                     />
         <InputTexto formalName="Descripción" 
                     required = {true}
@@ -139,9 +144,10 @@ const TaskForm = () => {
                     setProperty={setDescripcion} 
                     errores={errores.descripcion || null}
                     multiline={true}
+                    sx={{margin:2}}
                     />
 
-            <Box>
+            <Box sx={{margin:2}}>
               <TextField
                 id="fechaHora"
                 label="Fecha límite"
@@ -167,7 +173,7 @@ const TaskForm = () => {
               { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
                     {usuarios && <Box display="flex">
               {(usuarios != null)?<Autocomplete
-              sx={{width:'20%'}}
+              sx={{width:'20%',margin:2}}
               options={usuarios}
               defaultValue={atareado || usuarios[0]}
               value={atareado}
@@ -182,8 +188,7 @@ const TaskForm = () => {
 
               <Button variant="contained" onClick={(e)=>handleSubmit(e)}>Publicar</Button>
 
-        </Box>
-        :<AccessDenied/>) }
+        </Box>}
         
         
     </Box>

@@ -12,12 +12,17 @@ import ControlGrupo from "../../back/control/controlGrupoProyecto";
 import TaskForm from "../forms/taskForm";
 import PersonIcon from "@mui/icons-material/Person";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
-import notificar from "../home/notificar";
 import ControlSesion from "../../back/control/controlSesion";
 import { UserContext } from "../../App";
+import AccessDenied from "../home/acessDenied";
+import useNotificar from "../home/notificar";
+import ModalCustom from "../home/modal";
 
 
 const TaskList = () => {
+    
+    const notificar = useNotificar();
+
     const history = useHistory();
     const {grupoempresa} = useParams();
     const {grupocodigo} = useParams();
@@ -32,6 +37,10 @@ const TaskList = () => {
     const [isPending, setIsPending] = useState(true);
     const [admin,setAdmin] = useState(false);
     const [miembros,setMiembros] = useState([]);
+    const [isMember, setIsMember] = useState(false);
+    const [hasChanged,setHasChanged] = useState(false);
+    const [openModal,setOpenModal] = useState(false);
+    const [eliminable,setEliminable] = useState(null);
 
     const handleCheck = tarea =>{
 
@@ -39,12 +48,14 @@ const TaskList = () => {
     
         ControlTarea.edit(tarea)
 
+        setHasChanged(true)
+
     }
 
     const handleDelete = tarea =>{
         ControlTarea.delete(tarea).then(data => {
-            notificar(data.message)
-            history.go(0)
+            notificar({type:"SUCCESS",message:data.message});
+            setHasChanged(true);
         })
     }
 
@@ -53,57 +64,92 @@ const TaskList = () => {
         const abortCont = new AbortController();
 
         setTimeout(()=>{
-        
-            ControlGrupo.getById({nif:grupoempresa},grupocodigo)
-            .then(res =>{
-                if(res.administrador.email === usuario.email){
-                    setAdmin(true);
 
-                    ControlGrupo.getUsuariosFromGrupo({empresa:{nif:grupoempresa},codigo:grupocodigo})
-                    .then(data =>{
-                        
-                        data.push({email:'Todas'});
-                        setMiembros(data);
+            ControlGrupo.isMember(usuario,{codigo:grupocodigo,empresa:{nif:grupoempresa}})
+                .then(data => {
 
+                    setIsMember(data);
 
-                    })
+                    console.log(data)
 
-                    if(userFilter.email === 'Todas'){
-                        ControlTarea.getFromGrupo(grupoempresa, grupocodigo)
-                        .then(data=>{
-                    
-                            setTareas(data);
-                            setIsPending(false);
-                        })
-                    }else{
-                        ControlTarea.getAllFromUsuarioAndGrupo(grupoempresa, grupocodigo, userFilter.email)
-                        .then(data=>{
-                    
-                            setTareas(data);
-                            setIsPending(false);
-                        })
-                    }
+                    if(data){
 
-                }else{
-                    ControlTarea.getAllFromUsuarioAndGrupo(grupoempresa, grupocodigo, usuario.email)
-                    .then(data=>{
+                        ControlGrupo.getById({nif:grupoempresa},grupocodigo)
+                        .then(res =>{
+
+                            ControlGrupo.isAdmin(res,usuario)
+                            .then(res=>{
+
+                                setAdmin(res.administrador);
                 
-                        setTareas(data);
-                        setIsPending(false);
-                    })
-                }
+                                console.log(res.administrador)
+
+                                if(res.administrador){
+
+                                    
+                
+                                    ControlGrupo.getUsuariosFromGrupo({empresa:{nif:grupoempresa},codigo:grupocodigo})
+                                    .then(data =>{
+                                        
+                                        data.push({email:'Todas'});
+                                        setMiembros(data);
+                
+                
+                                    })
+                
+                                    
+                
+                                }else{
+                                    ControlTarea.getAllFromUsuarioAndGrupo(grupoempresa, grupocodigo, usuario.email)
+                                    .then(data=>{
+                                
+                                        setTareas(data);
+                                        setIsPending(false);
+                                    })
+                                }
+
+                            
+
+                            })
+                        
+                        })
+
+                        if(userFilter.email === 'Todas'){
+                            ControlTarea.getFromGrupo(grupoempresa, grupocodigo)
+                            .then(data=>{
+                        
+                                setTareas(data);
+                                setIsPending(false);
+                            })
+                        }else{
+                            ControlTarea.getAllFromUsuarioAndGrupo(grupoempresa, grupocodigo, userFilter.email)
+                            .then(data=>{
+                        
+                                setTareas(data);
+                                setIsPending(false);
+                            })
+                        }
+
+                
+                        setHasChanged(false);
+            
+
+                    }else{return}
             
             })
         }, 1000)
 
         return abortCont.abort();
 
-    },[userFilter,grupocodigo,grupoempresa]);
+    },[userFilter,grupocodigo,grupoempresa,hasChanged]);
     
     return ( 
         <div>
             <Switch>
-            <Route exact path={match.path}>
+            {tareas && (isMember)
+            ?
+                <Route exact path={`${match.path}`}>
+                    { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
                 <Typography variant="h3" align="left">{`Tareas`}</Typography>
 
                 {(admin)? (miembros && <Box sx={{marginTop:1}}>
@@ -127,17 +173,40 @@ const TaskList = () => {
                 {(admin)?<Button variant="contained"><Link to={`${match.url}/crear`}>Crear tarea</Link></Button>:""}
 
                 { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                { tareas && <InfoTareas handleDelete={handleDelete} tareas={tareas} handleCheck={handleCheck} match={match} grupocodigo={grupocodigo} grupoempresa={grupoempresa} match={match}/> }
+                { tareas && <InfoTareas handleDelete={handleDelete} 
+                                        tareas={tareas} 
+                                        handleCheck={handleCheck} 
+                                        match={match} 
+                                        grupocodigo={grupocodigo} 
+                                        grupoempresa={grupoempresa} 
+                                        admin={admin}
+                                        setOpenModal={setOpenModal}
+                                        setEliminable={setEliminable}
+                                        /> }
+                {eliminable && <ModalCustom open={openModal} title="Eliminar" descripcion={`¿Eliminar tarea ${eliminable.nombre} ?`} action={()=>handleDelete(eliminable)}/>}
 
-            </Route> 
-            <Route exact path={`${match.path}/:codigo/editar`}>
-                <TaskForm/>
             </Route>
-            <Route exact path={`${match.path}/crear`}>
-                <TaskForm/>
+            :""} 
+            {(admin)
+                ?
+            <Route path={`${match.path}/crear`}>
+                <TaskForm setHasChanged={setHasChanged} />
             </Route>
-            <Route path={`${match.path}/:codigo`}>
+            :""} 
+            {(isMember)
+                ?
+            <Route exact path={`${match.path}/:codigo`}>
                 <TaskDetail/>
+            </Route>
+            :""} 
+            {(admin)
+            ?
+            <Route path={`${match.path}/:codigo/editar`}>
+                <TaskForm setHasChanged={setHasChanged}/>
+            </Route>
+            :""} 
+            <Route path="*">
+                <AccessDenied/>
             </Route>
             
             
@@ -172,7 +241,7 @@ const InfoTareas = props =>{
                                     <Link to={`${match.url}/${tarea.codigo}`}><Typography align="left" sx={{flexGrow:1, fontSize:12}}>Ver detalle</Typography></Link>
                                 </CardContent>
                                 <CardActions sx={{flexDirection:"row-reverse"}}>
-                                    <ActionsAdmin handleDelete={()=>handleDelete(tarea)} grupoempresa={grupoempresa} grupocodigo={grupocodigo} tarea={tarea} usuario={usuario} match={match}/>
+                                    {props.admin && <ActionsAdmin setEliminable={()=>props.setEliminable(tarea)} setOpenModal={()=>props.setOpenModal()} handleDelete={()=>handleDelete(tarea)} grupoempresa={grupoempresa} grupocodigo={grupocodigo} tarea={tarea} usuario={usuario} match={match}/>}
                                     {(tarea.atareado.email == usuario.email)?<Button variant="contained" onClick={()=>{handleCheck(tarea)}}>{(tarea.checked)?'NO HECHA':'HECHA'}</Button>:""}
                 
                                 </CardActions>
@@ -226,8 +295,8 @@ const ActionsAdmin = (props)=>{
 
         return(
             <Box>
-                {(grupo.admin)?<Button><Link to={`${match.url}/${tarea.codigo}/editar`}>EDITAR</Link></Button>:""}
-                {(grupo.admin)?<Button onClick={()=>{handleDelete(tarea)}}>ELIMINAR</Button>:""}
+                <Button><Link to={`${match.url}/${tarea.codigo}/editar`}>EDITAR</Link></Button>
+                <Button onClick={()=>handleDelete()}>ELIMINAR</Button>
             </Box>
             
         )

@@ -1,8 +1,7 @@
 import { Link, useRouteMatch } from "react-router-dom";
 import CompanyForm from "../forms/companyForm";
 import { useParams, Switch, Route } from "react-router-dom";
-import CompanyUserList from '../lists/companyUserList';
-import UserForm from "../forms/userForm";
+
 import Typography from "@mui/material/Typography"
 import Box from "@mui/material/Box"
 import Stack from "@mui/material/Stack"
@@ -21,7 +20,7 @@ import AccessDenied from "../home/acessDenied";
 
 const handleDelete = (usuario)=>{}
 
-const CompanyDetail = () => {
+const CompanyDetail = (props) => {
 
     const value = React.useContext(UserContext);
     const usuario = value.usuario;
@@ -33,6 +32,7 @@ const CompanyDetail = () => {
     const [isPending, setIsPending] = useState(true);
     const [usuarios, setUsuarios] = useState(null);
     const [member,setMember] = useState(false);
+    const [admin,setAdmin] = useState(false);
 
     useEffect(()=>{
 
@@ -54,8 +54,7 @@ const CompanyDetail = () => {
                         })
 
                         ControlEmpresa.isAdmin({nif:idempresa},usuario).then((res)=>{
-                            (res)?data.admin = true:data.admin = false;
-                            setEmpresa(data);
+                            setAdmin(res);
                             setIsPending(false)
                         })
 
@@ -71,22 +70,26 @@ const CompanyDetail = () => {
     }, [idempresa])
 
     return ( <div>
-        {(member)
-        ?<Switch>
+        <Switch>
+            {(member)
+            ?
             <Route exact path={`${match.path}`}>
                 { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                { empresa && <CompanyInfo empresa={empresa} usuarios={usuarios} isPending={isPending} match={match}/>}
+                { empresa && <CompanyInfo empresa={empresa} usuarios={usuarios} isPending={isPending} match={match} admin={admin}/>}
             </Route>
+            :""}
+            {(admin)
+            ?
             <Route path={`${match.path}/editar`}>
-                {empresa && (empresa.admin)
-                ?<CompanyForm />
-                :<AccessDenied/>}
+                <CompanyForm setHasChanged={props.setHasChanged} />
             </Route>
-            <Route path={`${match.path}/usuarios`}>
-                <CompanyUserList empresa={empresa} />
+            :""}
+            <Route path="*">
+                <AccessDenied/>
             </Route>
+            
         </Switch>
-        :<AccessDenied/>}
+        
     </div> );
 }
 
@@ -99,7 +102,7 @@ const ListaUsuarios = (props)=>{
 
         <Box id="usuarios" margin={1} padding={1}>
             <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Miembros</Typography>
-            <Link to={`${match.url}/usuarios`} align="left"><Typography sx={{color:"text.primary", textDecoration:"none"}}>Ver miembros</Typography> </Link>
+            {/*<Link to={`${match.url}/usuarios`} align="left"><Typography sx={{color:"text.primary", textDecoration:"none"}}>Ver miembros</Typography> </Link>*/}
             <List spacing={2} sx={{height:300, overflowY:"scroll"}}>
                 {usuarios.map(usuario=>{
                     return(
@@ -140,13 +143,16 @@ const CompanyInfo = (props) =>{
     const usuarios = props.usuarios;
     const isPending = props.isPending;
     const match = props.match
+    const admin = props.admin;
+
+    console.log("admin",admin)
 
     return(
 
         <Box>
             <Typography variant="h4" marginTop={4} marginBottom={2} align="left">Información de {empresa.nombre}</Typography>
 
-            {(empresa.admin?<BotonesEditable match={match} handleDelete={handleDelete} empresa={empresa}/>:null)}
+            {(admin?<BotonesEditable match={match} handleDelete={handleDelete} empresa={empresa}/>:null)}
 
             <Grid container spacing={2} marginTop={2}>
 
@@ -181,7 +187,7 @@ const CompanyInfo = (props) =>{
                     <Box id="direccion" margin={1} padding={1}>
                         <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Dirección postal</Typography>
                         <Box display="flex" sx={{flexDirection:"row"}} align="left">
-                            <Typography id="tipovia" align="left">{empresa.tipoVia}</Typography>&nbsp;
+                
                             <Typography id="nombrevia" align="left">{empresa.nombreVia}</Typography>&nbsp;
                             <Typography id="numvia" align="left">{empresa.numVia}</Typography>&nbsp;
                             <Typography id="codigopuerta" align="left">{empresa.codigoPuerta}</Typography>&nbsp;
