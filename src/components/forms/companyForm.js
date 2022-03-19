@@ -18,7 +18,6 @@ import Empresa from "../../back/model/Empresa";
 import Grid from "@mui/material/Grid"
 import InputUsuario from "../form/InputUsuario";
 import InputTexto from "../form/InputTexto";
-import TiposVia from "../../back/model/TiposVia";
 import { useParams, Switch, Route } from "react-router-dom";
 import ControlEmpresa from "../../back/control/controlEmpresa";
 import { useHistory } from "react-router-dom";
@@ -38,7 +37,6 @@ const CompanyForm = (props) => {
   const token = value.token;
 
   const {idempresa} = useParams() || '';
-  const tiposVia = TiposVia;
   const history = useHistory();
 
   const [errores,setErrores] = useState({});
