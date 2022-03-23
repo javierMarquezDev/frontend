@@ -4,7 +4,6 @@ import Tarea from "../model/Tarea";
 import GrupoProyecto from "../model/GrupoProyecto";
 import Empresa from "../model/Empresa";
 import Noticia from "../model/Noticia";
-import Notificacion from "../model/Notificacion";
 import Sesion from "../model/Sesion";
 
 
@@ -102,7 +101,9 @@ let Mapper = class mapper{
         grupoJson.empresa = (grupo.empresa != null)?grupo.empresa.nif:null;
         grupoJson.nombre = grupo.nombre;
         grupoJson.descripcion= grupo.descripcion;
-        grupoJson.fechahora = grupo.fechaHora.toISOString();
+        try{ grupoJson.fechahora =  grupo.fechaHora.toISOString()}catch(e){
+            delete grupoJson.fechahora
+        }
         grupoJson.finalizado = grupo.finalizado;
         grupoJson.administrador = (grupo.administrador != null)?grupo.administrador.email:null;
 
@@ -112,11 +113,21 @@ let Mapper = class mapper{
 
     static jsonToGrupoProyecto(grupoJson){
 
-        return new GrupoProyecto(
+        let grupo = null
+
+        try
+        {grupo = new GrupoProyecto(
             grupoJson.codigo, 
             {nif:grupoJson.empresa}, grupoJson.nombre, grupoJson.descripcion,
             {email:grupoJson.administrador}, this.parseISOString(grupoJson.fechahora), grupoJson.finalizado
-        )
+        )}
+        catch(e){
+            grupo = new GrupoProyecto(grupoJson.codigo, 
+            {nif:grupoJson.empresa}, grupoJson.nombre, grupoJson.descripcion,
+            {email:grupoJson.administrador}, null, grupoJson.finalizado)
+        }
+
+        return grupo;
 
     }
 
@@ -147,25 +158,6 @@ let Mapper = class mapper{
             str.texto, this.parseISOString(str.fechahora) , 
             [str.imagen1 && null, str.imagen2  && null, 
             str.imagen3  && null, str.imagen4 && null]
-        )
-    }
-
-    static notificacionToJson(notificacion = new Notificacion()){
-
-        let notiJson = {};
-
-        notiJson.codigo = notificacion.codigo;
-        notiJson.nombre = notificacion.nombre;
-        notiJson.descripcion = notificacion.descripcion;
-        notiJson.link = notificacion.link;
-
-        return notiJson;
-    }
-
-    static jsonToNotificacion(str){
-        return new Notificacion(
-            str.codigo, str.nombre, str.descripcion,
-            str.link
         )
     }
 

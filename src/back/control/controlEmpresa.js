@@ -202,9 +202,9 @@ let ControlEmpresa = class CtrlCompany{
 
         let resultado = [];
 
-        empresasArray.forEach(element => {
+        empresasArray.forEach(async element => {
 
-            const empresa = ControlEmpresa.getById(element.nif)
+            let empresa = await ControlEmpresa.getById(element.nif)
             .then(data => {
                 return data;
             })

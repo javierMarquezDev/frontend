@@ -279,8 +279,6 @@ let srvDaoGrupoProyecto = class groupProject{
 
     static async edit(grupoJson){
 
-        console.log(grupoJson)
-
         return await fetch(
             connectionStr+grupoJson.empresa+"/"+grupoJson.codigo,
             {

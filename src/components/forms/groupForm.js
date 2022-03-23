@@ -43,8 +43,6 @@ const GroupForm = (props) => {
     const usuario = value.usuario;
     const token = value.token;
 
-    console.log(value)
-
     const [codigo,setCodigo] = useState('')
     const [empresas,setEmpresas] = useState([])
     const [errores,setErrores] = useState({});
@@ -85,7 +83,7 @@ const GroupForm = (props) => {
                     setCodigo(data.codigo)
                     setNombre(data.nombre);
                     setDescripcion(data.descripcion);
-                    setFechaHora(data.fechaHora);
+                    if(data.fechaHora) setFechaHora(data.fechaHora);
                     setFinalizado(data.finalizado);
                     setEmpresa(data.empresa);
 
@@ -142,6 +140,10 @@ const GroupForm = (props) => {
         return abortCont.abort();
     },[])
 
+
+    /**
+     * Crear o editar
+     */
     const handleSubmit = (e) =>{
 
         console.log(fechaHora)
@@ -154,7 +156,8 @@ const GroupForm = (props) => {
             
             console.log(nuevoGrupo)            
 
-            if(admins.length > 0){ControlGrupo.edit(nuevoGrupo)
+            if(admins.length > 0){
+            ControlGrupo.edit(nuevoGrupo)
             .then(data => {
                 if(data.error != null){
                     notificar({type:"ERROR",message:data.message})
@@ -221,6 +224,7 @@ const GroupForm = (props) => {
             })
             }else{
                 setErrores({administrador:{empty:"Debe introducirse un administrador."}})
+                notificar({type:"ERROR",message:'Debe introducirse un administrador.'})
             }
         }
 
@@ -303,35 +307,6 @@ const GroupForm = (props) => {
                                     
                             </Box>
 
-
-                            <Box margin={2}>
-                                <Typography for="administrador" color="text.secondary" align="left" >Administradores</Typography>
-
-                                { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                                {usuarios && <InputUsuarioEmpresa 
-                                                    opciones={usuarios}
-                                                    errores={errores.administrador||null} 
-                                                    usuarios={admins}
-                                                    setUsuarios={setAdmins}/>}
-                                {/*<Box display="flex">
-                                    {(usuarios)?<Autocomplete
-                                    options={usuarios}
-                                    defaultValue={administrador}
-                                    value={administrador}
-                                    onChange={(e,value)=>setAdministrador(value)}
-                                    getOptionLabel={option => option.email}
-                                    sx={{width:'30%'}}
-                                    id="administrador"
-                                
-                                    renderInput={(params) => (
-                                        <TextField {...params} label="Miembros" variant="standard" />
-                                        )}
-                                    />:null}
-                                    <ErroresCampo errores={(errores != null)?errores.administrador:null}/>
-                                    </Box>*/}
-
-                            </Box>
-
                         {(!grupoempresa)?<Box margin={2}>
                             <Typography for="empresa" color="text.secondary" align="left">Empresa</Typography>
 
@@ -360,6 +335,19 @@ const GroupForm = (props) => {
                                                     errores={errores.usuarios||null} 
                                                     usuarios={usuarios}
                                                     setUsuarios={setUsuarios}/>}
+
+                            
+                            <Box margin={2}>
+                                {(usuarios && empresa) && <Typography for="administrador" color="text.secondary" align="left" >Administradores</Typography>}
+
+                                { isPending &&  <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
+                                {(usuarios && empresa) && <InputUsuarioEmpresa 
+                                                    opciones={usuarios}
+                                                    errores={errores.administrador||null} 
+                                                    usuarios={admins}
+                                                    setUsuarios={setAdmins}/>}
+
+                            </Box>
                         </Box>
                         </Box>
                         }

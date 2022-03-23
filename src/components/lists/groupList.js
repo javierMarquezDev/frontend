@@ -41,6 +41,7 @@ const GroupList = () => {
         ControlGrupo.delete({empresa:{nif:grupoempresa}, codigo:grupocodigo})
         .then(data => {
             notificar({type:"SUCCESS",message:data.message})
+            setHasChanged(true)
         })
 
     }
@@ -48,6 +49,8 @@ const GroupList = () => {
     useEffect(()=>{
 
         const abortCont = new AbortController();
+
+        
 
         setTimeout(()=>{
             ControlGrupo.getFromUsuario(usuario.email)
@@ -79,7 +82,7 @@ const GroupList = () => {
 
         return abortCont.abort();
 
-    },[usuario,setHasChanged,filterNombre,filterEmpresa])
+    },[usuario,hasChanged,filterNombre,filterEmpresa])
 
     return ( 
         <div>
@@ -115,6 +118,7 @@ const GroupList = () => {
                                     setProperty={setFilterNombre} 
                                     errores={null}
                                     sx={{margin:2,width:'50%'}} />
+
                         </Box> 
 
                         
@@ -127,7 +131,7 @@ const GroupList = () => {
                     <GroupForm setHasChanged={setHasChanged} />
                 </Route>
                 <Route path={`${match.path}/:grupoempresa/:grupocodigo`}>
-                    <GroupDetail />
+                    <GroupDetail setHasChanged={setHasChanged}/>
                 </Route>
                 
                 <Route path = "*">

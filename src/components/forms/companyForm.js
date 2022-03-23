@@ -111,7 +111,9 @@ const CompanyForm = (props) => {
 
   },[])
 
-  
+  /**
+   * Crear o editar
+   */
   const handleCreate = (e) =>{
 
     const nuevaEmpresa = new Empresa(nif, razonSocial, nombre,
@@ -164,9 +166,7 @@ const CompanyForm = (props) => {
 
       if(admins.length>0){ControlEmpresa.create(nuevaEmpresa)
       .then(data =>{
-        if(data.error != null){
-          notificar({type:"ERROR",message:data.message})
-        }else if(data.message != null){
+        if(data.message != null){
           notificar({type:"SUCCESS",message:data.message})
 
           ControlEmpresa.addUsuariosBulk(data.empresa,usuarios,admins)
@@ -177,7 +177,7 @@ const CompanyForm = (props) => {
               notificar({type:"ERROR",message:res.administrador})
               setErrores(data);
             }else{
-              notificar({type:"SUCCESS",message:data.message})
+              notificar({type:"SUCCESS",message:res.message})
             }
 
             
@@ -190,10 +190,12 @@ const CompanyForm = (props) => {
 
           
         }
-          console.log(data)
           setErrores(data);
+          if(data.message == null && data.error == null)
+            notificar({type:"ERROR",message:'Información no válida'})
       })}else{
         setErrores({administrador:{empty:"Debe introducirse un administrador."}})
+        notificar({type:"ERROR",message:'Debe introducirse un administrador.'})
       }
     }
 

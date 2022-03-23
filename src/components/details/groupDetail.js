@@ -18,8 +18,10 @@ import ControlSesion from "../../back/control/controlSesion";
 import { UserContext } from "../../App";
 import AccessDenied from "../home/acessDenied";
 import NewsList from "../lists/newsList";
+import useNotificar from "../home/notificar";
+import { useHistory } from "react-router-dom";
+import { DataArray } from "@mui/icons-material";
 
-const handleDelete = (grupo) => {}
 
 const GroupDetail = (props) => {
     const {grupocodigo} = useParams();
@@ -35,6 +37,24 @@ const GroupDetail = (props) => {
     const value = React.useContext(UserContext);
     const usuario = value.usuario;
     const token = value.token;
+
+    const notificar = useNotificar();
+    const history = useHistory();
+
+    const handleDelete = (grupo) => {
+        ControlGrupo.delete(grupo)
+        .then(data => {
+            if(data.error){
+                notificar({type:'ERROR',message:'Error al eliminar el grupo'})
+            }else{
+                notificar({type:'SUCCESS',message:'Exito eliminando el grupo'})
+                history.push('/grupos');
+                props.setHasChanged(true)
+            }
+            
+            
+        })
+    }
 
     useEffect(()=>{
 
@@ -81,7 +101,7 @@ const GroupDetail = (props) => {
                     <Route exact path={`${match.path}`}>
                         
                     { isPending && <Typography variant="h6" sx={{color:"text.secondary"}}>Cargando...</Typography> }
-                    {grupo && <InfoGrupo grupo={grupo} match={match} admin={admin}/>}
+                    {grupo && <InfoGrupo grupo={grupo} match={match} admin={admin} handleDelete = {handleDelete} />}
                     
                     </Route>
                 :""}
@@ -123,7 +143,7 @@ const BotonesEditable = (props)=>{
             <Button variant="outlined">
                 <Link to={`${match.url}/editar`} sx={{margin:1}} sx={{textDecoration:"none",color:"text.primary"}}>
                 Editar</Link></Button>
-            <Button onClick={()=>{handleDelete(grupo)}} variant="contained" sx={{margin:1}}>Eliminar</Button>
+            <Button onClick={()=>{props.handleDelete(grupo)}} variant="contained" sx={{margin:1}}>Eliminar</Button>
         </Box>
     )
 }
@@ -184,7 +204,7 @@ const InfoGrupo = (props)=>{
             <Link to={`/grupos/${grupo.empresa.nif}/${grupo.codigo}/noticias`}><Button variant="contained">Feed</Button></Link>
         </Box>
 
-        {(admin?<BotonesEditable match={match} handleDelete={handleDelete} grupo={grupo}/>:null)}
+        {(admin?<BotonesEditable match={match} handleDelete={props.handleDelete} grupo={grupo}/>:null)}
 
         <Grid container spacing={2} marginTop={2}>
                 <Grid item xs={4} sx={{padding:1}}>
@@ -209,9 +229,13 @@ const InfoGrupo = (props)=>{
                     <Box id="fechahora" margin={1} padding={1}>
                         <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Fecha límite</Typography>
                         <Box display="flex">
-                            <Typography id="fechaHora"  align="left">{grupo.fechaHora.getFullYear()+"-"+(parseInt(grupo.fechaHora.getMonth())+1)+
-                                    "-"+grupo.fechaHora.getDate()/*+` `+grupo.fechaHora.getHours().toString().padStart(2,'0')+":"
-                                    +grupo.fechaHora.getMinutes().toString().padStart(2,'0')+"h"*/}</Typography>
+                            <Typography id="fechaHora"  align="left">
+                                {grupo.fechaHora
+                                ?grupo.fechaHora.getFullYear()+"-"+(parseInt(grupo.fechaHora.getMonth())+1)+
+                                    "-"+grupo.fechaHora.getDate()
+                                :'Sin fecha límite.'}
+                                    
+                            </Typography>
                         </Box>
                     </Box>
                 </Grid>
@@ -224,23 +248,6 @@ const InfoGrupo = (props)=>{
                         </Box>
                     </Box>
                 </Grid>
-
-                {/*<Grid item xs={4} sx={{padding:1}}>
-                    <Box id="administrador" margin={1} padding={1}>
-                        <Typography sx={{fontSize:12, color:"text.secondary"}} align="left">Administrador</Typography>
-                        <Box display="flex">
-                            <Card id="administrador">
-                                {(administrador.email)?<InfoAdmin admin={administrador}/>:<Typography sx={{fontSize:12}} align="left">Sin información</Typography>}
-                            </Card>
-                        </Box>
-                    </Box>
-                </Grid>*/}
-
-                {/*<Grid item xs={6} sx={{padding:1}}>
-                    <Box id="administrador" margin={1} padding={1} display="flex">
-                        <Link to={`${match.url}/usuarios`}><Button variant="contained">Miembros</Button></Link>
-                    </Box>
-            </Grid>*/}
 
                 <Grid item xs={6} sx={{padding:1}}>
                     <Box id="administrador" margin={1} padding={1} display="flex">

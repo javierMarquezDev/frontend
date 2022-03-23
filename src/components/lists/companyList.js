@@ -60,6 +60,7 @@ const CompanyList = () => {
         ControlEmpresa.delete(idempresa)
         .then(data => {
             notificar({type:"SUCCESS",message:data.message})
+            setHasChanged(true)
         })
 
     }

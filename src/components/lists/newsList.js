@@ -18,7 +18,6 @@ const NewsList = (props) => {
     const {grupocodigo} = useParams();
     const {grupoempresa} = useParams();
     const match = useRouteMatch();
-    const grupo = props.grupo;
     const history = useHistory();
 
     const value = React.useContext(UserContext);
@@ -28,6 +27,7 @@ const NewsList = (props) => {
     const [noticias,setNoticias] = useState(null);
     const [isPending, setIsPending] = useState(true);
     const [isMember, setIsMember] = useState(false);
+    const [grupo,setGrupo] = useState(null);
     const [hasChanged,setHasChanged] = useState(false);
 
 
@@ -51,6 +51,12 @@ const NewsList = (props) => {
                         setHasChanged(false);
                         
                     })
+
+                    ControlGrupo.getById({nif:grupoempresa},grupocodigo)
+                    .then(res => {
+                        setGrupo(res);
+                    })
+
                 }else{return}
 
             })
@@ -76,7 +82,7 @@ const NewsList = (props) => {
             <Switch>
             {(isMember)?
             <Route exact path={match.path}>
-                <Typography variant="h3" align="left">{`Feed del grupo`}</Typography>
+                {grupo && <Typography variant="h3" align="left">{`Feed del grupo "${grupo.nombre}"`}</Typography>}
                 <Typography align="left" marginTop={1} marginBottom={2}>
 
                     <Link to={`/grupos/${grupoempresa}/${grupocodigo}`} color="text.secondary" style={{textDecoration:"none"}}>
